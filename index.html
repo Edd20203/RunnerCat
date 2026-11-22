@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>RunnerCat — Retro Pixel Runner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="arcade-shell">
+    <!-- Top Header Bar -->
+    <header class="top-bar">
+      <div class="brand">
+        <span class="brand-badge">8-BIT</span>
+        <h1>RUNNER<span>CAT</span></h1>
+      </div>
+      <div class="top-actions">
+        <div class="global-hi" title="Mejor puntaje global">
+          HI <span id="global-hi-score">00000</span>
+        </div>
+        <button id="btn-sound" class="icon-btn" title="Activar/Desactivar sonido" aria-label="Sonido">
+          🔊 SFX
+        </button>
+        <button id="btn-pause" class="icon-btn hidden" title="Pausar (P / Esc)" aria-label="Pausa">
+          ⏸ PAUSA
+        </button>
+        <button id="btn-menu-top" class="icon-btn hidden" title="Volver al menú">
+          🏠 MENÚ
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Game Stage -->
+    <main class="stage-wrapper">
+      <canvas id="game-canvas" width="960" height="360"></canvas>
+
+      <!-- Live HUD Overlay (visible during gameplay) -->
+      <div id="hud" class="hud hidden">
+        <div class="hud-left">
+          <div class="hud-level-pill" id="hud-level-name">NIVEL 1: CALLEJÓN</div>
+          <div class="meters">
+            <div class="meter-row" title="Mantén SHIFT o ← para ralentizar el tiempo">
+              <span class="meter-label">⏱ LENTO</span>
+              <div class="meter-track">
+                <div id="meter-slow" class="meter-fill meter-slow" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="meter-row" title="Presiona X, J o → para arañar enemigos">
+              <span class="meter-label">🐾 ZARPA</span>
+              <div class="meter-track">
+                <div id="meter-claw" class="meter-fill meter-claw" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+          <div id="active-powerups" class="powerup-badges"></div>
+        </div>
+
+        <div class="hud-center">
+          <div id="level-progress-wrap" class="progress-wrap">
+            <div class="progress-label">
+              <span id="hud-goal-label">META</span>
+              <span id="hud-goal-text">0 / 600 m</span>
+            </div>
+            <div class="progress-track">
+              <div id="hud-goal-bar" class="progress-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hud-right">
+          <div class="score-main">
+            <span class="score-tag">SCORE</span>
+            <span id="hud-score">00000</span>
+          </div>
+          <div class="score-sub-row">
+            <span title="Distancia recorrida">📏 <strong id="hud-dist">0</strong>m</span>
+            <span title="Pescaditos recogidos">🐟 <strong id="hud-fish">0</strong></span>
+            <span title="Enemigos arañados">💥 <strong id="hud-kills">0</strong></span>
+          </div>
+          <div class="score-hi-row">
+            HI <span id="hud-level-hi">00000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Selection Menu Overlay -->
+      <section id="screen-menu" class="overlay-screen">
+        <div class="menu-card">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">PIXEL RUNNER ARCADE</p>
+              <h2>SELECCIONA TU NIVEL Y GATO</h2>
+            </div>
+            <button id="btn-help" class="pixel-btn btn-secondary btn-sm">❓ CONTROLES</button>
+          </div>
+
+          <!-- Level Selection Grid -->
+          <div class="section-label">1. ELIGE EL ESCENARIO</div>
+          <div id="level-grid" class="level-grid">
+            <!-- Populated by ui.js -->
+          </div>
+
+          <!-- Cat Skin Selector + Play Button -->
+          <div class="menu-bottom-row">
+            <div class="cat-selector-wrap">
+              <div class="section-label">2. ELIGE TU GATO</div>
+              <div id="cat-grid" class="cat-grid">
+                <!-- Populated by ui.js -->
+              </div>
+            </div>
+
+            <div class="play-cta-wrap">
+              <div id="selected-level-summary" class="level-summary-box"></div>
+              <button id="btn-play" class="pixel-btn btn-primary btn-lg">
+                ▶ JUGAR AHORA
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Controls / Help Modal Overlay -->
+      <section id="screen-help" class="overlay-screen hidden">
+        <div class="modal-card">
+          <h2>🎮 CONTROLES Y PODERES</h2>
+          <div class="controls-grid">
+            <div class="control-item">
+              <kbd>ESPACIO</kbd> / <kbd>↑</kbd> / <kbd>W</kbd>
+              <span>Saltar (x2), <strong>Nadar arriba</strong> (N3) o <strong>Subir avión / Disparar</strong> (N4)</span>
+            </div>
+            <div class="control-item">
+              <kbd>↓</kbd> / <kbd>S</kbd>
+              <span><strong>Agacharse</strong>, <strong>Sumergirse</strong> (N3) o <strong>Bajar avión</strong> (N4)</span>
+            </div>
+            <div class="control-item">
+              <kbd>X</kbd> / <kbd>J</kbd> / <kbd>→</kbd> / <kbd>D</kbd>
+              <span><strong>Zarpazo / Romper Muros / Disparar / Golpear Jefe</strong></span>
+            </div>
+            <div class="control-item">
+              <kbd>SHIFT</kbd> / <kbd>←</kbd> / <kbd>A</kbd>
+              <span><strong>Ralentizar velocidad</strong> (mantener): activa cámara lenta consumiendo energía</span>
+            </div>
+            <div class="control-item">
+              <kbd>P</kbd> / <kbd>ESC</kbd>
+              <span>Pausar / Reanudar partida</span>
+            </div>
+          </div>
+
+          <div class="powerups-legend">
+            <h3>✨ OBJETOS Y POWER-UPS</h3>
+            <div class="legend-row">
+              <span>🐟 <strong>Pescadito:</strong> +25 pts y recarga energía de ralentización</span>
+              <span>⭐ <strong>Pez Dorado:</strong> +75 pts y gran recarga de energía</span>
+              <span>🧶 <strong>Ovillo Escudo:</strong> absorbe 1 golpe enemigo</span>
+              <span>🧲 <strong>Imán:</strong> atrae pescaditos automáticamente</span>
+              <span>🥛 <strong>Leche Felina:</strong> rellena toda tu energía + inmunidad breve</span>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="btn-close-help" class="pixel-btn btn-primary">¡ENTENDIDO!</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pause Overlay -->
+      <section id="screen-pause" class="overlay-screen hidden">
+        <div class="modal-card modal-compact">
+          <h2>⏸ JUEGO EN PAUSA</h2>
+          <p class="modal-subtitle">Toma un respiro, gatito.</p>
+          <div class="modal-actions">
+            <button id="btn-resume" class="pixel-btn btn-primary">▶ CONTINUAR</button>
+            <button id="btn-restart-pause" class="pixel-btn btn-secondary">↻ REINICIAR</button>
+            <button id="btn-quit-pause" class="pixel-btn btn-ghost">🏠 MENÚ</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Game Over / Level Clear Overlay -->
+      <section id="screen-result" class="overlay-screen hidden">
+        <div class="modal-card modal-result">
+          <p id="result-badge" class="result-badge">FIN DE LA CARRERA</p>
+          <h2 id="result-title">¡GAME OVER!</h2>
+          <p id="result-subtitle" class="modal-subtitle"></p>
+
+          <div id="new-record-banner" class="new-record hidden">🏆 ¡NUEVO RÉCORD! 🏆</div>
+
+          <div class="stats-breakdown">
+            <div class="stat-box">
+              <span class="stat-label">📏 DISTANCIA</span>
+              <strong id="res-dist">0 m</strong>
+              <small id="res-dist-pts">+0 pts</small>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">🐟 OBJETOS</span>
+              <strong id="res-fish">0</strong>
+              <small id="res-fish-pts">+0 pts</small>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">🐾 ARAÑADOS</span>
+              <strong id="res-kills">0</strong>
+              <small id="res-kills-pts">+0 pts</small>
+            </div>
+            <div class="stat-box stat-total">
+              <span class="stat-label">⭐ TOTAL</span>
+              <strong id="res-total">0</strong>
+              <small id="res-hi">HI: 0</small>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="btn-next-level" class="pixel-btn btn-accent hidden">⏭ SIGUIENTE NIVEL</button>
+            <button id="btn-retry" class="pixel-btn btn-primary">↻ JUGAR OTRA VEZ</button>
+            <button id="btn-result-menu" class="pixel-btn btn-secondary">🏠 MENÚ</button>
+          </div>
+          <p class="quick-hint">Tip: Presiona <kbd>ESPACIO</kbd> o <kbd>R</kbd> para reiniciar rápido</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Control Strip & Touch Controls -->
+    <footer class="bottom-bar">
+      <div class="desktop-hints">
+        <span><kbd>ESPACIO</kbd>/<kbd>↑</kbd> Saltar (x2)</span>
+        <span><kbd>↓</kbd> Agacharse</span>
+        <span><kbd>X</kbd>/<kbd>→</kbd> Arañar</span>
+        <span><kbd>SHIFT</kbd>/<kbd>←</kbd> Ralentizar</span>
+        <span><kbd>P</kbd> Pausa</span>
+      </div>
+      <div class="touch-controls" id="touch-controls">
+        <button id="touch-slow" class="touch-btn touch-slow">⏱ LENTO</button>
+        <button id="touch-duck" class="touch-btn touch-duck">⬇ AGACHAR</button>
+        <button id="touch-claw" class="touch-btn touch-claw">🐾 ARAÑAR</button>
+        <button id="touch-jump" class="touch-btn touch-jump">⬆ SALTAR</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Scripts in clean dependency order (works both via file:// and HTTP) -->
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/audio.js"></script>
+  <script defer src="js/levels.js"></script>
+  <script defer src="js/sprites.js"></script>
+  <script defer src="js/game.js"></script>
+  <script defer src="js/ui.js"></script>
+</body>
+</html>
