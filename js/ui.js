@@ -17,18 +17,45 @@
 
     // Screens & HUD
     const hud = document.getElementById("hud");
+    const screenTitle = document.getElementById("screen-title");
+    const screenMode = document.getElementById("screen-mode");
     const screenMenu = document.getElementById("screen-menu");
+    const screenCats = document.getElementById("screen-cats");
+    const screenControls = document.getElementById("screen-controls");
     const screenHelp = document.getElementById("screen-help");
     const screenPause = document.getElementById("screen-pause");
     const screenResult = document.getElementById("screen-result");
 
-    // Menu elements
-    const storyGrid = document.getElementById("story-grid");
-    const endlessGrid = document.getElementById("endless-grid");
+    // Title & Mode elements
+    const btnEnter = document.getElementById("btn-enter");
+    const btnOpenCats = document.getElementById("btn-open-cats");
+    const btnOpenControls = document.getElementById("btn-open-controls");
+    const btnBackTitle = document.getElementById("btn-back-title");
+    const btnModeStory = document.getElementById("btn-mode-story");
+    const btnModeArcade = document.getElementById("btn-mode-arcade");
+    const btnModeCats = document.getElementById("btn-mode-cats");
+    const btnModeControls = document.getElementById("btn-mode-controls");
+    const lblCurCat = document.getElementById("lbl-cur-cat");
+    const lblCurCtrl = document.getElementById("lbl-cur-ctrl");
+
+    // Level & Cat & Controls modal elements
+    const levelsEyebrow = document.getElementById("levels-eyebrow");
+    const levelsTitle = document.getElementById("levels-title");
+    const levelGrid = document.getElementById("level-grid");
     const catGrid = document.getElementById("cat-grid");
+    const catSelectedDesc = document.getElementById("cat-selected-desc");
     const levelSummaryBox = document.getElementById("selected-level-summary");
     const btnPlay = document.getElementById("btn-play");
     const btnDevUnlock = document.getElementById("btn-dev-unlock");
+    const btnBackMode = document.getElementById("btn-back-mode");
+    const btnCloseCats = document.getElementById("btn-close-cats");
+    const btnCloseControls = document.getElementById("btn-close-controls");
+    const btnCtrlButtons = document.getElementById("btn-ctrl-buttons");
+    const btnCtrlGestures = document.getElementById("btn-ctrl-gestures");
+    const btnStartDemo = document.getElementById("btn-start-demo");
+    const btnSaveControls = document.getElementById("btn-save-controls");
+    const demoBanner = document.getElementById("demo-banner");
+    const btnExitDemo = document.getElementById("btn-exit-demo");
     const btnHelp = document.getElementById("btn-help");
     const btnCloseHelp = document.getElementById("btn-close-help");
 
@@ -69,21 +96,38 @@
     const hudGoalText = document.getElementById("hud-goal-text");
     const hudGoalBar = document.getElementById("hud-goal-bar");
 
-    // Touch controls
+    // Touch & Gesture controls
+    const touchControlsBar = document.getElementById("touch-controls");
     const touchSlow = document.getElementById("touch-slow");
     const touchDuck = document.getElementById("touch-duck");
     const touchClaw = document.getElementById("touch-claw");
     const touchJump = document.getElementById("touch-jump");
+    const gestureControls = document.getElementById("gesture-controls");
+    const gestureLeftZone = document.getElementById("gesture-left-zone");
+    const gestureSlowBtn = document.getElementById("gesture-slow-btn");
+    const gestureFireBtn = document.getElementById("gesture-fire-btn");
 
+    let activeCategory = "story"; // "story" | "endless"
+    let returnScreen = "title"; // "title" | "mode"
     let selectedLevelId = RC.Storage.getState().selectedLevel;
     if (
       !RC.Levels.LIST.some((l) => l.id === selectedLevelId) ||
       !RC.Levels.isLevelUnlocked(selectedLevelId)
     ) {
-      selectedLevelId = RC.Levels.LIST[0].id;
+      selectedLevelId = RC.Levels.STORY_LIST[0].id;
       RC.Storage.setSelectedLevel(selectedLevelId);
     }
     let selectedCatId = RC.Storage.getState().selectedCat;
+
+    function tryLockLandscape() {
+      try {
+        if (window.screen && window.screen.orientation && window.screen.orientation.lock) {
+          window.screen.orientation.lock("landscape").catch(() => {});
+        }
+      } catch (_err) {
+        // Ignore on browsers that disallow orientation lock outside fullscreen
+      }
+    }
 
     // Instantiate Game Engine
     const game = new RC.RunnerGame(canvas, {
@@ -162,14 +206,23 @@
       });
     }
 
-    // ---- Build Level Selection Cards ----
-    function renderMenu() {
-      refreshGlobalHi();
-      refreshDevUnlockBtn();
-      renderLevelCards(RC.Levels.STORY_LIST, storyGrid);
-      renderLevelCards(RC.Levels.ENDLESS_LIST, endlessGrid);
+    function applyControlModeUI(playing) {
+      const mode = RC.Storage.getControlMode();
+      const useGestures = playing && mode === "gestures";
+      gestureControls.classList.toggle("hidden", !useGestures);
+      touchControlsBar.classList.toggle("hidden", mode === "gestures" && playing);
+    }
 
-      // Cat skin selector
+    function refreshModeBadges() {
+      const skin = RC.Levels.getCatSkinById(selectedCatId);
+      const ctrl = RC.Storage.getControlMode();
+      lblCurCat.textContent = skin.name;
+      lblCurCtrl.textContent = ctrl === "gestures" ? "Gestos" : "Botones";
+      btnCtrlButtons.classList.toggle("selected", ctrl === "buttons");
+      btnCtrlGestures.classList.toggle("selected", ctrl === "gestures");
+    }
+
+    function renderCatsModal() {
       catGrid.innerHTML = "";
       RC.Levels.CAT_SKINS.forEach((skin) => {
         const card = document.createElement("button");
@@ -197,11 +250,36 @@
           selectedCatId = skin.id;
           RC.Storage.setSelectedCat(skin.id);
           game.setPreviewConfig(selectedLevelId, selectedCatId);
-          renderMenu();
+          renderCatsModal();
+          refreshModeBadges();
         });
 
         catGrid.appendChild(card);
       });
+
+      const curSkin = RC.Levels.getCatSkinById(selectedCatId);
+      catSelectedDesc.innerHTML = `<strong>${curSkin.name}</strong> — ${curSkin.desc}`;
+    }
+
+    // ---- Build Level Selection Cards ----
+    function renderMenu() {
+      refreshGlobalHi();
+      refreshDevUnlockBtn();
+      refreshModeBadges();
+
+      const isStory = activeCategory === "story";
+      const list = isStory ? RC.Levels.STORY_LIST : RC.Levels.ENDLESS_LIST;
+      levelsEyebrow.textContent = isStory ? "MODO HISTORIA" : "MODO ARCADE INFINITO";
+      levelsTitle.textContent = isStory ? "NIVELES 1–12" : "ELIGE TU ESCENARIO INFINITO";
+      btnDevUnlock.classList.toggle("hidden", !isStory);
+
+      if (!list.some((l) => l.id === selectedLevelId)) {
+        selectedLevelId = list[0].id;
+        RC.Storage.setSelectedLevel(selectedLevelId);
+        game.setPreviewConfig(selectedLevelId, selectedCatId);
+      }
+
+      renderLevelCards(list, levelGrid);
 
       // Selected level summary
       const curLvl = RC.Levels.getLevelById(selectedLevelId);
@@ -212,30 +290,80 @@
       `;
     }
 
+    function hideAllOverlays() {
+      screenTitle.classList.add("hidden");
+      screenMode.classList.add("hidden");
+      screenMenu.classList.add("hidden");
+      screenCats.classList.add("hidden");
+      screenControls.classList.add("hidden");
+      screenHelp.classList.add("hidden");
+      screenPause.classList.add("hidden");
+      screenResult.classList.add("hidden");
+    }
+
     // ---- Screen Navigation ----
-    function showMenu() {
+    function showTitleScreen() {
       game.returnToMenu();
       game.setPreviewConfig(selectedLevelId, selectedCatId);
       hud.classList.add("hidden");
+      demoBanner.classList.add("hidden");
       btnPause.classList.add("hidden");
       btnMenuTop.classList.add("hidden");
-      screenPause.classList.add("hidden");
-      screenResult.classList.add("hidden");
-      screenHelp.classList.add("hidden");
+      applyControlModeUI(false);
+      hideAllOverlays();
+      screenTitle.classList.remove("hidden");
+      refreshGlobalHi();
+      refreshModeBadges();
+    }
+
+    function showModeScreen() {
+      game.returnToMenu();
+      hud.classList.add("hidden");
+      demoBanner.classList.add("hidden");
+      btnPause.classList.add("hidden");
+      btnMenuTop.classList.add("hidden");
+      applyControlModeUI(false);
+      hideAllOverlays();
+      screenMode.classList.remove("hidden");
+      refreshModeBadges();
+    }
+
+    function showMenu(category) {
+      if (category) activeCategory = category;
+      game.returnToMenu();
+      game.setPreviewConfig(selectedLevelId, selectedCatId);
+      hud.classList.add("hidden");
+      demoBanner.classList.add("hidden");
+      btnPause.classList.add("hidden");
+      btnMenuTop.classList.add("hidden");
+      applyControlModeUI(false);
+      hideAllOverlays();
       screenMenu.classList.remove("hidden");
       renderMenu();
     }
 
     function startCurrentLevel() {
       RC.Audio.uiClick();
-      screenMenu.classList.add("hidden");
-      screenHelp.classList.add("hidden");
-      screenPause.classList.add("hidden");
-      screenResult.classList.add("hidden");
+      tryLockLandscape();
+      hideAllOverlays();
+      demoBanner.classList.add("hidden");
       hud.classList.remove("hidden");
       btnPause.classList.remove("hidden");
       btnMenuTop.classList.remove("hidden");
+      applyControlModeUI(true);
       game.startLevel(selectedLevelId, selectedCatId);
+    }
+
+    function startControlDemo() {
+      RC.Audio.uiClick();
+      tryLockLandscape();
+      hideAllOverlays();
+      hud.classList.remove("hidden");
+      demoBanner.classList.remove("hidden");
+      btnPause.classList.add("hidden");
+      btnMenuTop.classList.add("hidden");
+      applyControlModeUI(true);
+      game.startDemo(selectedCatId);
     }
 
     function updateHud(data) {
@@ -326,6 +454,103 @@
       RC.Audio.toggle();
       refreshSoundBtn();
     });
+
+    btnEnter.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      tryLockLandscape();
+      showModeScreen();
+    });
+
+    btnBackTitle.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      showTitleScreen();
+    });
+
+    btnModeStory.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      showMenu("story");
+    });
+
+    btnModeArcade.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      showMenu("endless");
+    });
+
+    btnBackMode.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      showModeScreen();
+    });
+
+    btnOpenCats.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      returnScreen = "title";
+      hideAllOverlays();
+      renderCatsModal();
+      screenCats.classList.remove("hidden");
+    });
+
+    btnModeCats.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      returnScreen = "mode";
+      hideAllOverlays();
+      renderCatsModal();
+      screenCats.classList.remove("hidden");
+    });
+
+    btnCloseCats.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      if (returnScreen === "mode") showModeScreen();
+      else showTitleScreen();
+    });
+
+    btnOpenControls.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      returnScreen = "title";
+      hideAllOverlays();
+      refreshModeBadges();
+      screenControls.classList.remove("hidden");
+    });
+
+    btnModeControls.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      returnScreen = "mode";
+      hideAllOverlays();
+      refreshModeBadges();
+      screenControls.classList.remove("hidden");
+    });
+
+    btnCtrlButtons.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      RC.Storage.setControlMode("buttons");
+      refreshModeBadges();
+    });
+
+    btnCtrlGestures.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      RC.Storage.setControlMode("gestures");
+      refreshModeBadges();
+    });
+
+    btnStartDemo.addEventListener("click", startControlDemo);
+
+    btnExitDemo.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      game.returnToMenu();
+      hud.classList.add("hidden");
+      demoBanner.classList.add("hidden");
+      applyControlModeUI(false);
+      hideAllOverlays();
+      refreshModeBadges();
+      screenControls.classList.remove("hidden");
+    });
+
+    const closeControlsAction = () => {
+      RC.Audio.uiClick();
+      if (returnScreen === "mode") showModeScreen();
+      else showTitleScreen();
+    };
+    btnCloseControls.addEventListener("click", closeControlsAction);
+    btnSaveControls.addEventListener("click", closeControlsAction);
 
     btnPlay.addEventListener("click", startCurrentLevel);
 
@@ -531,9 +756,62 @@
     touchClaw.addEventListener("pointerup", () => touchClaw.classList.remove("active"));
     touchClaw.addEventListener("pointerleave", () => touchClaw.classList.remove("active"));
 
-    // Canvas quick click/tap to jump during play
+    // ---- Gesture Controls (Left Drag Up/Down + Right Fire/Slow) ----
+    let gestureStartY = 0;
+    let gestureTriggered = null;
+    gestureLeftZone.addEventListener("pointerdown", (e) => {
+      if (game.mode !== "playing") return;
+      e.preventDefault();
+      gestureStartY = e.clientY;
+      gestureTriggered = null;
+      if (gestureLeftZone.setPointerCapture) {
+        try {
+          gestureLeftZone.setPointerCapture(e.pointerId);
+        } catch (_err) {}
+      }
+    });
+    gestureLeftZone.addEventListener("pointermove", (e) => {
+      if (game.mode !== "playing" || gestureStartY === 0) return;
+      const dy = e.clientY - gestureStartY;
+      if (dy < -22 && gestureTriggered !== "up") {
+        gestureTriggered = "up";
+        game.setDuck(false);
+        game.setUp(true);
+        game.pressJump();
+      } else if (dy > 22 && gestureTriggered !== "down") {
+        gestureTriggered = "down";
+        game.setUp(false);
+        game.setDuck(true);
+      }
+    });
+    const endGesture = () => {
+      gestureStartY = 0;
+      gestureTriggered = null;
+      game.setUp(false);
+      game.setDuck(false);
+      game.releaseJump();
+    };
+    gestureLeftZone.addEventListener("pointerup", endGesture);
+    gestureLeftZone.addEventListener("pointercancel", endGesture);
+
+    bindHoldButton(
+      gestureSlowBtn,
+      () => game.setSlow(true),
+      () => game.setSlow(false)
+    );
+    bindHoldButton(
+      gestureFireBtn,
+      () => {
+        game.setFire(true);
+        game.pressClaw();
+      },
+      () => game.setFire(false)
+    );
+
+    // Canvas quick click/tap to jump during play (disabled when using gesture overlay)
     canvas.addEventListener("pointerdown", (e) => {
       if (game.mode !== "playing") return;
+      if (RC.Storage.getControlMode() === "gestures") return;
       if (e.button === 2) {
         game.pressClaw();
       } else {
@@ -541,12 +819,14 @@
       }
     });
     canvas.addEventListener("pointerup", () => {
-      if (game.mode === "playing") game.releaseJump();
+      if (game.mode === "playing" && RC.Storage.getControlMode() !== "gestures") {
+        game.releaseJump();
+      }
     });
     canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
     // Initial UI setup
     refreshSoundBtn();
-    showMenu();
+    showTitleScreen();
   });
 })(window.RunnerCat = window.RunnerCat || {});

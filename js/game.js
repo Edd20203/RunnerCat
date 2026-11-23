@@ -233,6 +233,7 @@
       this.powerupTimer = 7.0;
       this.finishGateSpawned = false;
       this.finishGateX = null;
+      this.isDemo = false;
 
       // Boss state (Level 4: Giant Chicken, Level 8: Giant Squid)
       if (lvlMode === "boss") {
@@ -297,6 +298,21 @@
       this.level = RC.Levels.getLevelById(levelId);
       this.skinId = skinId || this.skinId;
       this.resetRunState();
+      this.mode = "playing";
+      this.keys.jumpHeld = false;
+      this.keys.upHeld = false;
+      this.keys.duckHeld = false;
+      this.keys.slowHeld = false;
+      this.keys.fireHeld = false;
+      this.notifyHud();
+    }
+
+    startDemo(skinId) {
+      this.level = RC.Levels.getLevelById("alley");
+      this.skinId = skinId || this.skinId;
+      this.resetRunState();
+      this.isDemo = true;
+      this.speed = 310;
       this.mode = "playing";
       this.keys.jumpHeld = false;
       this.keys.upHeld = false;
@@ -629,7 +645,7 @@
       }
 
       // ---- Check Level Goal & Finish Gate ----
-      if (this.level.targetDistance && !this.finishGateSpawned) {
+      if (!this.isDemo && this.level.targetDistance && !this.finishGateSpawned) {
         const remainingMeters = this.level.targetDistance - this.distanceMeters;
         if (remainingMeters <= 26) {
           this.finishGateSpawned = true;
@@ -647,7 +663,7 @@
 
       // ---- Spawning ----
       if (!this.finishGateSpawned) {
-        if (this.level.mode !== "planeBoss") {
+        if (!this.isDemo && this.level.mode !== "planeBoss") {
           this.spawnTimer -= worldDt;
           if (this.spawnTimer <= 0) {
             this.spawnObstacle();
@@ -2093,6 +2109,7 @@
       const cat = this.cat;
       this.callbacks.onHudUpdate({
         level: this.level,
+        isDemo: this.isDemo,
         score: this.getTotalScore(),
         distance: Math.floor(this.distanceMeters),
         fish: this.fishCount,

@@ -8,6 +8,7 @@
     globalHi: 0,
     soundEnabled: true,
     devUnlockAll: false,
+    controlMode: "buttons",
     selectedCat: "ginger",
     selectedLevel: "alley",
     levels: {}
@@ -36,6 +37,7 @@
       globalHi: DEFAULT_DATA.globalHi,
       soundEnabled: DEFAULT_DATA.soundEnabled,
       devUnlockAll: DEFAULT_DATA.devUnlockAll,
+      controlMode: DEFAULT_DATA.controlMode,
       selectedCat: DEFAULT_DATA.selectedCat,
       selectedLevel: DEFAULT_DATA.selectedLevel,
       levels: {}
@@ -93,6 +95,13 @@
     },
     setDevUnlockAll(enabled) {
       state.devUnlockAll = Boolean(enabled);
+      save();
+    },
+    getControlMode() {
+      return state.controlMode === "gestures" ? "gestures" : "buttons";
+    },
+    setControlMode(mode) {
+      state.controlMode = mode === "gestures" ? "gestures" : "buttons";
       save();
     },
     setSelectedCat(catId) {

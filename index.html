@@ -2,11 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>RunnerCat — Retro Pixel Runner</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Mobile Portrait Rotate Prompt -->
+  <div id="rotate-overlay" class="rotate-overlay">
+    <div class="rotate-box">
+      <div class="rotate-icon">📱↻</div>
+      <h2>GIRA TU CELULAR</h2>
+      <p>RunnerCat se juega en modo horizontal (Landscape) para mejor visibilidad.</p>
+    </div>
+  </div>
   <div class="arcade-shell">
     <!-- Top Header Bar -->
     <header class="top-bar">
@@ -83,50 +91,144 @@
         </div>
       </div>
 
-      <!-- Main Selection Menu Overlay -->
-      <section id="screen-menu" class="overlay-screen">
+      <!-- Gesture Controls Overlay (active during gameplay/demo when controlMode === 'gestures') -->
+      <div id="gesture-controls" class="gesture-controls hidden">
+        <div id="gesture-left-zone" class="gesture-left-zone">
+          <span class="gesture-hint">⬆ ARRASTRA ARRIBA: SALTAR<br/>⬇ ARRASTRA ABAJO: AGACHAR</span>
+        </div>
+        <div class="gesture-right-zone">
+          <button id="gesture-slow-btn" class="gesture-btn gesture-slow-btn" type="button">⏱ LENTO</button>
+          <button id="gesture-fire-btn" class="gesture-btn gesture-fire-btn" type="button">🐾 ATACAR</button>
+        </div>
+      </div>
+
+      <!-- Demo Mode Banner -->
+      <div id="demo-banner" class="demo-banner hidden">
+        <span id="demo-banner-text">🎮 MODO DEMO (SIN PELIGRO)</span>
+        <button id="btn-exit-demo" class="pixel-btn btn-secondary btn-sm" type="button">⬅ VOLVER</button>
+      </div>
+
+      <!-- Screen 1: Title / Enter Screen -->
+      <section id="screen-title" class="overlay-screen">
+        <div class="modal-card modal-compact title-card">
+          <p class="eyebrow">8-BIT PIXEL ARCADE</p>
+          <h2 class="title-logo">RUNNER<span>CAT</span></h2>
+          <p class="modal-subtitle">Corre, bucea, vuela y derrota a los jefes.</p>
+          <div class="title-actions">
+            <button id="btn-enter" class="pixel-btn btn-primary btn-lg" type="button">▶ ENTRAR</button>
+            <div class="title-sub-actions">
+              <button id="btn-open-cats" class="pixel-btn btn-secondary btn-sm" type="button">🐱 ELEGIR GATO</button>
+              <button id="btn-open-controls" class="pixel-btn btn-secondary btn-sm" type="button">🎮 CONTROLES Y DEMO</button>
+              <button id="btn-help" class="pixel-btn btn-secondary btn-sm" type="button">❓ AYUDA</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 2: Mode Selection (Historia vs Arcade Infinito) -->
+      <section id="screen-mode" class="overlay-screen hidden">
+        <div class="menu-card mode-card-shell">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">ELIGE TU AVENTURA</p>
+              <h2>SELECCIONA EL MODO DE JUEGO</h2>
+            </div>
+            <button id="btn-back-title" class="pixel-btn btn-ghost btn-sm" type="button">⬅ INICIO</button>
+          </div>
+
+          <div class="mode-grid">
+            <button id="btn-mode-story" class="mode-choice-card" type="button">
+              <span class="mode-badge">12 NIVELES</span>
+              <h3>📖 MODO HISTORIA</h3>
+              <p>Supera los 12 escenarios: callejones, buceo, mini-avión y 3 jefes finales.</p>
+            </button>
+            <button id="btn-mode-arcade" class="mode-choice-card mode-choice-arcade" type="button">
+              <span class="mode-badge badge-cyan">4 MODOS ∞</span>
+              <h3>∞ MODO ARCADE (INFINITO)</h3>
+              <p>Sin meta final: Clásico, Techos, Buceo y Avión para batir récords.</p>
+            </button>
+          </div>
+
+          <div class="mode-footer-bar">
+            <button id="btn-mode-cats" class="pixel-btn btn-secondary btn-sm" type="button">🐱 GATO: <span id="lbl-cur-cat">Tigre</span></button>
+            <button id="btn-mode-controls" class="pixel-btn btn-secondary btn-sm" type="button">🎮 CONTROL: <span id="lbl-cur-ctrl">Botones</span></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Level Selection (Filtered by Story or Arcade) -->
+      <section id="screen-menu" class="overlay-screen hidden">
         <div class="menu-card">
           <div class="menu-header">
             <div class="menu-title-group">
-              <p class="eyebrow">PIXEL RUNNER ARCADE</p>
-              <h2>SELECCIONA TU NIVEL Y GATO</h2>
+              <p class="eyebrow" id="levels-eyebrow">MODO HISTORIA</p>
+              <h2 id="levels-title">SELECCIONA TU NIVEL</h2>
             </div>
             <div class="menu-header-actions">
-              <button id="btn-dev-unlock" class="pixel-btn btn-secondary btn-sm" title="Desbloquear todos los niveles para pruebas">
+              <button id="btn-dev-unlock" class="pixel-btn btn-secondary btn-sm" title="Desbloquear todos los niveles para pruebas" type="button">
                 🔒 DEV: ACTIVAR TODOS
               </button>
-              <button id="btn-help" class="pixel-btn btn-secondary btn-sm">❓ CONTROLES</button>
+              <button id="btn-back-mode" class="pixel-btn btn-ghost btn-sm" type="button">⬅ MODOS</button>
             </div>
           </div>
 
-          <!-- Level Selection Sections: Story & Endless -->
           <div class="levels-scroll-area">
-            <div class="section-label">1. MODO HISTORIA (NIVELES 1–12)</div>
-            <div id="story-grid" class="level-grid">
-              <!-- Populated by ui.js -->
-            </div>
-
-            <div class="section-label section-label-inf">2. MODO INFINITO</div>
-            <div id="endless-grid" class="level-grid">
+            <div id="level-grid" class="level-grid">
               <!-- Populated by ui.js -->
             </div>
           </div>
 
-          <!-- Cat Skin Selector + Play Button -->
-          <div class="menu-bottom-row">
-            <div class="cat-selector-wrap">
-              <div class="section-label">2. ELIGE TU GATO</div>
-              <div id="cat-grid" class="cat-grid">
-                <!-- Populated by ui.js -->
-              </div>
-            </div>
+          <div class="menu-bottom-row levels-bottom-row">
+            <div id="selected-level-summary" class="level-summary-box"></div>
+            <button id="btn-play" class="pixel-btn btn-primary btn-lg" type="button">
+              ▶ JUGAR AHORA
+            </button>
+          </div>
+        </div>
+      </section>
 
-            <div class="play-cta-wrap">
-              <div id="selected-level-summary" class="level-summary-box"></div>
-              <button id="btn-play" class="pixel-btn btn-primary btn-lg">
-                ▶ JUGAR AHORA
-              </button>
+      <!-- Screen 4: Dedicated Cat Selector -->
+      <section id="screen-cats" class="overlay-screen hidden">
+        <div class="modal-card">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">PERSONALIZACIÓN</p>
+              <h2>🐱 ELIGE TU GATO</h2>
             </div>
+            <button id="btn-close-cats" class="pixel-btn btn-primary btn-sm" type="button">✓ LISTO</button>
+          </div>
+          <div id="cat-grid" class="cat-grid cat-grid-full">
+            <!-- Populated by ui.js -->
+          </div>
+          <div id="cat-selected-desc" class="level-summary-box" style="margin-top: 8px;"></div>
+        </div>
+      </section>
+
+      <!-- Screen 5: Control Type Selector + Safe Demo -->
+      <section id="screen-controls" class="overlay-screen hidden">
+        <div class="modal-card">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">MÓVIL Y ESCRITORIO</p>
+              <h2>🎮 TIPO DE CONTROL</h2>
+            </div>
+            <button id="btn-close-controls" class="pixel-btn btn-ghost btn-sm" type="button">⬅ VOLVER</button>
+          </div>
+
+          <div class="control-modes-grid">
+            <button id="btn-ctrl-buttons" class="mode-choice-card ctrl-choice" type="button">
+              <h3>🕹️ BOTONES</h3>
+              <p>Barra inferior con botones táctiles dedicados: Saltar, Agachar, Atacar y Lento.</p>
+            </button>
+            <button id="btn-ctrl-gestures" class="mode-choice-card ctrl-choice" type="button">
+              <h3>👆 GESTOS + BOTÓN</h3>
+              <p>Izquierda: arrastra arriba (saltar) o abajo (agachar). Derecha: botón para disparar/atacar.</p>
+            </button>
+          </div>
+
+          <div class="modal-actions" style="margin-top: 12px;">
+            <button id="btn-start-demo" class="pixel-btn btn-accent" type="button">▶ PROBAR EN DEMO (SIN PELIGRO)</button>
+            <button id="btn-save-controls" class="pixel-btn btn-primary" type="button">✓ GUARDAR</button>
           </div>
         </div>
       </section>
