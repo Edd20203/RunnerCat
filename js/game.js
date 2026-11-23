@@ -13,6 +13,10 @@
   const JUMP_VEL = -710;
   const DOUBLE_JUMP_VEL = -635;
   const FAST_FALL_GRAVITY = 4200;
+  const SPACE_GRAVITY = 720;
+  const SPACE_JUMP_VEL = -540;
+  const SPACE_DOUBLE_JUMP_VEL = -450;
+  const SPACE_FAST_FALL_GRAVITY = 2100;
   const COYOTE_TIME = 0.085;
   const JUMP_BUFFER_TIME = 0.1;
 
@@ -159,6 +163,11 @@
       return m === "plane" || m === "planeBoss";
     }
 
+    isSpaceMode(lvlMode) {
+      const m = lvlMode || this.level.mode || "runner";
+      return m === "space" || m === "spaceBoss";
+    }
+
     setPreviewConfig(levelId, skinId) {
       this.level = RC.Levels.getLevelById(levelId);
       this.skinId = skinId;
@@ -224,7 +233,11 @@
       this.bossEggs = [];    // giant chicken eggs
       this.bossPiranhas = []; // giant squid piranhas
       this.bossTrash = [];   // boss plane trash bags
+      this.alienShots = [];  // space alien plasma shots
       this.catMissiles = 0;
+      this.laserLevel = 1;
+      this.endingTimer = 0;
+      this.endingFromBoss = false;
       this.particles = [];
       this.floatingTexts = [];
 
@@ -289,6 +302,23 @@
           hurtTimer: 0,
           animTimer: 0
         };
+      } else if (lvlMode === "spaceBoss") {
+        const maxHp = lvl.bossMaxHp || 24;
+        this.boss = {
+          kind: "ufo",
+          active: true,
+          hp: maxHp,
+          maxHp,
+          x: WIDTH - 165,
+          y: 72,
+          w: 120,
+          h: 54,
+          dir: 1,
+          shipTimer: 1.35,
+          hazardTimer: 1.75,
+          hurtTimer: 0,
+          animTimer: 0
+        };
       } else {
         this.boss = null;
       }
@@ -320,6 +350,16 @@
       this.keys.slowHeld = false;
       this.keys.fireHeld = false;
       this.notifyHud();
+    }
+
+    startEnding(skinId, fromBoss) {
+      this.skinId = skinId || this.skinId;
+      this.mode = "ending";
+      this.endingTimer = 0;
+      this.endingFromBoss = Boolean(fromBoss);
+      this.particles = [];
+      this.floatingTexts = [];
+      RC.Audio.victory();
     }
 
     pause() {
@@ -373,7 +413,7 @@
       }
       if (this.isPlaneMode(lvlMode)) return;
 
-      if (this.mode === "playing" && this.cat.vy < -260) {
+      if (this.mode === "playing" && !this.isSpaceMode(lvlMode) && this.cat.vy < -260) {
         this.cat.vy *= 0.58;
       }
     }
@@ -400,6 +440,11 @@
 
       if (this.isPlaneMode(lvlMode)) {
         this.firePlaneBullet();
+        return;
+      }
+
+      if (this.isSpaceMode(lvlMode)) {
+        this.fireSpaceLaser();
         return;
       }
 
@@ -461,30 +506,53 @@
       this.spawnParticle(cat.x + cat.w + 4, cat.y + cat.h * 0.52, 160, 0, "#ffd32a", 4, 0.08);
     }
 
+    fireSpaceLaser() {
+      const cat = this.cat;
+      if (cat.fireCooldown > 0) return;
+      cat.fireCooldown = 0.22;
+      RC.Audio.shoot();
+
+      const lvl = this.laserLevel || 1;
+      const w = lvl === 1 ? 22 : lvl === 2 ? 28 : 34;
+      const h = lvl === 1 ? 5 : lvl === 2 ? 7 : 10;
+      this.projectiles.push({
+        x: cat.x + cat.w + 2,
+        y: cat.y + Math.floor(cat.h * 0.45),
+        w,
+        h,
+        vx: 840,
+        isLaser: true,
+        laserLevel: lvl,
+        damage: lvl
+      });
+      this.spawnParticle(cat.x + cat.w + 4, cat.y + cat.h * 0.45, 160, 0, "#48dbfb", 4, 0.08);
+    }
+
     tryExecuteJump() {
       const cat = this.cat;
+      const isSpace = this.isSpaceMode();
       const canGroundJump = cat.onGround || cat.coyoteTimer > 0;
 
       if (canGroundJump) {
-        cat.vy = JUMP_VEL;
+        cat.vy = isSpace ? SPACE_JUMP_VEL : JUMP_VEL;
         cat.onGround = false;
         cat.coyoteTimer = 0;
         cat.jumpBufferTimer = 0;
         cat.jumpsUsed = 1;
         cat.ducking = false;
         RC.Audio.jump();
-        this.spawnDust(cat.x + 18, GROUND_Y - 2, 7, "#d9ccb4");
+        this.spawnDust(cat.x + 18, GROUND_Y - 2, 7, isSpace ? "#70a1ff" : "#d9ccb4");
         return true;
       }
 
       if (cat.jumpsUsed < cat.maxJumps) {
-        cat.vy = DOUBLE_JUMP_VEL;
+        cat.vy = isSpace ? SPACE_DOUBLE_JUMP_VEL : DOUBLE_JUMP_VEL;
         cat.jumpsUsed += 1;
         cat.jumpBufferTimer = 0;
         cat.ducking = false;
         RC.Audio.doubleJump();
         this.spawnDust(cat.x + 22, cat.y + cat.h, 10, "#48dbfb");
-        this.addFloatingText("DOUBLE!", cat.x + 12, cat.y - 6, "#48dbfb", 11);
+        this.addFloatingText(isSpace ? "FLOTAR!" : "DOUBLE!", cat.x + 12, cat.y - 6, "#48dbfb", 11);
         return true;
       }
 
@@ -500,6 +568,8 @@
         this.updateMenuPreview(rawDt);
       } else if (this.mode === "playing") {
         this.updatePlaying(rawDt);
+      } else if (this.mode === "ending") {
+        this.updateEnding(rawDt);
       } else if (this.mode === "victory" || this.mode === "gameover") {
         this.updateParticlesOnly(rawDt);
       }
@@ -639,9 +709,11 @@
       // ---- Update Cat ----
       this.updateCat(rawDt, worldDt);
 
-      // ---- Plane Auto-fire if held ----
+      // ---- Plane / Space Auto-fire if held ----
       if (this.isPlaneMode(this.level.mode) && (this.keys.fireHeld || this.keys.jumpHeld)) {
         this.firePlaneBullet();
+      } else if (this.isSpaceMode(this.level.mode) && this.keys.fireHeld) {
+        this.fireSpaceLaser();
       }
 
       // ---- Check Level Goal & Finish Gate ----
@@ -663,7 +735,7 @@
 
       // ---- Spawning ----
       if (!this.finishGateSpawned) {
-        if (!this.isDemo && this.level.mode !== "planeBoss") {
+        if (!this.isDemo && this.level.mode !== "planeBoss" && this.level.mode !== "spaceBoss") {
           this.spawnTimer -= worldDt;
           if (this.spawnTimer <= 0) {
             this.spawnObstacle();
@@ -704,17 +776,23 @@
       this.updateLaunchedMines(rawDt);
       if (this.mode !== "playing") return;
 
-      // ---- Update Boss (Chicken, Squid, or Plane) ----
+      // ---- Update Boss (Chicken, Squid, Plane, or Space UFO) ----
       if (this.boss && this.boss.active) {
         if (this.boss.kind === "squid") {
           this.updateSquidBoss(rawDt, worldDt);
         } else if (this.boss.kind === "plane") {
           this.updatePlaneBoss(rawDt, worldDt);
+        } else if (this.boss.kind === "ufo") {
+          this.updateSpaceBoss(rawDt, worldDt);
         } else {
           this.updateBoss(rawDt, worldDt);
         }
         if (this.mode !== "playing") return;
       }
+
+      // ---- Update Alien Shots ----
+      this.updateAlienShots(worldDt);
+      if (this.mode !== "playing") return;
 
       // ---- Update Obstacles & Collisions ----
       this.updateObstacles(worldDt, movePx);
@@ -822,10 +900,22 @@
         }
 
         const physDt = this.slowActive ? rawDt * 0.68 : rawDt;
+        const isSpace = this.isSpaceMode(lvlMode);
         if (!cat.onGround) {
-          const g = this.keys.duckHeld ? FAST_FALL_GRAVITY : GRAVITY;
+          const g = isSpace
+            ? this.keys.duckHeld
+              ? SPACE_FAST_FALL_GRAVITY
+              : SPACE_GRAVITY
+            : this.keys.duckHeld
+            ? FAST_FALL_GRAVITY
+            : GRAVITY;
           cat.vy += g * physDt;
           cat.y += cat.vy * physDt;
+
+          if (cat.y < 14) {
+            cat.y = 14;
+            if (cat.vy < 0) cat.vy = 0;
+          }
 
           const targetH = this.keys.duckHeld ? 27 : 42;
           if (cat.y + targetH >= GROUND_Y) {
@@ -1053,6 +1143,57 @@
           w: 36,
           h: 30,
           scratchable: false,
+          extraSpeed: 0
+        };
+      } else if (type === "alienWalker") {
+        const canShoot = this.level.id !== "space1" ? Math.random() < 0.7 : Math.random() < 0.4;
+        obs = {
+          type,
+          sprite: "alienWalker1",
+          animFrames: ["alienWalker1", "alienWalker2"],
+          x,
+          y: GROUND_Y - 33,
+          w: 42,
+          h: 33,
+          scratchable: true,
+          shootable: true,
+          canShoot,
+          shootTimer: 0.9 + Math.random() * 1.1,
+          points: 55,
+          extraSpeed: 40
+        };
+      } else if (type === "alienFloater") {
+        const laneY = Math.random() < 0.5 ? GROUND_Y - 82 : GROUND_Y - 134;
+        const canShoot = this.level.id !== "space1" ? Math.random() < 0.75 : Math.random() < 0.45;
+        obs = {
+          type,
+          sprite: "alienFloater1",
+          animFrames: ["alienFloater1", "alienFloater2"],
+          x,
+          y: laneY,
+          baseY: laneY,
+          w: 42,
+          h: 24,
+          scratchable: true,
+          shootable: true,
+          canShoot,
+          shootTimer: 0.8 + Math.random() * 1.1,
+          points: 65,
+          extraSpeed: 50,
+          bobPhase: Math.random() * Math.PI * 2
+        };
+      } else if (type === "spaceRock") {
+        const floating = Math.random() < 0.35;
+        const ry = floating ? GROUND_Y - 88 : GROUND_Y - 24;
+        obs = {
+          type,
+          sprite: "spaceRock",
+          x,
+          y: ry,
+          w: 36,
+          h: 24,
+          scratchable: false,
+          shootable: false,
           extraSpeed: 0
         };
       } else if (type === "skyBlock") {
@@ -1569,6 +1710,126 @@
       }
     }
 
+    // ---- Space Boss Logic (Level 16: Alien Mothership) ----
+    updateSpaceBoss(rawDt, worldDt) {
+      const boss = this.boss;
+      if (!boss || !boss.active) return;
+
+      boss.animTimer += rawDt * 9;
+      if (boss.hurtTimer > 0) boss.hurtTimer = Math.max(0, boss.hurtTimer - rawDt);
+
+      const rage = boss.maxHp - boss.hp;
+      boss.y += boss.dir * (85 + rage * 3) * worldDt;
+      if (boss.y < 28) {
+        boss.y = 28;
+        boss.dir = 1;
+      } else if (boss.y > 175) {
+        boss.y = 175;
+        boss.dir = -1;
+      }
+
+      // Launch small alien ships (destroy to get weapon upgrades)
+      boss.shipTimer -= worldDt;
+      if (boss.shipTimer <= 0) {
+        boss.shipTimer = Math.max(1.0, 1.85 - rage * 0.03) + Math.random() * 0.5;
+        this.obstacles.push({
+          type: "miniUfo",
+          sprite: "miniUfo1",
+          animFrames: ["miniUfo1", "miniUfo2"],
+          x: boss.x - 10,
+          y: boss.y + boss.h * 0.45,
+          baseY: boss.y + boss.h * 0.45,
+          w: 36,
+          h: 18,
+          scratchable: true,
+          shootable: true,
+          isMiniUfo: true,
+          points: 70,
+          extraSpeed: 75,
+          bobPhase: Math.random() * Math.PI * 2,
+          animTimer: 0
+        });
+      }
+
+      // Launch unbreakable space rocks/obstacles to dodge
+      boss.hazardTimer -= worldDt;
+      if (boss.hazardTimer <= 0) {
+        boss.hazardTimer = Math.max(1.15, 2.1 - rage * 0.035) + Math.random() * 0.55;
+        const onGround = Math.random() < 0.6;
+        this.obstacles.push({
+          type: "spaceRock",
+          sprite: "spaceRock",
+          x: boss.x + 10,
+          y: onGround ? GROUND_Y - 24 : GROUND_Y - 92,
+          w: 36,
+          h: 24,
+          scratchable: false,
+          shootable: false,
+          extraSpeed: 40,
+          animTimer: 0
+        });
+      }
+    }
+
+    damageSpaceBoss(dmg) {
+      const boss = this.boss;
+      boss.hp = Math.max(0, boss.hp - (dmg || 1));
+      boss.hurtTimer = 0.35;
+      this.killCount += 1;
+      this.killScore += 120 * (dmg || 1);
+      this.hitstopTimer = 0.04;
+      this.triggerShake(8, 0.18);
+      RC.Audio.bossHit();
+
+      this.spawnBurst(boss.x + boss.w * 0.4, boss.y + boss.h * 0.5, "#48dbfb", 18);
+      this.addFloatingText(`-${dmg || 1} HP`, boss.x, boss.y - 10, "#ffd32a", 15);
+
+      if (boss.hp <= 0) {
+        boss.active = false;
+        this.killScore += 1000;
+        RC.Audio.mineExplode();
+        const dist = Math.floor(this.distanceMeters);
+        const total = dist + this.itemScore + this.killScore;
+        RC.Storage.recordRun(this.level.id, total, dist, true);
+        if (this.callbacks.onEndingStart) {
+          this.callbacks.onEndingStart(this.buildRunSummary(true));
+        } else {
+          this.startEnding(this.skinId, true);
+        }
+      }
+    }
+
+    updateAlienShots(worldDt) {
+      const catBox = this.getCatHitbox();
+      for (let i = this.alienShots.length - 1; i >= 0; i--) {
+        const s = this.alienShots[i];
+        s.x += s.vx * worldDt;
+        if (s.x < -30) {
+          this.alienShots.splice(i, 1);
+          continue;
+        }
+        if (this.rectsOverlap(catBox, s)) {
+          if (this.cat.milkTimer > 0) {
+            this.spawnBurst(s.x, s.y, "#ffd32a", 8);
+            this.alienShots.splice(i, 1);
+            continue;
+          }
+          if (this.cat.invulnTimer > 0) continue;
+          if (this.cat.shield) {
+            this.cat.shield = false;
+            this.cat.invulnTimer = 1.15;
+            RC.Audio.shieldBreak();
+            this.triggerShake(8, 0.22);
+            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
+            this.alienShots.splice(i, 1);
+            continue;
+          }
+          this.triggerGameOver();
+          return;
+        }
+      }
+    }
+
     // ---- Launched Mines (Swim Levels 5-8) ----
     updateLaunchedMines(rawDt) {
       for (let i = this.launchedMines.length - 1; i >= 0; i--) {
@@ -1650,6 +1911,17 @@
           }
         }
 
+        // Check hit on Space Boss (Alien Mothership)
+        if (this.boss && this.boss.active && this.boss.kind === "ufo") {
+          const bossBox = { x: this.boss.x, y: this.boss.y, w: this.boss.w, h: this.boss.h };
+          if (this.rectsOverlap(b, bossBox)) {
+            this.projectiles.splice(i, 1);
+            this.damageSpaceBoss(b.damage || 1);
+            if (this.mode !== "playing") return;
+            continue;
+          }
+        }
+
         // Check hit on Plane Boss Trash Bags -> drops collectible missiles!
         let hitTrash = false;
         for (let k = this.bossTrash.length - 1; k >= 0; k--) {
@@ -1687,10 +1959,21 @@
           if (this.rectsOverlap(b, obs)) {
             hit = true;
             if (obs.shootable) {
+              if (obs.isMiniUfo) {
+                this.collectibles.push({
+                  kind: "weaponPickup",
+                  x: obs.x,
+                  y: obs.y,
+                  w: 36,
+                  h: 27,
+                  phase: Math.random() * Math.PI * 2
+                });
+                this.addFloatingText("⚡ ¡ARMA!", obs.x, obs.y - 10, "#ffd32a", 12);
+              }
               this.destroyObstacleByClaw(obs);
               this.obstacles.splice(j, 1);
             } else {
-              // Indestructible skyBlock spark
+              // Indestructible skyBlock / spaceRock spark
               this.spawnBurst(b.x, b.y, "#c8d6e5", 5);
             }
             break;
@@ -1771,6 +2054,21 @@
         }
         if (obs.baseY != null) {
           obs.y = obs.baseY + Math.sin(this.time * 5 + obs.bobPhase) * 6;
+        }
+
+        if (obs.canShoot && obs.x < WIDTH - 40 && obs.x > this.cat.x + 110) {
+          obs.shootTimer -= worldDt;
+          if (obs.shootTimer <= 0) {
+            obs.shootTimer = 1.35 + Math.random() * 0.9;
+            RC.Audio.shoot();
+            this.alienShots.push({
+              x: obs.x - 10,
+              y: obs.y + Math.floor(obs.h * 0.45),
+              w: 14,
+              h: 6,
+              vx: -460
+            });
+          }
         }
 
         if (obs.x + obs.w < -60 || obs.y > GROUND_Y + 40) {
@@ -1952,6 +2250,15 @@
         return;
       }
 
+      if (item.kind === "weaponPickup") {
+        RC.Audio.powerup();
+        this.laserLevel = Math.min(3, (this.laserLevel || 1) + 1);
+        this.itemScore += 50;
+        this.addFloatingText(`⚡ LÁSER N${this.laserLevel}!`, cx - 28, cy - 12, "#48dbfb", 14);
+        this.spawnBurst(cx, cy, "#ffd32a", 14);
+        return;
+      }
+
       if (item.kind === "missilePickup") {
         RC.Audio.powerup();
         this.catMissiles += 1;
@@ -2123,12 +2430,17 @@
         bossHp: this.boss ? this.boss.hp : null,
         bossMaxHp: this.boss ? this.boss.maxHp : null,
         missiles: this.catMissiles,
+        laserLevel: this.isSpaceMode() ? this.laserLevel : 0,
         levelHi: RC.Storage.getLevelRecord(this.level.id).hiScore
       });
     }
 
     // ---- Rendering ----
     render() {
+      if (this.mode === "ending") {
+        this.renderEnding();
+        return;
+      }
       const ctx = this.ctx;
       const lvl = this.level;
       const lvlMode = lvl.mode || "runner";
@@ -2261,17 +2573,31 @@
         if (spr) ctx.drawImage(spr, Math.floor(item.x), bobY);
       });
 
-      // Projectiles (Plane bullets & missiles)
+      // Projectiles (Plane bullets, missiles & space lasers)
       this.projectiles.forEach((b) => {
         if (b.isMissile) {
           const spr = RC.Sprites.getWorldSprite("missile", 3);
           if (spr) ctx.drawImage(spr, Math.floor(b.x), Math.floor(b.y));
+        } else if (b.isLaser) {
+          const col = b.laserLevel >= 3 ? "#ff6b81" : b.laserLevel === 2 ? "#ffd32a" : "#48dbfb";
+          ctx.fillStyle = col;
+          ctx.fillRect(Math.floor(b.x), Math.floor(b.y), b.w, b.h);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(Math.floor(b.x + 3), Math.floor(b.y + 1), Math.max(4, b.w - 6), Math.max(2, b.h - 2));
         } else {
           ctx.fillStyle = "#ffd32a";
           ctx.fillRect(Math.floor(b.x), Math.floor(b.y), b.w, b.h);
           ctx.fillStyle = "#ffffff";
           ctx.fillRect(Math.floor(b.x + 6), Math.floor(b.y + 1), b.w - 8, b.h - 2);
         }
+      });
+
+      // Alien Plasma Shots
+      this.alienShots.forEach((s) => {
+        ctx.fillStyle = "#ff4757";
+        ctx.fillRect(Math.floor(s.x), Math.floor(s.y), s.w, s.h);
+        ctx.fillStyle = "#ffd32a";
+        ctx.fillRect(Math.floor(s.x + 2), Math.floor(s.y + 1), s.w - 6, s.h - 2);
       });
 
       // Boss (Chicken, Squid, or Plane) & Projectiles
@@ -2450,6 +2776,25 @@
         return;
       }
 
+      if (boss.kind === "ufo") {
+        const sprName =
+          boss.hurtTimer > 0
+            ? "mothershipHurt"
+            : Math.floor(boss.animTimer) % 2 === 0
+            ? "mothership1"
+            : "mothership2";
+        const spr = RC.Sprites.getWorldSprite(sprName, 6);
+        if (spr) ctx.drawImage(spr, bx, by);
+
+        ctx.save();
+        ctx.globalAlpha = 0.75 + 0.25 * Math.sin(this.time * 8);
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillStyle = "#48dbfb";
+        ctx.fillText("¡DESTRUYE MINI-NAVES Y DISPARA!", bx - 48, by - 8);
+        ctx.restore();
+        return;
+      }
+
       if (boss.kind === "plane") {
         const sprName =
           boss.hurtTimer > 0
@@ -2560,6 +2905,19 @@
         ctx.drawImage(goldOverlay, cx, cy);
       }
       ctx.restore();
+
+      // Astronaut helmet bubble in Space levels
+      if (this.isSpaceMode()) {
+        ctx.save();
+        ctx.strokeStyle = "rgba(116, 232, 255, 0.85)";
+        ctx.fillStyle = "rgba(116, 232, 255, 0.15)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx + cat.w * 0.62, cy + 13, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
     }
 
     renderParallaxLayer(color, offset, heightScale, bgStyle, showWindows) {
@@ -2619,6 +2977,160 @@
       ctx.fillStyle = "#2ed573";
       ctx.font = '900 12px "Courier New", monospace';
       ctx.fillText("META!", x - 6, GROUND_Y - 118);
+    }
+
+    // ---- Ending Cutscene (Cat walks home to Abuelita, food, milk & cozy bed) ----
+    updateEnding(dt) {
+      this.time += dt;
+      this.endingTimer += dt;
+      this.cat.runAnimTimer += dt * 7;
+    }
+
+    renderEnding() {
+      const ctx = this.ctx;
+      const t = this.endingTimer;
+
+      // 1. Warm sunset sky
+      const sky = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+      sky.addColorStop(0, "#2c2459");
+      sky.addColorStop(0.55, "#ff7b6b");
+      sky.addColorStop(1, "#ffd39b");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, WIDTH, GROUND_Y);
+
+      // Twinkling evening stars
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      for (let i = 0; i < 18; i++) {
+        const sx = (i * 53 + 20) % WIDTH;
+        const sy = 16 + ((i * 37) % 90);
+        if (Math.sin(this.time * 3 + i) > -0.2) ctx.fillRect(sx, sy, 2, 2);
+      }
+
+      // Cozy grass & dirt path
+      ctx.fillStyle = "#3c6e47";
+      ctx.fillRect(0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y);
+      ctx.fillStyle = "#5cb874";
+      ctx.fillRect(0, GROUND_Y, WIDTH, 4);
+      ctx.fillStyle = "#c9a679";
+      ctx.fillRect(0, GROUND_Y + 12, 560, 14);
+
+      // 2. Cozy Little House (Casita) on the right
+      const hx = 560;
+      const hy = 132;
+      // Chimney & smoke
+      ctx.fillStyle = "#8c3b2b";
+      ctx.fillRect(hx + 230, hy - 34, 24, 40);
+      for (let s = 0; s < 4; s++) {
+        const sy = hy - 44 - ((t * 18 + s * 16) % 52);
+        const sx = hx + 236 + Math.sin(t * 2 + s) * 6;
+        ctx.fillStyle = "rgba(255,255,255,0.45)";
+        ctx.fillRect(Math.floor(sx), Math.floor(sy), 10, 8);
+      }
+
+      // House walls
+      ctx.fillStyle = "#f7e3c3";
+      ctx.fillRect(hx, hy, 290, GROUND_Y - hy);
+      // Roof
+      ctx.fillStyle = "#b8402e";
+      ctx.beginPath();
+      ctx.moveTo(hx - 18, hy + 4);
+      ctx.lineTo(hx + 145, hy - 56);
+      ctx.lineTo(hx + 308, hy + 4);
+      ctx.closePath();
+      ctx.fill();
+
+      // Warm glowing interior window / open cozy room on the right half of the house
+      ctx.fillStyle = "#ffdf8e";
+      ctx.fillRect(hx + 115, hy + 28, 152, GROUND_Y - hy - 34);
+      ctx.strokeStyle = "#6e472b";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(hx + 115, hy + 28, 152, GROUND_Y - hy - 34);
+
+      // Doorway
+      ctx.fillStyle = "#7a4b2a";
+      ctx.fillRect(hx + 26, hy + 72, 52, GROUND_Y - (hy + 72));
+      ctx.fillStyle = "#ffd32a";
+      ctx.fillRect(hx + 68, hy + 114, 6, 6);
+
+      // 3. Cozy Cat Bed (Camita), Food Bowl & Milk Saucer inside the warm room
+      const bedX = hx + 148;
+      const bedY = GROUND_Y - 22;
+      ctx.fillStyle = "#e84118";
+      ctx.fillRect(bedX, bedY, 68, 20);
+      ctx.fillStyle = "#ffeaa7";
+      ctx.fillRect(bedX + 6, bedY + 3, 56, 12);
+
+      // Food bowl (Comida)
+      const foodX = hx + 224;
+      ctx.fillStyle = "#ff6b81";
+      ctx.fillRect(foodX, GROUND_Y - 12, 22, 10);
+      ctx.fillStyle = "#b87435";
+      ctx.fillRect(foodX + 3, GROUND_Y - 15, 16, 4);
+
+      // Milk saucer (Leche)
+      ctx.fillStyle = "#70a1ff";
+      ctx.fillRect(foodX - 2, GROUND_Y - 2, 26, 4);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(foodX + 2, GROUND_Y - 5, 18, 4);
+
+      // 4. Abuelita (Grandma)
+      const grandmaSpr = RC.Sprites.getWorldSprite("grandma", 5);
+      const grandmaX = t < 4.4 ? hx + 76 : hx + 118;
+      const grandmaY = GROUND_Y - 60;
+      if (grandmaSpr) ctx.drawImage(grandmaSpr, grandmaX, grandmaY);
+
+      // 5. Cat Animation Phases
+      if (t < 4.2) {
+        // Phase 1: Cat walks happily toward the cottage
+        const walkProgress = Math.min(1, t / 3.8);
+        const catX = Math.floor(60 + walkProgress * (hx - 54));
+        const pose = walkProgress < 1 && Math.floor(this.cat.runAnimTimer) % 2 === 0 ? "run1" : "run2";
+        const catSpr = RC.Sprites.getCatSprite(pose, this.skinId, 3);
+        ctx.drawImage(catSpr, catX, GROUND_Y - 42);
+
+        if (walkProgress > 0.75) {
+          ctx.fillStyle = "#ffdf8e";
+          ctx.font = '900 13px "Courier New", monospace';
+          ctx.fillText("¡Mi gatito volvió! ♥", grandmaX - 28, grandmaY - 12);
+        }
+      } else if (t < 6.0) {
+        // Phase 2: Abuelita greets and cuddles the cat at the porch
+        const catSpr = RC.Sprites.getCatSprite("run1", this.skinId, 3);
+        ctx.drawImage(catSpr, hx + 46, GROUND_Y - 42);
+        ctx.fillStyle = "#ff6b81";
+        ctx.font = '900 16px "Courier New", monospace';
+        const heartY = grandmaY - 14 - Math.floor(Math.sin(t * 6) * 5);
+        ctx.fillText("♥  ♥", grandmaX + 4, heartY);
+      } else {
+        // Phase 3: Cat tucked into its cozy bed with food & milk, sleeping peacefully
+        const catSpr = RC.Sprites.getCatSprite("duck1", this.skinId, 3);
+        ctx.drawImage(catSpr, bedX + 8, bedY - 12);
+
+        // Cozy blanket over the cat's back
+        ctx.fillStyle = "#ff9ff3";
+        ctx.fillRect(bedX + 10, bedY + 2, 34, 11);
+
+        // Floating Zzz and hearts
+        const zOff = (t * 14) % 24;
+        ctx.fillStyle = "#48dbfb";
+        ctx.font = '900 14px "Courier New", monospace';
+        ctx.fillText("Zzz...", bedX + 26, Math.floor(bedY - 22 - zOff));
+        ctx.fillStyle = "#ff6b81";
+        ctx.fillText("♥", grandmaX + 22, grandmaY - 10);
+
+        // Ending Banner
+        ctx.fillStyle = "rgba(18, 20, 34, 0.78)";
+        ctx.fillRect(WIDTH / 2 - 210, 26, 420, 56);
+        ctx.strokeStyle = "#ffd32a";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(WIDTH / 2 - 210, 26, 420, 56);
+        ctx.fillStyle = "#ffd32a";
+        ctx.font = '900 18px "Courier New", monospace';
+        ctx.fillText("🏠 ¡FELIZ DESCANSO EN CASITA!", WIDTH / 2 - 165, 50);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = '700 12px "Courier New", monospace';
+        ctx.fillText("Comida, leche y sueños felinos. ¡FIN!", WIDTH / 2 - 145, 70);
+      }
     }
   }
 

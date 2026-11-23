@@ -830,6 +830,172 @@
         ".....DMMMMMMMMD.....",
         "......DD....DD......"
       ]
+    },
+    alienWalker1: {
+      palette: { D: "#0e2918", G: "#2ed573", L: "#7bed9f", E: "#ff4757", P: "#a55eea" },
+      matrix: [
+        "....PP..PP....",
+        "....DD..DD....",
+        "...DGGGGGGD...",
+        "..DGLGGGGGGD..",
+        "..DGEGGGGEGD..",
+        "..DGGGGGGGGD..",
+        "...DDGGGGDD...",
+        "..DGGGGGGGGD..",
+        ".DGG.DGGD.GGD.",
+        ".DD..DGGD..DD.",
+        "....DD..DD...."
+      ]
+    },
+    alienWalker2: {
+      palette: { D: "#0e2918", G: "#2ed573", L: "#7bed9f", E: "#ff4757", P: "#a55eea" },
+      matrix: [
+        "....PP..PP....",
+        "....DD..DD....",
+        "...DGGGGGGD...",
+        "..DGLGGGGGGD..",
+        "..DGEGGGGEGD..",
+        "..DGGGGGGGGD..",
+        "...DDGGGGDD...",
+        "..DGGGGGGGGD..",
+        "...DGD..DGD...",
+        "..DD......DD..",
+        ".DD........DD."
+      ]
+    },
+    alienFloater1: {
+      palette: { D: "#1e0c36", P: "#a55eea", L: "#d980fa", C: "#48dbfb", R: "#ff4757" },
+      matrix: [
+        "....DDDDDD....",
+        "..DDLLLLLLDD..",
+        ".DLPPPPPPPPLD.",
+        "DPPCPPPPPCPPPD",
+        "DPPPPPPPPPPPPD",
+        ".DDDDDDDDDDDD.",
+        "..D..D..D..D..",
+        ".D...R..R...D."
+      ]
+    },
+    alienFloater2: {
+      palette: { D: "#1e0c36", P: "#a55eea", L: "#d980fa", C: "#48dbfb", R: "#ff4757" },
+      matrix: [
+        "....DDDDDD....",
+        "..DDLLLLLLDD..",
+        ".DLPPPPPPPPLD.",
+        "DPPCPPPPPCPPPD",
+        "DPPPPPPPPPPPPD",
+        ".DDDDDDDDDDDD.",
+        "...D.D..D.D...",
+        "..D..R..R..D.."
+      ]
+    },
+    spaceRock: {
+      palette: { D: "#1e272e", M: "#576574", L: "#a4b0be", C: "#70a1ff" },
+      matrix: [
+        "....DDDD....",
+        "..DDLLLLDD..",
+        ".DLMMMMCCLD.",
+        "DMMMMMCCMMMD",
+        "DMMCCMMMMMMD",
+        "DMMMMMMMMMMD",
+        ".DMMMMMMMMD.",
+        "DDDDDDDDDDDD"
+      ]
+    },
+    miniUfo1: {
+      palette: { D: "#161822", C: "#48dbfb", M: "#747d8c", L: "#dfe4ea", R: "#ff4757" },
+      matrix: [
+        "....DDDD....",
+        "...DCCCCD...",
+        "..DDDDDDDD..",
+        ".DLLLLLLLLD.",
+        "DMMMRMMMRMMD",
+        ".DDDDDDDDDD."
+      ]
+    },
+    miniUfo2: {
+      palette: { D: "#161822", C: "#48dbfb", M: "#747d8c", L: "#dfe4ea", Y: "#ffd32a" },
+      matrix: [
+        "....DDDD....",
+        "...DCCCCD...",
+        "..DDDDDDDD..",
+        ".DLLLLLLLLD.",
+        "DMMMYMMMYMMD",
+        ".DDDDDDDDDD."
+      ]
+    },
+    weaponPickup: {
+      palette: { D: "#1e272e", Y: "#ffd32a", C: "#48dbfb", W: "#ffffff" },
+      matrix: [
+        "...DDDDDD...",
+        "..DYYYYYYD..",
+        ".DYWWWWWWYD.",
+        "DYWWCCCCWWYD",
+        "DYWCCCCCCWYD",
+        "DYWWCCCCWWYD",
+        ".DYWWWWWWYD.",
+        "..DYYYYYYD..",
+        "...DDDDDD..."
+      ]
+    },
+    mothership1: {
+      palette: { D: "#161426", M: "#5352ed", L: "#70a1ff", C: "#48dbfb", R: "#ff4757", Y: "#ffd32a" },
+      matrix: [
+        ".......DDDDDD.......",
+        ".....DDCCCCCCDD.....",
+        "....DCCCCCCCCCCD....",
+        "..DDDDDDDDDDDDDDDD..",
+        ".DLLLLLLLLLLLLLLLLD.",
+        "DMMRMMMRMMMMRMMMRMMD",
+        "DMMMMMMMMMMMMMMMMMMD",
+        ".DDDDYYDDDDDDYYDDDD.",
+        ".....DD......DD....."
+      ]
+    },
+    mothership2: {
+      palette: { D: "#161426", M: "#5352ed", L: "#70a1ff", C: "#48dbfb", R: "#ff4757", Y: "#ffd32a" },
+      matrix: [
+        ".......DDDDDD.......",
+        ".....DDCCCCCCDD.....",
+        "....DCCCCCCCCCCD....",
+        "..DDDDDDDDDDDDDDDD..",
+        ".DLLLLLLLLLLLLLLLLD.",
+        "DMMYMMMYMMMMYMMMYMMD",
+        "DMMMMMMMMMMMMMMMMMMD",
+        ".DDDDCCDDDDDDCCDDDD.",
+        ".....DD......DD....."
+      ]
+    },
+    mothershipHurt: {
+      palette: { D: "#5c0f0f", M: "#ff4757", L: "#ffd32a", C: "#ffffff", R: "#ffffff", Y: "#ffd32a" },
+      matrix: [
+        ".......DDDDDD.......",
+        ".....DDCCCCCCDD.....",
+        "....DCCCCCCCCCCD....",
+        "..DDDDDDDDDDDDDDDD..",
+        ".DLLLLLLLLLLLLLLLLD.",
+        "DMMRMMMRMMMMRMMMRMMD",
+        "DMMMMMMMMMMMMMMMMMMD",
+        ".DDDDYYDDDDDDYYDDDD.",
+        ".....DD......DD....."
+      ]
+    },
+    grandma: {
+      palette: { D: "#2c1d18", H: "#dfe4ea", S: "#ffdfc4", P: "#ff9ff3", B: "#70a1ff", W: "#ffffff" },
+      matrix: [
+        "....HHHH....",
+        "...HHHHHH...",
+        "...HSSSSHH..",
+        "...DSSDSSH..",
+        "....SSSS....",
+        "..DDPPPPDD..",
+        ".DPPPPPPPPD.",
+        ".DPWWPPWWPD.",
+        "..DPPPPPPD..",
+        "..DBBBBBBD..",
+        "..DBBBBBBD..",
+        "...DD..DD..."
+      ]
     }
   };
 

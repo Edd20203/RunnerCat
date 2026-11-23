@@ -47,6 +47,7 @@
     const levelSummaryBox = document.getElementById("selected-level-summary");
     const btnPlay = document.getElementById("btn-play");
     const btnDevUnlock = document.getElementById("btn-dev-unlock");
+    const btnDevEnding = document.getElementById("btn-dev-ending");
     const btnBackMode = document.getElementById("btn-back-mode");
     const btnCloseCats = document.getElementById("btn-close-cats");
     const btnCloseControls = document.getElementById("btn-close-controls");
@@ -56,6 +57,8 @@
     const btnSaveControls = document.getElementById("btn-save-controls");
     const demoBanner = document.getElementById("demo-banner");
     const btnExitDemo = document.getElementById("btn-exit-demo");
+    const endingBanner = document.getElementById("ending-banner");
+    const btnExitEnding = document.getElementById("btn-exit-ending");
     const btnHelp = document.getElementById("btn-help");
     const btnCloseHelp = document.getElementById("btn-close-help");
 
@@ -110,6 +113,7 @@
 
     let activeCategory = "story"; // "story" | "endless"
     let returnScreen = "title"; // "title" | "mode"
+    let pendingEndingSummary = null;
     let selectedLevelId = RC.Storage.getState().selectedLevel;
     if (
       !RC.Levels.LIST.some((l) => l.id === selectedLevelId) ||
@@ -134,6 +138,16 @@
     const game = new RC.RunnerGame(canvas, {
       onHudUpdate: updateHud,
       onRunEnd: showResultScreen,
+      onEndingStart: (summary) => {
+        pendingEndingSummary = summary;
+        hud.classList.add("hidden");
+        btnPause.classList.add("hidden");
+        btnMenuTop.classList.add("hidden");
+        applyControlModeUI(false);
+        hideAllOverlays();
+        endingBanner.classList.remove("hidden");
+        game.startEnding(selectedCatId, true);
+      },
       onPauseChange: (paused) => {
         screenPause.classList.toggle("hidden", !paused);
       }
@@ -154,6 +168,7 @@
       const active = RC.Storage.isDevUnlockAll();
       btnDevUnlock.textContent = active ? "🔓 DEV: TODO ACTIVO" : "🔒 DEV: ACTIVAR TODOS";
       btnDevUnlock.classList.toggle("btn-dev-active", active);
+      btnDevEnding.classList.toggle("hidden", !active);
     }
 
     function renderLevelCards(list, containerEl) {
@@ -171,7 +186,7 @@
 
         const goalStr = lvl.targetDistance
           ? `Meta: ${lvl.targetDistance}m`
-          : lvl.mode === "boss" || lvl.mode === "swimBoss" || lvl.mode === "planeBoss"
+          : lvl.mode === "boss" || lvl.mode === "swimBoss" || lvl.mode === "planeBoss" || lvl.mode === "spaceBoss"
           ? `Jefe: ${lvl.bossMaxHp} HP`
           : "Sin meta (∞)";
         const statusTag = !unlocked
@@ -271,8 +286,9 @@
       const isStory = activeCategory === "story";
       const list = isStory ? RC.Levels.STORY_LIST : RC.Levels.ENDLESS_LIST;
       levelsEyebrow.textContent = isStory ? "MODO HISTORIA" : "MODO ARCADE INFINITO";
-      levelsTitle.textContent = isStory ? "NIVELES 1–12" : "ELIGE TU ESCENARIO INFINITO";
+      levelsTitle.textContent = isStory ? "NIVELES 1–16" : "ELIGE TU ESCENARIO INFINITO";
       btnDevUnlock.classList.toggle("hidden", !isStory);
+      btnDevEnding.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
 
       if (!list.some((l) => l.id === selectedLevelId)) {
         selectedLevelId = list[0].id;
@@ -385,6 +401,8 @@
             ? "🦑 CALAMAR"
             : data.level.mode === "planeBoss"
             ? "✈ AVIÓN JEFE"
+            : data.level.mode === "spaceBoss"
+            ? "🛸 NAVE NODRIZA"
             : "🐔 GALLINA";
         const pct = Math.max(0, (data.bossHp / data.bossMaxHp) * 100);
         hudGoalText.textContent = `${data.bossHp} / ${data.bossMaxHp} HP`;
@@ -403,6 +421,7 @@
 
       // Active power-up pills
       let pills = "";
+      if (data.laserLevel > 1) pills += `<span class="powerup-pill shield">⚡ LÁSER N${data.laserLevel}</span>`;
       if (data.missiles > 0) pills += `<span class="powerup-pill milk">🚀 MISIL x${data.missiles}</span>`;
       if (data.shield) pills += `<span class="powerup-pill shield">🧶 ESCUDO</span>`;
       if (data.magnetSec > 0) pills += `<span class="powerup-pill magnet">🧲 ${data.magnetSec}s</span>`;
@@ -552,6 +571,30 @@
     };
     btnCloseControls.addEventListener("click", closeControlsAction);
     btnSaveControls.addEventListener("click", closeControlsAction);
+
+    btnDevEnding.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      pendingEndingSummary = null;
+      hud.classList.add("hidden");
+      btnPause.classList.add("hidden");
+      btnMenuTop.classList.add("hidden");
+      applyControlModeUI(false);
+      hideAllOverlays();
+      endingBanner.classList.remove("hidden");
+      game.startEnding(selectedCatId, false);
+    });
+
+    btnExitEnding.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      endingBanner.classList.add("hidden");
+      if (pendingEndingSummary) {
+        const summary = pendingEndingSummary;
+        pendingEndingSummary = null;
+        showResultScreen(summary);
+      } else {
+        showMenu("story");
+      }
+    });
 
     btnPlay.addEventListener("click", startCurrentLevel);
 

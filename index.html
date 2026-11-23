@@ -111,6 +111,12 @@
         <button id="btn-exit-demo" class="pixel-btn btn-secondary btn-sm" type="button">⬅ VOLVER</button>
       </div>
 
+      <!-- Ending Cutscene Banner -->
+      <div id="ending-banner" class="demo-banner hidden">
+        <span>🏠 HISTORIA COMPLETADA</span>
+        <button id="btn-exit-ending" class="pixel-btn btn-primary btn-sm" type="button">✓ CONTINUAR</button>
+      </div>
+
       <!-- Screen 1: Title / Enter Screen -->
       <section id="screen-title" class="overlay-screen">
         <div class="modal-card modal-compact title-card">
@@ -141,9 +147,9 @@
 
           <div class="mode-grid">
             <button id="btn-mode-story" class="mode-choice-card" type="button">
-              <span class="mode-badge">12 NIVELES</span>
+              <span class="mode-badge">16 NIVELES</span>
               <h3>📖 MODO HISTORIA</h3>
-              <p>Supera los 12 escenarios: callejones, buceo, mini-avión y 3 jefes finales.</p>
+              <p>Supera los 16 escenarios: callejones, buceo, mini-avión, espacio y 4 jefes finales.</p>
             </button>
             <button id="btn-mode-arcade" class="mode-choice-card mode-choice-arcade" type="button">
               <span class="mode-badge badge-cyan">4 MODOS ∞</span>
@@ -168,6 +174,9 @@
               <h2 id="levels-title">SELECCIONA TU NIVEL</h2>
             </div>
             <div class="menu-header-actions">
+              <button id="btn-dev-ending" class="pixel-btn btn-accent btn-sm hidden" title="Probar animación del final" type="button">
+                🎬 DEV: VER FINAL
+              </button>
               <button id="btn-dev-unlock" class="pixel-btn btn-secondary btn-sm" title="Desbloquear todos los niveles para pruebas" type="button">
                 🔒 DEV: ACTIVAR TODOS
               </button>

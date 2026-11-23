@@ -657,6 +657,179 @@
         sunMoon: "#ff6b81"
       },
       obstacles: []
+    },
+    {
+      id: "space1",
+      number: 13,
+      mode: "space",
+      name: "Órbita Lunar",
+      shortName: "N13: ESPACIO I",
+      difficulty: "Difícil",
+      targetDistance: 950,
+      baseSpeed: 345,
+      maxSpeed: 580,
+      accelPerSec: 6.5,
+      spawnScale: 0.92,
+      dayNightCycleDist: 280,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #0c2461 0%, #6c5ce7 55%, #00d2d3 100%)",
+      description: "Gravedad lunar: salta alto, flota y usa tu láser (X) contra alienígenas.",
+      day: {
+        skyTop: "#0a0e29",
+        skyBottom: "#1b2452",
+        cloud: "#2e3b7a",
+        farBg: "#161d42",
+        nearBg: "#222c5c",
+        groundTop: "#a4b0be",
+        groundFill: "#57606f",
+        groundDetail: "#747d8c",
+        sunMoon: "#dff9fb"
+      },
+      night: {
+        skyTop: "#040614",
+        skyBottom: "#0e1330",
+        cloud: "#1c2454",
+        farBg: "#090d24",
+        nearBg: "#12193d",
+        groundTop: "#70a1ff",
+        groundFill: "#2f3542",
+        groundDetail: "#57606f",
+        sunMoon: "#48dbfb"
+      },
+      obstacles: [
+        { type: "alienWalker", weight: 32 },
+        { type: "alienFloater", weight: 32 },
+        { type: "spaceRock", weight: 36 }
+      ]
+    },
+    {
+      id: "space2",
+      number: 14,
+      mode: "space",
+      name: "Cinturón Estelar",
+      shortName: "N14: ESPACIO II",
+      difficulty: "Muy Difícil",
+      targetDistance: 1150,
+      baseSpeed: 380,
+      maxSpeed: 645,
+      accelPerSec: 7.8,
+      spawnScale: 0.8,
+      dayNightCycleDist: 260,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #341f97 0%, #ee5253 55%, #48dbfb 100%)",
+      description: "Aliens con disparo láser en tierra y aire. ¡Calcula tus saltos flotantes!",
+      day: {
+        skyTop: "#130f40",
+        skyBottom: "#30336b",
+        cloud: "#5352ed",
+        farBg: "#201e54",
+        nearBg: "#2c296e",
+        groundTop: "#ff9f43",
+        groundFill: "#3d3347",
+        groundDetail: "#6c5ce7",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#060417",
+        skyBottom: "#17113b",
+        cloud: "#2d2266",
+        farBg: "#0d0929",
+        nearBg: "#181242",
+        groundTop: "#ff6b81",
+        groundFill: "#1f1a33",
+        groundDetail: "#4834d4",
+        sunMoon: "#ff9ff3"
+      },
+      obstacles: [
+        { type: "alienWalker", weight: 34 },
+        { type: "alienFloater", weight: 36 },
+        { type: "spaceRock", weight: 30 }
+      ]
+    },
+    {
+      id: "space3",
+      number: 15,
+      mode: "space",
+      name: "Nebulosa Hostil",
+      shortName: "N15: ESPACIO III",
+      difficulty: "Experto",
+      targetDistance: 1350,
+      baseSpeed: 415,
+      maxSpeed: 710,
+      accelPerSec: 8.8,
+      spawnScale: 0.7,
+      dayNightCycleDist: 240,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #ff4757 0%, #5f27cd 55%, #00d2d3 100%)",
+      description: "Oleadas espaciales intensas: alienígenas armados y rocas lunares.",
+      day: {
+        skyTop: "#2c0735",
+        skyBottom: "#61135e",
+        cloud: "#8e247d",
+        farBg: "#3d0b47",
+        nearBg: "#52105e",
+        groundTop: "#00d2d3",
+        groundFill: "#2a1b3d",
+        groundDetail: "#ff6b81",
+        sunMoon: "#ffffff"
+      },
+      night: {
+        skyTop: "#08020d",
+        skyBottom: "#1a0726",
+        cloud: "#310f47",
+        farBg: "#11041c",
+        nearBg: "#1e0830",
+        groundTop: "#48dbfb",
+        groundFill: "#140b24",
+        groundDetail: "#ff4757",
+        sunMoon: "#48dbfb"
+      },
+      obstacles: [
+        { type: "alienWalker", weight: 36 },
+        { type: "alienFloater", weight: 38 },
+        { type: "spaceRock", weight: 26 }
+      ]
+    },
+    {
+      id: "spaceBoss",
+      number: 16,
+      mode: "spaceBoss",
+      name: "La Nave Nodriza",
+      shortName: "N16: JEFE FINAL",
+      difficulty: "Jefe Final",
+      targetDistance: null,
+      bossMaxHp: 24,
+      baseSpeed: 375,
+      maxSpeed: 520,
+      accelPerSec: 3.5,
+      spawnScale: 1.0,
+      dayNightCycleDist: 300,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #2ed573 0%, #5f27cd 50%, #ff4757 100%)",
+      description: "Destruye mini-naves para mejorar tu láser, esquiva obstáculos y derrota a la Nave Nodriza.",
+      day: {
+        skyTop: "#0b0c24",
+        skyBottom: "#251749",
+        cloud: "#3f2b73",
+        farBg: "#151238",
+        nearBg: "#1f1a4d",
+        groundTop: "#2ed573",
+        groundFill: "#1e272e",
+        groundDetail: "#48dbfb",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#03040d",
+        skyBottom: "#100826",
+        cloud: "#221447",
+        farBg: "#09061a",
+        nearBg: "#110b2e",
+        groundTop: "#ff4757",
+        groundFill: "#0b0d14",
+        groundDetail: "#2ed573",
+        sunMoon: "#ff6b81"
+      },
+      obstacles: []
     }
   ];
 
