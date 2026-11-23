@@ -186,6 +186,15 @@
 
     eggDrop() {
       playTone({ type: "triangle", freq: 520, freqEnd: 210, duration: 0.12, volume: 0.08 });
+    },
+
+    mineBeep() {
+      playTone({ type: "square", freq: 880, duration: 0.05, volume: 0.09 });
+    },
+
+    mineExplode() {
+      playNoise(0.22, 0.2, 260);
+      playTone({ type: "sawtooth", freq: 180, freqEnd: 45, duration: 0.24, volume: 0.15 });
     }
   };
 

@@ -149,6 +149,16 @@
       return arr;
     }
 
+    isSwimMode(lvlMode) {
+      const m = lvlMode || this.level.mode || "runner";
+      return m === "swim" || m === "swimBoss";
+    }
+
+    isPlaneMode(lvlMode) {
+      const m = lvlMode || this.level.mode || "runner";
+      return m === "plane" || m === "planeBoss";
+    }
+
     setPreviewConfig(levelId, skinId) {
       this.level = RC.Levels.getLevelById(levelId);
       this.skinId = skinId;
@@ -178,9 +188,11 @@
       this.hitstopTimer = 0;
 
       const startY =
-        lvlMode === "swim" || lvlMode === "plane" ? Math.floor(GROUND_Y * 0.45) : GROUND_Y - 42;
-      const startW = lvlMode === "swim" ? 54 : lvlMode === "plane" ? 54 : 48;
-      const startH = lvlMode === "swim" ? 36 : lvlMode === "plane" ? 27 : 42;
+        this.isSwimMode(lvlMode) || this.isPlaneMode(lvlMode)
+          ? Math.floor(GROUND_Y * 0.45)
+          : GROUND_Y - 42;
+      const startW = this.isSwimMode(lvlMode) ? 54 : this.isPlaneMode(lvlMode) ? 54 : 48;
+      const startH = this.isSwimMode(lvlMode) ? 36 : this.isPlaneMode(lvlMode) ? 27 : 42;
 
       this.cat = {
         x: CAT_X,
@@ -207,8 +219,12 @@
 
       this.obstacles = [];
       this.collectibles = [];
-      this.projectiles = []; // plane bullets
+      this.projectiles = []; // plane bullets & missiles
+      this.launchedMines = []; // scratched proximity mines flying forward
       this.bossEggs = [];    // giant chicken eggs
+      this.bossPiranhas = []; // giant squid piranhas
+      this.bossTrash = [];   // boss plane trash bags
+      this.catMissiles = 0;
       this.particles = [];
       this.floatingTexts = [];
 
@@ -218,10 +234,11 @@
       this.finishGateSpawned = false;
       this.finishGateX = null;
 
-      // Boss state (Level 5: Giant Chicken)
+      // Boss state (Level 4: Giant Chicken, Level 8: Giant Squid)
       if (lvlMode === "boss") {
         const maxHp = lvl.bossMaxHp || 10;
         this.boss = {
+          kind: "chicken",
           active: true,
           hp: maxHp,
           maxHp,
@@ -236,6 +253,39 @@
           eggTimer: 1.05,
           hurtTimer: 0,
           hitThisWindow: false,
+          animTimer: 0
+        };
+      } else if (lvlMode === "swimBoss") {
+        const maxHp = lvl.bossMaxHp || 8;
+        this.boss = {
+          kind: "squid",
+          active: true,
+          hp: maxHp,
+          maxHp,
+          x: WIDTH - 148,
+          y: 110,
+          w: 96,
+          h: 72,
+          dir: 1,
+          piranhaTimer: 1.15,
+          hurtTimer: 0,
+          animTimer: 0
+        };
+      } else if (lvlMode === "planeBoss") {
+        const maxHp = lvl.bossMaxHp || 8;
+        this.boss = {
+          kind: "plane",
+          active: true,
+          hp: maxHp,
+          maxHp,
+          x: WIDTH - 156,
+          y: 96,
+          w: 120,
+          h: 54,
+          dir: 1,
+          trashTimer: 0.9,
+          bagCount: 0,
+          hurtTimer: 0,
           animTimer: 0
         };
       } else {
@@ -280,7 +330,7 @@
       const lvlMode = this.level.mode || "runner";
       this.keys.jumpHeld = true;
 
-      if (lvlMode === "swim") {
+      if (this.isSwimMode(lvlMode)) {
         this.keys.upHeld = true;
         this.cat.vy = Math.min(this.cat.vy, -240);
         RC.Audio.swim();
@@ -288,7 +338,7 @@
         return;
       }
 
-      if (lvlMode === "plane") {
+      if (this.isPlaneMode(lvlMode)) {
         // Space/Click fires in plane mode, ArrowUp/W sets upHeld via setUp()
         this.firePlaneBullet();
         return;
@@ -301,11 +351,11 @@
     releaseJump() {
       this.keys.jumpHeld = false;
       const lvlMode = this.level.mode || "runner";
-      if (lvlMode === "swim") {
+      if (this.isSwimMode(lvlMode)) {
         this.keys.upHeld = false;
         return;
       }
-      if (lvlMode === "plane") return;
+      if (this.isPlaneMode(lvlMode)) return;
 
       if (this.mode === "playing" && this.cat.vy < -260) {
         this.cat.vy *= 0.58;
@@ -332,7 +382,7 @@
       if (this.mode !== "playing") return;
       const lvlMode = this.level.mode || "runner";
 
-      if (lvlMode === "plane") {
+      if (this.isPlaneMode(lvlMode)) {
         this.firePlaneBullet();
         return;
       }
@@ -342,13 +392,13 @@
 
       cat.clawTimer = CLAW_DURATION;
       cat.clawCooldown = CLAW_COOLDOWN;
-      if (lvlMode === "swim") {
+      if (this.isSwimMode(lvlMode)) {
         RC.Audio.swim();
       } else {
         RC.Audio.claw();
       }
 
-      const sparkColor = lvlMode === "swim" ? "#48dbfb" : "#ff6b81";
+      const sparkColor = this.isSwimMode(lvlMode) ? "#48dbfb" : "#ff6b81";
       for (let i = 0; i < 7; i++) {
         this.spawnParticle(
           cat.x + cat.w + 10,
@@ -366,14 +416,30 @@
       const cat = this.cat;
       if (cat.fireCooldown > 0) return;
       cat.fireCooldown = PLANE_FIRE_COOLDOWN;
-      RC.Audio.shoot();
 
+      if (this.catMissiles > 0) {
+        this.catMissiles -= 1;
+        RC.Audio.wallSmash();
+        this.projectiles.push({
+          x: cat.x + cat.w + 4,
+          y: cat.y + Math.floor(cat.h * 0.4),
+          w: 36,
+          h: 16,
+          vx: 820,
+          isMissile: true
+        });
+        this.spawnBurst(cat.x + cat.w + 4, cat.y + cat.h * 0.5, "#ff4757", 6);
+        return;
+      }
+
+      RC.Audio.shoot();
       this.projectiles.push({
         x: cat.x + cat.w + 4,
         y: cat.y + Math.floor(cat.h * 0.52),
         w: 16,
         h: 6,
-        vx: 760
+        vx: 760,
+        isMissile: false
       });
 
       this.spawnParticle(cat.x + cat.w + 4, cat.y + cat.h * 0.52, 160, 0, "#ffd32a", 4, 0.08);
@@ -435,7 +501,7 @@
       this.cat.runAnimTimer += dt * 7;
 
       const lvlMode = this.level.mode || "runner";
-      if (lvlMode === "swim" || lvlMode === "plane") {
+      if (this.isSwimMode(lvlMode) || this.isPlaneMode(lvlMode)) {
         this.cat.y = Math.floor(GROUND_Y * 0.45 + Math.sin(this.time * 3) * 14);
         this.cat.onGround = false;
       } else {
@@ -535,7 +601,7 @@
         }
       });
 
-      if (this.level.mode === "swim") {
+      if (this.isSwimMode(this.level.mode)) {
         this.bubbles.forEach((b) => {
           b.y -= b.speedY * worldDt;
           b.x -= movePx * 0.35;
@@ -558,7 +624,7 @@
       this.updateCat(rawDt, worldDt);
 
       // ---- Plane Auto-fire if held ----
-      if (this.level.mode === "plane" && (this.keys.fireHeld || this.keys.jumpHeld)) {
+      if (this.isPlaneMode(this.level.mode) && (this.keys.fireHeld || this.keys.jumpHeld)) {
         this.firePlaneBullet();
       }
 
@@ -581,21 +647,27 @@
 
       // ---- Spawning ----
       if (!this.finishGateSpawned) {
-        this.spawnTimer -= worldDt;
-        if (this.spawnTimer <= 0) {
-          this.spawnObstacle();
-          const speedRatio = Math.max(0, (this.speed - 320) / 480);
-          const lvlMode = this.level.mode || "runner";
-          let minInterval = Math.max(0.6, 1.02 - speedRatio * 0.35);
-          let maxInterval = Math.max(1.0, 1.7 - speedRatio * 0.55);
-          if (lvlMode === "boss") {
-            minInterval = 1.45;
-            maxInterval = 2.35;
-          } else if (lvlMode === "plane") {
-            minInterval = 0.65;
-            maxInterval = 1.2;
+        if (this.level.mode !== "planeBoss") {
+          this.spawnTimer -= worldDt;
+          if (this.spawnTimer <= 0) {
+            this.spawnObstacle();
+            const speedRatio = Math.max(0, (this.speed - 320) / 480);
+            const lvlMode = this.level.mode || "runner";
+            const scale = this.level.spawnScale || 1.0;
+            let minInterval = Math.max(0.56, (1.02 - speedRatio * 0.35) * scale);
+            let maxInterval = Math.max(0.9, (1.7 - speedRatio * 0.55) * scale);
+            if (lvlMode === "boss") {
+              minInterval = 1.45;
+              maxInterval = 2.35;
+            } else if (lvlMode === "swimBoss") {
+              minInterval = 1.25;
+              maxInterval = 2.0;
+            } else if (lvlMode === "plane") {
+              minInterval = 0.65;
+              maxInterval = 1.2;
+            }
+            this.spawnTimer = minInterval + Math.random() * (maxInterval - minInterval);
           }
-          this.spawnTimer = minInterval + Math.random() * (maxInterval - minInterval);
         }
 
         this.collectibleTimer -= worldDt;
@@ -611,12 +683,20 @@
         }
       }
 
-      // ---- Update Projectiles (Plane mode) ----
+      // ---- Update Projectiles (Plane mode) & Launched Mines (Swim modes) ----
       this.updateProjectiles(rawDt);
+      this.updateLaunchedMines(rawDt);
+      if (this.mode !== "playing") return;
 
-      // ---- Update Boss (Level 5) ----
+      // ---- Update Boss (Chicken, Squid, or Plane) ----
       if (this.boss && this.boss.active) {
-        this.updateBoss(rawDt, worldDt);
+        if (this.boss.kind === "squid") {
+          this.updateSquidBoss(rawDt, worldDt);
+        } else if (this.boss.kind === "plane") {
+          this.updatePlaneBoss(rawDt, worldDt);
+        } else {
+          this.updateBoss(rawDt, worldDt);
+        }
         if (this.mode !== "playing") return;
       }
 
@@ -652,7 +732,7 @@
       if (cat.magnetTimer > 0) cat.magnetTimer = Math.max(0, cat.magnetTimer - rawDt);
       if (cat.milkTimer > 0) cat.milkTimer = Math.max(0, cat.milkTimer - rawDt);
 
-      if (lvlMode === "swim") {
+      if (this.isSwimMode(lvlMode)) {
         // Underwater buoyant swimming
         cat.w = 54;
         cat.h = 36;
@@ -677,7 +757,7 @@
           cat.y = maxY;
           cat.vy = 0;
         }
-      } else if (lvlMode === "plane") {
+      } else if (this.isPlaneMode(lvlMode)) {
         // Smooth 2D vertical flight
         cat.w = 54;
         cat.h = 27;
@@ -767,10 +847,10 @@
       const cat = this.cat;
       const lvlMode = this.level.mode || "runner";
       if (this.mode === "gameover") return "hurt";
-      if (lvlMode === "swim") {
+      if (this.isSwimMode(lvlMode)) {
         return Math.floor(cat.runAnimTimer) % 2 === 0 ? "swim1" : "swim2";
       }
-      if (lvlMode === "plane") {
+      if (this.isPlaneMode(lvlMode)) {
         return Math.floor(this.time * 16) % 2 === 0 ? "plane1" : "plane2";
       }
       if (cat.clawTimer > 0) return "slash";
@@ -912,6 +992,42 @@
           extraSpeed: 0,
           bobPhase: Math.random() * Math.PI * 2
         };
+      } else if (type === "proxMine") {
+        // Proximity bomb: arms if cat swims too close; can be scratched (X) to launch forward!
+        const laneY = 54 + Math.random() * (GROUND_Y - 114);
+        obs = {
+          type,
+          sprite: "proxMine",
+          x,
+          y: laneY,
+          baseY: laneY,
+          w: 30,
+          h: 30,
+          scratchable: true,
+          launchable: true,
+          isProximityMine: true,
+          proxRadius: 96,
+          blastRadius: 72,
+          armed: false,
+          fuseTimer: 0.45,
+          beepCooldown: 0,
+          extraSpeed: 0,
+          bobPhase: Math.random() * Math.PI * 2
+        };
+      } else if (type === "seaweed") {
+        // Full-height dense seaweed barrier: only passable by attacking (X)
+        obs = {
+          type,
+          sprite: "seaweed",
+          x,
+          y: 24,
+          w: 42,
+          h: GROUND_Y - 24,
+          scratchable: true,
+          shootable: false,
+          points: 65,
+          extraSpeed: 0
+        };
       } else if (type === "coral") {
         obs = {
           type,
@@ -968,6 +1084,33 @@
       if (obs) {
         obs.animTimer = 0;
         this.obstacles.push(obs);
+
+        // In harder runner levels (N2, N3, Endless), occasionally pair ground obstacles with an aerial hazard
+        const isGroundRunner =
+          lvlMode === "runner" &&
+          (this.level.spawnScale || 1) <= 0.85 &&
+          ["hydrant", "trash", "bush", "antenna", "crate"].includes(type);
+        const airChance = (this.level.spawnScale || 1) <= 0.72 ? 0.38 : 0.22;
+        if (isGroundRunner && Math.random() < airChance) {
+          const isDrone = Math.random() < 0.45;
+          const airY = GROUND_Y - (Math.random() < 0.5 ? 102 : 60);
+          this.obstacles.push({
+            type: isDrone ? "drone" : "bird",
+            sprite: isDrone ? "drone1" : "bird1",
+            animFrames: isDrone ? ["drone1", "drone2"] : ["bird1", "bird2"],
+            x: x + 150 + Math.random() * 75,
+            y: airY,
+            baseY: airY,
+            w: 42,
+            h: 24,
+            scratchable: true,
+            shootable: true,
+            points: isDrone ? 65 : 50,
+            extraSpeed: isDrone ? 70 : 45,
+            bobPhase: Math.random() * Math.PI * 2,
+            animTimer: 0
+          });
+        }
       }
     }
 
@@ -976,7 +1119,7 @@
       const startX = WIDTH + 50;
       const lvlMode = this.level.mode || "runner";
 
-      if (lvlMode === "swim" || lvlMode === "plane") {
+      if (this.isSwimMode(lvlMode) || this.isPlaneMode(lvlMode)) {
         const baseY = 48 + Math.random() * (GROUND_Y - 110);
         for (let i = 0; i < 3; i++) {
           const isGold = i === 1 && Math.random() < 0.35;
@@ -1211,13 +1354,313 @@
       boss.stateTimer = 0.85;
     }
 
-    // ---- Projectiles (Plane Mode) ----
+    // ---- Squid Boss Logic (Level 8: Giant Squid) ----
+    updateSquidBoss(rawDt, worldDt) {
+      const boss = this.boss;
+      if (!boss || !boss.active) return;
+
+      boss.animTimer += rawDt * 6;
+      if (boss.hurtTimer > 0) boss.hurtTimer = Math.max(0, boss.hurtTimer - rawDt);
+
+      // Vertical patrol on the right side
+      boss.y += boss.dir * 95 * worldDt;
+      if (boss.y < 36) {
+        boss.y = 36;
+        boss.dir = 1;
+      } else if (boss.y > GROUND_Y - boss.h - 12) {
+        boss.y = GROUND_Y - boss.h - 12;
+        boss.dir = -1;
+      }
+
+      // Launch piranhas from front to back
+      boss.piranhaTimer -= worldDt;
+      if (boss.piranhaTimer <= 0) {
+        const rage = boss.maxHp - boss.hp;
+        boss.piranhaTimer = Math.max(0.55, 1.15 - rage * 0.06) + Math.random() * 0.45;
+        RC.Audio.shoot();
+        const py = boss.y + boss.h * 0.4;
+        this.bossPiranhas.push({
+          x: boss.x - 16,
+          y: py,
+          baseY: py,
+          w: 42,
+          h: 27,
+          vx: -(370 + rage * 20),
+          phase: Math.random() * Math.PI * 2,
+          animTimer: 0
+        });
+      }
+
+      const catBox = this.getCatHitbox();
+      const clawActive = this.cat.clawTimer > 0;
+      const clawBox = clawActive ? this.getClawHitbox() : null;
+
+      for (let i = this.bossPiranhas.length - 1; i >= 0; i--) {
+        const p = this.bossPiranhas[i];
+        p.x += p.vx * worldDt;
+        p.animTimer += worldDt * 10;
+        p.y = p.baseY + Math.sin(this.time * 6 + p.phase) * 14;
+
+        if (p.x + p.w < -40) {
+          this.bossPiranhas.splice(i, 1);
+          continue;
+        }
+
+        if (clawActive && this.rectsOverlap(clawBox, p)) {
+          this.killScore += 25;
+          RC.Audio.scratchHit();
+          this.spawnBurst(p.x + p.w / 2, p.y + p.h / 2, "#ff6b81", 10);
+          this.addFloatingText("+25", p.x, p.y - 8, "#ffd32a", 12);
+          this.bossPiranhas.splice(i, 1);
+          continue;
+        }
+
+        if (this.rectsOverlap(catBox, p)) {
+          if (this.cat.milkTimer > 0) {
+            this.spawnBurst(p.x + p.w / 2, p.y + p.h / 2, "#ffd32a", 10);
+            this.bossPiranhas.splice(i, 1);
+            continue;
+          }
+          if (this.cat.invulnTimer > 0) continue;
+          if (this.cat.shield) {
+            this.cat.shield = false;
+            this.cat.invulnTimer = 1.15;
+            RC.Audio.shieldBreak();
+            this.triggerShake(8, 0.22);
+            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
+            this.bossPiranhas.splice(i, 1);
+            continue;
+          }
+          this.triggerGameOver();
+          return;
+        }
+      }
+    }
+
+    damageSquidBoss() {
+      const boss = this.boss;
+      boss.hp -= 1;
+      boss.hurtTimer = 0.45;
+      this.killCount += 1;
+      this.killScore += 150;
+      this.hitstopTimer = 0.05;
+      this.triggerShake(10, 0.24);
+      RC.Audio.mineExplode();
+      RC.Audio.bossHit();
+
+      this.spawnBurst(boss.x + boss.w * 0.35, boss.y + boss.h * 0.5, "#ff4757", 24);
+      this.spawnBurst(boss.x + boss.w * 0.35, boss.y + boss.h * 0.5, "#ffd32a", 14);
+      this.addFloatingText("¡IMPACTO! +150", boss.x - 20, boss.y - 12, "#ffd32a", 16);
+
+      if (boss.hp <= 0) {
+        boss.active = false;
+        this.killScore += 600;
+        this.triggerVictory();
+      }
+    }
+
+    // ---- Plane Boss Logic (Level 12: Trash Bomber Plane) ----
+    updatePlaneBoss(rawDt, worldDt) {
+      const boss = this.boss;
+      if (!boss || !boss.active) return;
+
+      boss.animTimer += rawDt * 14;
+      if (boss.hurtTimer > 0) boss.hurtTimer = Math.max(0, boss.hurtTimer - rawDt);
+
+      // Vertical patrol on the right
+      const rage = boss.maxHp - boss.hp;
+      boss.y += boss.dir * (105 + rage * 10) * worldDt;
+      if (boss.y < 28) {
+        boss.y = 28;
+        boss.dir = 1;
+      } else if (boss.y > GROUND_Y - boss.h - 14) {
+        boss.y = GROUND_Y - boss.h - 14;
+        boss.dir = -1;
+      }
+
+      // Throw trash bags toward the cat
+      boss.trashTimer -= worldDt;
+      if (boss.trashTimer <= 0) {
+        boss.trashTimer = Math.max(0.55, 1.05 - rage * 0.05) + Math.random() * 0.45;
+        boss.bagCount += 1;
+        RC.Audio.eggDrop();
+        this.bossTrash.push({
+          x: boss.x - 10,
+          y: boss.y + boss.h * 0.45,
+          w: 30,
+          h: 26,
+          vx: -(310 + rage * 18 + Math.random() * 55),
+          vy: (Math.random() - 0.5) * 90,
+          hasMissile: boss.bagCount % 2 === 0 || Math.random() < 0.45
+        });
+      }
+
+      const catBox = this.getCatHitbox();
+      for (let i = this.bossTrash.length - 1; i >= 0; i--) {
+        const t = this.bossTrash[i];
+        t.x += t.vx * worldDt;
+        t.y += t.vy * worldDt;
+        if (t.y < 24 || t.y + t.h > GROUND_Y - 6) {
+          t.vy *= -1;
+        }
+
+        if (t.x + t.w < -40) {
+          this.bossTrash.splice(i, 1);
+          continue;
+        }
+
+        if (this.rectsOverlap(catBox, t)) {
+          if (this.cat.milkTimer > 0) {
+            this.spawnBurst(t.x + 15, t.y + 13, "#ffd32a", 10);
+            this.bossTrash.splice(i, 1);
+            continue;
+          }
+          if (this.cat.invulnTimer > 0) continue;
+          if (this.cat.shield) {
+            this.cat.shield = false;
+            this.cat.invulnTimer = 1.15;
+            RC.Audio.shieldBreak();
+            this.triggerShake(8, 0.22);
+            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
+            this.bossTrash.splice(i, 1);
+            continue;
+          }
+          this.triggerGameOver();
+          return;
+        }
+      }
+    }
+
+    damagePlaneBoss() {
+      const boss = this.boss;
+      boss.hp -= 1;
+      boss.hurtTimer = 0.45;
+      this.killCount += 1;
+      this.killScore += 180;
+      this.hitstopTimer = 0.05;
+      this.triggerShake(10, 0.24);
+      RC.Audio.mineExplode();
+      RC.Audio.bossHit();
+
+      this.spawnBurst(boss.x + boss.w * 0.4, boss.y + boss.h * 0.5, "#ff4757", 24);
+      this.spawnBurst(boss.x + boss.w * 0.4, boss.y + boss.h * 0.5, "#ffd32a", 14);
+      this.addFloatingText("¡MISILAZO! +180", boss.x - 24, boss.y - 12, "#ffd32a", 16);
+
+      if (boss.hp <= 0) {
+        boss.active = false;
+        this.killScore += 750;
+        this.triggerVictory();
+      }
+    }
+
+    // ---- Launched Mines (Swim Levels 5-8) ----
+    updateLaunchedMines(rawDt) {
+      for (let i = this.launchedMines.length - 1; i >= 0; i--) {
+        const m = this.launchedMines[i];
+        m.x += m.vx * rawDt;
+
+        if (Math.random() < 0.5) {
+          this.spawnParticle(m.x, m.y + m.h / 2, -60, (Math.random() - 0.5) * 40, "#ffd32a", 3, 0.18);
+        }
+
+        if (m.x > WIDTH + 50) {
+          this.launchedMines.splice(i, 1);
+          continue;
+        }
+
+        // Check hit on Squid Boss
+        if (this.boss && this.boss.active && this.boss.kind === "squid") {
+          const bossBox = { x: this.boss.x, y: this.boss.y, w: this.boss.w, h: this.boss.h };
+          if (this.rectsOverlap(m, bossBox)) {
+            this.launchedMines.splice(i, 1);
+            this.damageSquidBoss();
+            if (this.mode !== "playing") return;
+            continue;
+          }
+        }
+
+        // Check hit on other underwater obstacles
+        let hitObs = false;
+        for (let j = this.obstacles.length - 1; j >= 0; j--) {
+          const obs = this.obstacles[j];
+          if (this.rectsOverlap(m, obs)) {
+            hitObs = true;
+            RC.Audio.mineExplode();
+            this.triggerShake(6, 0.16);
+            this.spawnBurst(obs.x + obs.w / 2, obs.y + obs.h / 2, "#ff4757", 16);
+            this.killCount += 1;
+            this.killScore += 80;
+            this.addFloatingText("+80 ¡BOOM!", obs.x, obs.y - 10, "#ffd32a", 13);
+            this.obstacles.splice(j, 1);
+            break;
+          }
+        }
+        if (hitObs) {
+          this.launchedMines.splice(i, 1);
+        }
+      }
+    }
+
+    // ---- Projectiles (Plane mode & Plane Boss) ----
     updateProjectiles(rawDt) {
       for (let i = this.projectiles.length - 1; i >= 0; i--) {
         const b = this.projectiles[i];
         b.x += b.vx * rawDt;
 
-        if (b.x > WIDTH + 30) {
+        if (b.isMissile && Math.random() < 0.7) {
+          this.spawnParticle(b.x, b.y + b.h / 2, -80, (Math.random() - 0.5) * 40, "#ff9f43", 4, 0.16);
+        }
+
+        if (b.x > WIDTH + 40) {
+          this.projectiles.splice(i, 1);
+          continue;
+        }
+
+        // Check hit on Plane Boss
+        if (this.boss && this.boss.active && this.boss.kind === "plane") {
+          const bossBox = { x: this.boss.x, y: this.boss.y, w: this.boss.w, h: this.boss.h };
+          if (this.rectsOverlap(b, bossBox)) {
+            this.projectiles.splice(i, 1);
+            if (b.isMissile) {
+              this.damagePlaneBoss();
+              if (this.mode !== "playing") return;
+            } else {
+              this.spawnBurst(b.x, b.y, "#c8d6e5", 4);
+              if (this.catMissiles === 0 && Math.random() < 0.2) {
+                this.addFloatingText("¡USA MISILES!", this.boss.x - 16, this.boss.y - 10, "#ffd32a", 12);
+              }
+            }
+            continue;
+          }
+        }
+
+        // Check hit on Plane Boss Trash Bags -> drops collectible missiles!
+        let hitTrash = false;
+        for (let k = this.bossTrash.length - 1; k >= 0; k--) {
+          const t = this.bossTrash[k];
+          if (this.rectsOverlap(b, t)) {
+            hitTrash = true;
+            this.killScore += 20;
+            RC.Audio.scratchHit();
+            this.spawnBurst(t.x + t.w / 2, t.y + t.h / 2, "#7f9c6e", 10);
+            if (t.hasMissile) {
+              this.collectibles.push({
+                kind: "missilePickup",
+                x: t.x,
+                y: t.y,
+                w: 34,
+                h: 28,
+                phase: Math.random() * Math.PI * 2
+              });
+              this.addFloatingText("🚀 ¡MISIL!", t.x, t.y - 10, "#ffd32a", 12);
+            } else {
+              this.addFloatingText("+20", t.x, t.y - 8, "#a3cb38", 11);
+            }
+            this.bossTrash.splice(k, 1);
+            break;
+          }
+        }
+        if (hitTrash) {
           this.projectiles.splice(i, 1);
           continue;
         }
@@ -1272,6 +1715,8 @@
           ? ["#e6a65c", "#b87435", "#ffeaa7"]
           : obs.type === "seaWall"
           ? ["#82ccdd", "#4a69bd", "#ffd32a"]
+          : obs.type === "seaweed"
+          ? ["#2ed573", "#168246", "#a3cb38"]
           : ["#ff6b81", "#ffd32a", "#ffffff"];
 
       for (let i = 0; i < 14; i++) {
@@ -1317,6 +1762,57 @@
           continue;
         }
 
+        // Proximity Mine logic (Levels 6 & 7)
+        if (obs.isProximityMine) {
+          const catCx = this.cat.x + this.cat.w / 2;
+          const catCy = this.cat.y + this.cat.h / 2;
+          const mineCx = obs.x + obs.w / 2;
+          const mineCy = obs.y + obs.h / 2;
+          const dist = Math.hypot(catCx - mineCx, catCy - mineCy);
+
+          if (!obs.armed && dist <= obs.proxRadius) {
+            obs.armed = true;
+            obs.beepCooldown = 0.14;
+            RC.Audio.mineBeep();
+            this.addFloatingText("¡CUIDADO!", mineCx - 28, obs.y - 12, "#ff4757", 11);
+          }
+
+          if (obs.armed) {
+            obs.fuseTimer -= worldDt;
+            obs.beepCooldown -= worldDt;
+            if (obs.beepCooldown <= 0) {
+              obs.beepCooldown = 0.14;
+              RC.Audio.mineBeep();
+            }
+            obs.sprite = Math.floor(this.time * 20) % 2 === 0 ? "proxMineArmed" : "proxMine";
+
+            if (obs.fuseTimer <= 0) {
+              RC.Audio.mineExplode();
+              this.triggerShake(9, 0.22);
+              this.spawnBurst(mineCx, mineCy, "#ff4757", 24);
+              this.spawnBurst(mineCx, mineCy, "#ffd32a", 12);
+              this.obstacles.splice(i, 1);
+
+              if (dist <= obs.blastRadius) {
+                if (this.cat.milkTimer > 0 || this.cat.invulnTimer > 0) {
+                  continue;
+                }
+                if (this.cat.shield) {
+                  this.cat.shield = false;
+                  this.cat.invulnTimer = 1.15;
+                  RC.Audio.shieldBreak();
+                  this.addFloatingText("¡ESCUDO ROTO!", this.cat.x, this.cat.y - 16, "#48dbfb", 13);
+                  this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 16);
+                  continue;
+                }
+                this.triggerGameOver();
+                return;
+              }
+              continue;
+            }
+          }
+        }
+
         const obsBox = {
           x: obs.x + 4,
           y: obs.y + 4,
@@ -1326,6 +1822,21 @@
 
         // 1. Check Claw / Special Attack
         if (clawActive && obs.scratchable && this.rectsOverlap(clawBox, obsBox)) {
+          if (obs.launchable) {
+            RC.Audio.scratchHit();
+            this.triggerShake(4, 0.1);
+            this.spawnBurst(obs.x + obs.w / 2, obs.y + obs.h / 2, "#ffd32a", 8);
+            this.addFloatingText("¡LANZADA!", obs.x, obs.y - 12, "#ffd32a", 12);
+            this.launchedMines.push({
+              x: obs.x + 12,
+              y: obs.y,
+              w: obs.w,
+              h: obs.h,
+              vx: 640
+            });
+            this.obstacles.splice(i, 1);
+            continue;
+          }
           this.destroyObstacleByClaw(obs);
           this.obstacles.splice(i, 1);
           continue;
@@ -1422,6 +1933,15 @@
           this.addFloatingText("🥛 BRILLO DORADO!", cx - 32, cy - 10, "#ffd32a", 13);
           this.spawnBurst(cx, cy, "#ffd32a", 16);
         }
+        return;
+      }
+
+      if (item.kind === "missilePickup") {
+        RC.Audio.powerup();
+        this.catMissiles += 1;
+        this.itemScore += 30;
+        this.addFloatingText("🚀 +1 MISIL!", cx - 26, cy - 12, "#ffd32a", 14);
+        this.spawnBurst(cx, cy, "#ff4757", 12);
         return;
       }
 
@@ -1585,6 +2105,7 @@
         milkSec: Math.ceil(cat.milkTimer),
         bossHp: this.boss ? this.boss.hp : null,
         bossMaxHp: this.boss ? this.boss.maxHp : null,
+        missiles: this.catMissiles,
         levelHi: RC.Storage.getLevelRecord(this.level.id).hiScore
       });
     }
@@ -1613,7 +2134,7 @@
       ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, WIDTH, GROUND_Y);
 
-      if (lvlMode === "swim") {
+      if (this.isSwimMode(lvlMode)) {
         // Underwater light rays & rising bubbles
         ctx.save();
         ctx.fillStyle = "rgba(129, 236, 236, 0.08)";
@@ -1723,21 +2244,47 @@
         if (spr) ctx.drawImage(spr, Math.floor(item.x), bobY);
       });
 
-      // Projectiles (Plane bullets)
+      // Projectiles (Plane bullets & missiles)
       this.projectiles.forEach((b) => {
-        ctx.fillStyle = "#ffd32a";
-        ctx.fillRect(Math.floor(b.x), Math.floor(b.y), b.w, b.h);
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(Math.floor(b.x + 6), Math.floor(b.y + 1), b.w - 8, b.h - 2);
+        if (b.isMissile) {
+          const spr = RC.Sprites.getWorldSprite("missile", 3);
+          if (spr) ctx.drawImage(spr, Math.floor(b.x), Math.floor(b.y));
+        } else {
+          ctx.fillStyle = "#ffd32a";
+          ctx.fillRect(Math.floor(b.x), Math.floor(b.y), b.w, b.h);
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(Math.floor(b.x + 6), Math.floor(b.y + 1), b.w - 8, b.h - 2);
+        }
       });
 
-      // Boss (Giant Chicken) & Eggs
+      // Boss (Chicken, Squid, or Plane) & Projectiles
       if (this.boss && this.boss.active) {
         this.renderBoss();
       }
       this.bossEggs.forEach((egg) => {
         const spr = RC.Sprites.getWorldSprite("egg", 3);
         if (spr) ctx.drawImage(spr, Math.floor(egg.x), Math.floor(egg.y));
+      });
+      this.bossPiranhas.forEach((p) => {
+        const sprName = Math.floor(p.animTimer) % 2 === 0 ? "piranha1" : "piranha2";
+        const spr = RC.Sprites.getWorldSprite(sprName, 3);
+        if (spr) ctx.drawImage(spr, Math.floor(p.x), Math.floor(p.y));
+      });
+      this.bossTrash.forEach((t) => {
+        const spr = RC.Sprites.getWorldSprite("trashBag", 3);
+        if (spr) ctx.drawImage(spr, Math.floor(t.x), Math.floor(t.y));
+        if (t.hasMissile) {
+          ctx.save();
+          ctx.globalAlpha = 0.55 + 0.35 * Math.sin(this.time * 16);
+          ctx.strokeStyle = "#ffd32a";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(Math.floor(t.x) - 2, Math.floor(t.y) - 2, t.w + 4, t.h + 4);
+          ctx.restore();
+        }
+      });
+      this.launchedMines.forEach((m) => {
+        const spr = RC.Sprites.getWorldSprite("proxMineArmed", 3);
+        if (spr) ctx.drawImage(spr, Math.floor(m.x), Math.floor(m.y));
       });
 
       // Obstacles & Enemies
@@ -1753,9 +2300,41 @@
           ctx.restore();
         }
 
+        if (obs.isProximityMine) {
+          const mcx = ox + obs.w / 2;
+          const mcy = oy + obs.h / 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.setLineDash([5, 5]);
+          ctx.arc(mcx, mcy, obs.proxRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = obs.armed
+            ? `rgba(255, 71, 87, ${0.55 + 0.4 * Math.sin(this.time * 26)})`
+            : "rgba(255, 159, 67, 0.38)";
+          ctx.lineWidth = obs.armed ? 2.5 : 1.5;
+          ctx.stroke();
+          ctx.restore();
+        }
+
         if (obs.type === "seaWall") {
           const spr = RC.Sprites.getWorldSprite("seaWall", 3);
           if (spr) ctx.drawImage(spr, ox, oy, obs.w, obs.h);
+        } else if (obs.type === "seaweed") {
+          const spr = RC.Sprites.getWorldSprite("seaweed", 3);
+          if (spr) {
+            const tileH = spr.height;
+            for (let sy = oy; sy < oy + obs.h; sy += tileH) {
+              const drawH = Math.min(tileH, oy + obs.h - sy);
+              ctx.drawImage(spr, 0, 0, spr.width, drawH, ox, sy, obs.w, drawH);
+            }
+          }
+          if (obs.x < this.cat.x + 280 && obs.x > this.cat.x) {
+            ctx.save();
+            ctx.globalAlpha = 0.65 + 0.35 * Math.sin(this.time * 14);
+            ctx.fillStyle = "#2ed573";
+            ctx.font = '900 11px "Courier New", monospace';
+            ctx.fillText("CORTA (X)", ox - 8, oy + 16);
+            ctx.restore();
+          }
         } else if (obs.type === "skyBlock") {
           const spr = RC.Sprites.getWorldSprite("skyBlock", 3);
           if (spr) ctx.drawImage(spr, ox, oy, obs.w, obs.h);
@@ -1832,6 +2411,47 @@
     renderBoss() {
       const ctx = this.ctx;
       const boss = this.boss;
+      const bx = Math.floor(boss.x);
+      const by = Math.floor(boss.y);
+
+      if (boss.kind === "squid") {
+        const sprName =
+          boss.hurtTimer > 0
+            ? "squidHurt"
+            : Math.floor(boss.animTimer) % 2 === 0
+            ? "squid1"
+            : "squid2";
+        const spr = RC.Sprites.getWorldSprite(sprName, 5);
+        if (spr) ctx.drawImage(spr, bx, by);
+
+        ctx.save();
+        ctx.globalAlpha = 0.75 + 0.25 * Math.sin(this.time * 8);
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillStyle = "#ffd32a";
+        ctx.fillText("¡LÁNZALE MINAS (X)!", bx - 20, by - 8);
+        ctx.restore();
+        return;
+      }
+
+      if (boss.kind === "plane") {
+        const sprName =
+          boss.hurtTimer > 0
+            ? "bossPlaneHurt"
+            : Math.floor(boss.animTimer) % 2 === 0
+            ? "bossPlane1"
+            : "bossPlane2";
+        const spr = RC.Sprites.getWorldSprite(sprName, 6);
+        if (spr) ctx.drawImage(spr, bx, by);
+
+        ctx.save();
+        ctx.globalAlpha = 0.75 + 0.25 * Math.sin(this.time * 8);
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillStyle = "#ffd32a";
+        ctx.fillText("¡DERROTA CON MISILES!", bx - 24, by - 8);
+        ctx.restore();
+        return;
+      }
+
       const sprName =
         boss.hurtTimer > 0
           ? "chickenHurt"
@@ -1839,8 +2459,6 @@
           ? "chicken1"
           : "chicken2";
       const spr = RC.Sprites.getWorldSprite(sprName, 6);
-      const bx = Math.floor(boss.x);
-      const by = Math.floor(boss.y);
 
       if (boss.state === "side") {
         // Golden/red vulnerable indicator above boss when on the side

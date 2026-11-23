@@ -74,6 +74,13 @@
     const touchJump = document.getElementById("touch-jump");
 
     let selectedLevelId = RC.Storage.getState().selectedLevel;
+    if (
+      !RC.Levels.LIST.some((l) => l.id === selectedLevelId) ||
+      !RC.Levels.isLevelUnlocked(selectedLevelId)
+    ) {
+      selectedLevelId = RC.Levels.LIST[0].id;
+      RC.Storage.setSelectedLevel(selectedLevelId);
+    }
     let selectedCatId = RC.Storage.getState().selectedCat;
 
     // Instantiate Game Engine
@@ -103,30 +110,42 @@
 
       RC.Levels.LIST.forEach((lvl) => {
         const rec = RC.Storage.getLevelRecord(lvl.id);
+        const unlocked = RC.Levels.isLevelUnlocked(lvl.id);
         const card = document.createElement("button");
         card.type = "button";
-        card.className = `level-card${lvl.id === selectedLevelId ? " selected" : ""}`;
+        card.className = `level-card${lvl.id === selectedLevelId ? " selected" : ""}${
+          !unlocked ? " locked" : ""
+        }`;
         card.dataset.levelId = lvl.id;
+        card.disabled = !unlocked;
 
         const goalStr = lvl.targetDistance
           ? `Meta: ${lvl.targetDistance}m`
-          : lvl.mode === "boss"
+          : lvl.mode === "boss" || lvl.mode === "swimBoss" || lvl.mode === "planeBoss"
           ? `Jefe: ${lvl.bossMaxHp} HP`
           : "Sin meta (∞)";
-        const clearTag = rec.cleared ? `<span class="level-badge-clear">✓ CLEAR</span>` : "";
+        const statusTag = !unlocked
+          ? `<span class="level-badge-lock">🔒</span>`
+          : rec.cleared
+          ? `<span class="level-badge-clear">✓ CLEAR</span>`
+          : "";
+        const footerText = unlocked
+          ? `HI: ${padScore(rec.hiScore)} · ${rec.bestDist}m`
+          : `Supera el Nivel ${lvl.number - 1}`;
 
         card.innerHTML = `
           <div class="level-preview-bar" style="background: ${lvl.previewGradient}"></div>
           <div class="level-card-top">
-            <span class="level-num">NIVEL ${lvl.number}</span>
-            ${clearTag}
+            <span class="level-num">${lvl.id === "endless" ? "MODO ∞" : `NIVEL ${lvl.number}`}</span>
+            ${statusTag}
           </div>
           <div class="level-name">${lvl.name}</div>
           <div class="level-meta">${lvl.difficulty} · ${goalStr}</div>
-          <div class="level-hi">HI: ${padScore(rec.hiScore)} · ${rec.bestDist}m</div>
+          <div class="level-hi">${footerText}</div>
         `;
 
         card.addEventListener("click", () => {
+          if (!unlocked) return;
           RC.Audio.uiClick();
           selectedLevelId = lvl.id;
           RC.Storage.setSelectedLevel(lvl.id);
@@ -219,7 +238,12 @@
 
       if (data.bossHp != null && data.bossMaxHp) {
         levelProgressWrap.classList.remove("hidden");
-        hudGoalLabel.textContent = "🐔 GALLINA";
+        hudGoalLabel.textContent =
+          data.level.mode === "swimBoss"
+            ? "🦑 CALAMAR"
+            : data.level.mode === "planeBoss"
+            ? "✈ AVIÓN JEFE"
+            : "🐔 GALLINA";
         const pct = Math.max(0, (data.bossHp / data.bossMaxHp) * 100);
         hudGoalText.textContent = `${data.bossHp} / ${data.bossMaxHp} HP`;
         hudGoalBar.style.width = `${pct}%`;
@@ -237,6 +261,7 @@
 
       // Active power-up pills
       let pills = "";
+      if (data.missiles > 0) pills += `<span class="powerup-pill milk">🚀 MISIL x${data.missiles}</span>`;
       if (data.shield) pills += `<span class="powerup-pill shield">🧶 ESCUDO</span>`;
       if (data.magnetSec > 0) pills += `<span class="powerup-pill magnet">🧲 ${data.magnetSec}s</span>`;
       if (data.milkSec > 0) pills += `<span class="powerup-pill milk">🥛 ${data.milkSec}s</span>`;

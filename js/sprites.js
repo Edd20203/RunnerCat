@@ -499,6 +499,52 @@
         "....DD...."
       ]
     },
+    proxMine: {
+      palette: { D: "#1a0d13", M: "#3d2c3e", L: "#7f6a85", R: "#ff4757", Y: "#ffd32a" },
+      matrix: [
+        "....YY....",
+        ".R..DM..R.",
+        "..DMMMMD..",
+        ".DMMLMMMD.",
+        "DDMMRRMMDD",
+        "DDMMRYRMMD",
+        ".DMMMMMMD.",
+        "..DMMMMD..",
+        ".R..DM..R.",
+        "....YY...."
+      ]
+    },
+    proxMineArmed: {
+      palette: { D: "#4a0808", M: "#ff4757", L: "#ff9f43", R: "#ffffff", Y: "#ffd32a" },
+      matrix: [
+        "....RR....",
+        ".Y..RM..Y.",
+        "..RMMMMR..",
+        ".RMMLMMMR.",
+        "RRMMYYMMRR",
+        "RRMMYRYMRR",
+        ".RMMMMMMR.",
+        "..RMMMMR..",
+        ".Y..RM..Y.",
+        "....RR...."
+      ]
+    },
+    seaweed: {
+      palette: { D: "#0a2e1c", G: "#168246", L: "#2ed573", Y: "#a3cb38" },
+      matrix: [
+        ".DD.DD.DD.",
+        "DGGDGGDGGD",
+        "DGLDGLDGLD",
+        ".DGDDGGDGD",
+        "DGLDGGLDGD",
+        "DGGDGLDGLD",
+        "DYYDGGDGGD",
+        ".DGGDGDDGD",
+        "DGLDGGDGLD",
+        "DGGDGLDGGD",
+        "DDDDDDDDDD"
+      ]
+    },
     coral: {
       palette: { D: "#5c162e", P: "#ff4757", O: "#ff7f50", L: "#ffa502" },
       matrix: [
@@ -621,6 +667,168 @@
         "...DDDDDDDDD..",
         "....YY...YY...",
         "...YY.....YY.."
+      ]
+    },
+    piranha1: {
+      palette: { D: "#1d0b24", R: "#ff4757", P: "#ff6b81", W: "#ffffff", Y: "#ffd32a" },
+      matrix: [
+        ".....DDDD.....",
+        "...DDRRRRDD...",
+        "..DRRRRRRRRD..",
+        ".DRWWRRRRRRPP.",
+        "DWWRRRRRRRRPP.",
+        "DDWWWRRRRRRPP.",
+        ".DRRRRRRRRRPP.",
+        "..DDRRRRRRDD..",
+        "....DDDDDD...."
+      ]
+    },
+    piranha2: {
+      palette: { D: "#1d0b24", R: "#ff4757", P: "#ff6b81", W: "#ffffff", Y: "#ffd32a" },
+      matrix: [
+        ".....DDDD.....",
+        "...DDRRRRDD...",
+        "..DRRRRRRRRD..",
+        ".DRWWRRRRRRPP.",
+        "DWWWRRRRRRRPP.",
+        "DWWRRRRRRRRPP.",
+        ".DRRRRRRRRRPP.",
+        "..DDRRRRRRDD..",
+        "....DDDDDD...."
+      ]
+    },
+    squid1: {
+      palette: { D: "#2b0c3b", P: "#9b59b6", L: "#d980fa", W: "#ffffff", E: "#ffd32a" },
+      matrix: [
+        "......DDDDDD......",
+        "....DDLLLLLLDD....",
+        "...DLPPPPPPPPLD...",
+        "..DLPPPPPPPPPPPD..",
+        "..DPPPPPPPEEPPPD..",
+        "..DPPPPPPPWWPPPD..",
+        "...DPPPPPPPPPPPD..",
+        "....DDPPPPPPPDD...",
+        "..DDD.DPPPPPD.DDD.",
+        ".DPPD.DPD.DPD.DPPD",
+        "DPPD.DPD...DPD.DPP",
+        "DDD..DD.....DD..DD"
+      ]
+    },
+    squid2: {
+      palette: { D: "#2b0c3b", P: "#9b59b6", L: "#d980fa", W: "#ffffff", E: "#ffd32a" },
+      matrix: [
+        "......DDDDDD......",
+        "....DDLLLLLLDD....",
+        "...DLPPPPPPPPLD...",
+        "..DLPPPPPPPPPPPD..",
+        "..DPPPPPPPEEPPPD..",
+        "..DPPPPPPPWWPPPD..",
+        "...DPPPPPPPPPPPD..",
+        "....DDPPPPPPPDD...",
+        "...DD.DPPPPPD.DD..",
+        "..DPD.DPD.DPD.DPD.",
+        ".DPD..DP...DP..DPD",
+        ".DD...DD...DD...DD"
+      ]
+    },
+    squidHurt: {
+      palette: { D: "#6b0f1a", P: "#ff4757", L: "#ffd32a", W: "#ffffff", E: "#ff4757" },
+      matrix: [
+        "......DDDDDD......",
+        "....DDLLLLLLDD....",
+        "...DLPPPPPPPPLD...",
+        "..DLPPPPPPPPPPPD..",
+        "..DPPPPPPPEEPPPD..",
+        "..DPPPPPPPWWPPPD..",
+        "...DPPPPPPPPPPPD..",
+        "....DDPPPPPPPDD...",
+        "..DDD.DPPPPPD.DDD.",
+        ".DPPD.DPD.DPD.DPPD",
+        "DPPD.DPD...DPD.DPP",
+        "DDD..DD.....DD..DD"
+      ]
+    },
+    trashBag: {
+      palette: { D: "#1a2018", G: "#4b6344", L: "#7f9c6e", T: "#ffd32a" },
+      matrix: [
+        "....DDDD....",
+        "...DGGGGD...",
+        "....TTTT....",
+        "..DDGGGGDD..",
+        ".DGGLLLLGGD.",
+        "DGGGLLLLGGGD",
+        "DGGGGGGGGGGD",
+        "DGGDGGGGDGGD",
+        ".DGGGGGGGGD.",
+        "..DDDDDDDD.."
+      ]
+    },
+    missilePickup: {
+      palette: { D: "#1e272e", R: "#ff4757", W: "#ffffff", Y: "#ffd32a" },
+      matrix: [
+        ".....DDD....",
+        "...DDRRRD...",
+        "..DRWWWRRD..",
+        ".DRRWWWWWRD.",
+        "YYRRRRRRRRRD",
+        "YYRRRRRRRRRD",
+        ".DRRWWWWWRD.",
+        "..DRWWWRRD..",
+        "...DDRRRD...",
+        ".....DDD...."
+      ]
+    },
+    missile: {
+      palette: { D: "#1e272e", R: "#ff4757", W: "#ffffff", Y: "#ffd32a", O: "#ff9f43" },
+      matrix: [
+        "........DDD...",
+        "..O...DDRRRDD.",
+        "YYOODDRWWWWWRD",
+        "YYWWRRRRRRRRRD",
+        "..O...DDRRRDD.",
+        "........DDD..."
+      ]
+    },
+    bossPlane1: {
+      palette: { D: "#161822", M: "#576574", L: "#c8d6e5", R: "#ff4757", C: "#48dbfb", Y: "#ffd32a" },
+      matrix: [
+        "...........DDDDDD...",
+        "..........DMMMMMMD..",
+        "....DDDDDDMMMMRRMD..",
+        "..DDCCCCCDMMMMMMMD..",
+        "YDMMMMMMMMMMMMMMMRRD",
+        ".DMMMMMMMMMMMMMMMRRD",
+        "..DDDDLLLLLLLLDDDD..",
+        ".....DMMMMMMMMD.....",
+        "......DD....DD......"
+      ]
+    },
+    bossPlane2: {
+      palette: { D: "#161822", M: "#576574", L: "#c8d6e5", R: "#ff4757", C: "#48dbfb", Y: "#ffd32a" },
+      matrix: [
+        "...........DDDDDD...",
+        "..........DMMMMMMD..",
+        "....DDDDDDMMMMRRMD..",
+        "..DDCCCCCDMMMMMMMD..",
+        ".DMMMMMMMMMMMMMMMRRD",
+        "YDMMMMMMMMMMMMMMMRRD",
+        "..DDDDLLLLLLLLDDDD..",
+        ".....DMMMMMMMMD.....",
+        "......DD....DD......"
+      ]
+    },
+    bossPlaneHurt: {
+      palette: { D: "#5c0f0f", M: "#ff4757", L: "#ffd32a", R: "#ffffff", C: "#ffd32a", Y: "#ffffff" },
+      matrix: [
+        "...........DDDDDD...",
+        "..........DMMMMMMD..",
+        "....DDDDDDMMMMRRMD..",
+        "..DDCCCCCDMMMMMMMD..",
+        "YDMMMMMMMMMMMMMMMRRD",
+        ".DMMMMMMMMMMMMMMMRRD",
+        "..DDDDLLLLLLLLDDDD..",
+        ".....DMMMMMMMMD.....",
+        "......DD....DD......"
       ]
     }
   };
