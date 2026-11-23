@@ -880,6 +880,58 @@
     };
     const matrix = CAT_MATRICES[pose] || CAT_MATRICES.run1;
     const canvas = buildCanvas(matrix, palette, s);
+
+    // Apply special coat patterns & accessories for new cat skins
+    if (skin.pattern) {
+      const cctx = canvas.getContext("2d");
+      const isDuck = pose === "duck1" || pose === "duck2";
+      const isSwim = pose === "swim1" || pose === "swim2";
+      const isPlane = pose === "plane1" || pose === "plane2";
+
+      if (skin.pattern === "bow" && !isPlane) {
+        const bowCol = skin.bowColor || "#ff4757";
+        const bowHi = "#ff9ff3";
+        const bx = isDuck ? 10 * s : isSwim ? 9 * s : 8 * s;
+        const by = isDuck ? 0 : isSwim ? 2 * s : 0;
+        cctx.fillStyle = bowCol;
+        cctx.fillRect(bx, by, 2 * s, 2 * s);
+        cctx.fillRect(bx + 3 * s, by, 2 * s, 2 * s);
+        cctx.fillStyle = bowHi;
+        cctx.fillRect(bx + 2 * s, by + Math.floor(s * 0.5), s, s);
+      } else if (skin.pattern === "spots" && !isPlane) {
+        cctx.fillStyle = p.dark;
+        if (isDuck) {
+          cctx.fillRect(4 * s, 4 * s, 2 * s, 2 * s);
+          cctx.fillRect(8 * s, 5 * s, 2 * s, 1 * s);
+        } else {
+          cctx.fillRect(4 * s, 7 * s, 2 * s, 2 * s);
+          cctx.fillRect(7 * s, 8 * s, 2 * s, 2 * s);
+          cctx.fillRect(10 * s, 2 * s, 2 * s, 1 * s);
+        }
+      } else if (skin.pattern === "tortie" && !isPlane) {
+        cctx.fillStyle = "#e67e22";
+        if (isDuck) {
+          cctx.fillRect(4 * s, 4 * s, 2 * s, 2 * s);
+          cctx.fillRect(9 * s, 3 * s, 2 * s, 2 * s);
+        } else {
+          cctx.fillRect(4 * s, 7 * s, 2 * s, 2 * s);
+          cctx.fillRect(8 * s, 8 * s, 2 * s, 2 * s);
+          cctx.fillRect(11 * s, 2 * s, 2 * s, 2 * s);
+        }
+        cctx.fillStyle = "#f39c12";
+        cctx.fillRect(6 * s, isDuck ? 5 * s : 9 * s, 2 * s, s);
+      } else if (skin.pattern === "tabby" && !isPlane) {
+        cctx.fillStyle = p.dark;
+        if (isDuck) {
+          cctx.fillRect(5 * s, 4 * s, s, 2 * s);
+          cctx.fillRect(8 * s, 4 * s, s, 2 * s);
+        } else {
+          cctx.fillRect(5 * s, 7 * s, s, 2 * s);
+          cctx.fillRect(8 * s, 7 * s, s, 2 * s);
+        }
+      }
+    }
+
     cache.set(key, canvas);
     return canvas;
   }

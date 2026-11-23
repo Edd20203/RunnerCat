@@ -23,10 +23,12 @@
     const screenResult = document.getElementById("screen-result");
 
     // Menu elements
-    const levelGrid = document.getElementById("level-grid");
+    const storyGrid = document.getElementById("story-grid");
+    const endlessGrid = document.getElementById("endless-grid");
     const catGrid = document.getElementById("cat-grid");
     const levelSummaryBox = document.getElementById("selected-level-summary");
     const btnPlay = document.getElementById("btn-play");
+    const btnDevUnlock = document.getElementById("btn-dev-unlock");
     const btnHelp = document.getElementById("btn-help");
     const btnCloseHelp = document.getElementById("btn-close-help");
 
@@ -103,12 +105,15 @@
       elGlobalHi.textContent = padScore(RC.Storage.getState().globalHi);
     }
 
-    // ---- Build Level Selection Cards ----
-    function renderMenu() {
-      refreshGlobalHi();
-      levelGrid.innerHTML = "";
+    function refreshDevUnlockBtn() {
+      const active = RC.Storage.isDevUnlockAll();
+      btnDevUnlock.textContent = active ? "🔓 DEV: TODO ACTIVO" : "🔒 DEV: ACTIVAR TODOS";
+      btnDevUnlock.classList.toggle("btn-dev-active", active);
+    }
 
-      RC.Levels.LIST.forEach((lvl) => {
+    function renderLevelCards(list, containerEl) {
+      containerEl.innerHTML = "";
+      list.forEach((lvl) => {
         const rec = RC.Storage.getLevelRecord(lvl.id);
         const unlocked = RC.Levels.isLevelUnlocked(lvl.id);
         const card = document.createElement("button");
@@ -136,7 +141,7 @@
         card.innerHTML = `
           <div class="level-preview-bar" style="background: ${lvl.previewGradient}"></div>
           <div class="level-card-top">
-            <span class="level-num">${lvl.id === "endless" ? "MODO ∞" : `NIVEL ${lvl.number}`}</span>
+            <span class="level-num">${lvl.category === "endless" ? "MODO ∞" : `NIVEL ${lvl.number}`}</span>
             ${statusTag}
           </div>
           <div class="level-name">${lvl.name}</div>
@@ -153,8 +158,16 @@
           renderMenu();
         });
 
-        levelGrid.appendChild(card);
+        containerEl.appendChild(card);
       });
+    }
+
+    // ---- Build Level Selection Cards ----
+    function renderMenu() {
+      refreshGlobalHi();
+      refreshDevUnlockBtn();
+      renderLevelCards(RC.Levels.STORY_LIST, storyGrid);
+      renderLevelCards(RC.Levels.ENDLESS_LIST, endlessGrid);
 
       // Cat skin selector
       catGrid.innerHTML = "";
@@ -315,6 +328,18 @@
     });
 
     btnPlay.addEventListener("click", startCurrentLevel);
+
+    btnDevUnlock.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      const nextState = !RC.Storage.isDevUnlockAll();
+      RC.Storage.setDevUnlockAll(nextState);
+      if (!RC.Levels.isLevelUnlocked(selectedLevelId)) {
+        selectedLevelId = RC.Levels.STORY_LIST[0].id;
+        RC.Storage.setSelectedLevel(selectedLevelId);
+        game.setPreviewConfig(selectedLevelId, selectedCatId);
+      }
+      renderMenu();
+    });
 
     btnHelp.addEventListener("click", () => {
       RC.Audio.uiClick();

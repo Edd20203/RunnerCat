@@ -54,10 +54,67 @@
         nose: "#ff7675",
         collar: "#9c88ff"
       }
+    },
+    {
+      id: "tortie",
+      name: "Carey",
+      desc: "Hembra carey",
+      pattern: "tortie",
+      palette: {
+        body: "#2d221c",
+        dark: "#140e0b",
+        light: "#e67e22",
+        eye: "#ffd32a",
+        nose: "#ff9ff3",
+        collar: "#ff6b81"
+      }
+    },
+    {
+      id: "white_bow",
+      name: "Perla",
+      desc: "Blanca con moño",
+      pattern: "bow",
+      bowColor: "#ff4757",
+      palette: {
+        body: "#ffffff",
+        dark: "#b2bec3",
+        light: "#fff5f8",
+        eye: "#ff6b81",
+        nose: "#ff9ff3",
+        collar: "#ff4757"
+      }
+    },
+    {
+      id: "tabby_gray",
+      name: "Gris",
+      desc: "Gris atigrado",
+      pattern: "tabby",
+      palette: {
+        body: "#95a5a6",
+        dark: "#2f3640",
+        light: "#dfe6e9",
+        eye: "#2ed573",
+        nose: "#ff9ff3",
+        collar: "#0984e3"
+      }
+    },
+    {
+      id: "cow",
+      name: "Manchas",
+      desc: "Blanco y negro",
+      pattern: "spots",
+      palette: {
+        body: "#f5f6fa",
+        dark: "#1e272e",
+        light: "#ffffff",
+        eye: "#ffa502",
+        nose: "#ff7675",
+        collar: "#ff4757"
+      }
     }
   ];
 
-  const LEVELS = [
+  const STORY_LEVELS = [
     {
       id: "alley",
       number: 1,
@@ -600,13 +657,17 @@
         sunMoon: "#ff6b81"
       },
       obstacles: []
-    },
+    }
+  ];
+
+  const ENDLESS_LEVELS = [
     {
       id: "endless",
-      number: 13,
+      number: 1,
+      category: "endless",
       mode: "runner",
-      name: "Modo Infinito",
-      shortName: "∞ INFINITO",
+      name: "Infinito Clásico",
+      shortName: "∞ CLÁSICO",
       difficulty: "Arcade ∞",
       targetDistance: null,
       baseSpeed: 365,
@@ -649,24 +710,173 @@
         { type: "bird", weight: 14 },
         { type: "drone", weight: 12 }
       ]
+    },
+    {
+      id: "endless_rooftops",
+      number: 2,
+      category: "endless",
+      mode: "runner",
+      name: "Infinito Techos",
+      shortName: "∞ TECHOS",
+      difficulty: "Arcade ∞",
+      targetDistance: null,
+      baseSpeed: 425,
+      maxSpeed: 880,
+      accelPerSec: 9.5,
+      spawnScale: 0.7,
+      dayNightCycleDist: 210,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #5f27cd 0%, #ff6b81 55%, #ff9f43 100%)",
+      description: "Carrera infinita sobre los techos nocturnos con oleadas rápidas de suelo y aire.",
+      day: {
+        skyTop: "#3b3b98",
+        skyBottom: "#82589f",
+        cloud: "#b8a9c9",
+        farBg: "#4b3869",
+        nearBg: "#2c2447",
+        groundTop: "#ff9f43",
+        groundFill: "#2c2c54",
+        groundDetail: "#706fd3",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#0c0b1d",
+        skyBottom: "#22183b",
+        cloud: "#3c2a63",
+        farBg: "#16112b",
+        nearBg: "#231a42",
+        groundTop: "#48dbfb",
+        groundFill: "#110d21",
+        groundDetail: "#ff6b81",
+        sunMoon: "#f5f6fa"
+      },
+      obstacles: [
+        { type: "hydrant", weight: 10 },
+        { type: "trash", weight: 10 },
+        { type: "antenna", weight: 16 },
+        { type: "crate", weight: 12 },
+        { type: "mouse", weight: 14 },
+        { type: "bird", weight: 15 },
+        { type: "drone", weight: 14 },
+        { type: "skyDrop", weight: 9 }
+      ]
+    },
+    {
+      id: "endless_swim",
+      number: 3,
+      category: "endless",
+      mode: "swim",
+      name: "Infinito Buceo",
+      shortName: "∞ BUCEO",
+      difficulty: "Arcade ∞",
+      targetDistance: null,
+      baseSpeed: 345,
+      maxSpeed: 720,
+      accelPerSec: 7.5,
+      spawnScale: 0.78,
+      dayNightCycleDist: 250,
+      bgStyle: "ocean",
+      previewGradient: "linear-gradient(90deg, #00cec9 0%, #0984e3 55%, #6c5ce7 100%)",
+      description: "Buceo infinito: esquiva o lanza bombas de proximidad y corta algas con X.",
+      day: {
+        skyTop: "#0984e3",
+        skyBottom: "#062c54",
+        cloud: "#74b9ff",
+        farBg: "#0b4675",
+        nearBg: "#072d4d",
+        groundTop: "#00b894",
+        groundFill: "#5c4d2e",
+        groundDetail: "#00cec9",
+        sunMoon: "#81ecec"
+      },
+      night: {
+        skyTop: "#050714",
+        skyBottom: "#02030a",
+        cloud: "#141838",
+        farBg: "#0a0e24",
+        nearBg: "#060817",
+        groundTop: "#ff4757",
+        groundFill: "#0f0c1c",
+        groundDetail: "#5352ed",
+        sunMoon: "#ff4757"
+      },
+      obstacles: [
+        { type: "proxMine", weight: 24 },
+        { type: "seaweed", weight: 22 },
+        { type: "seaWall", weight: 16 },
+        { type: "jellyfish", weight: 18 },
+        { type: "seaMine", weight: 12 },
+        { type: "coral", weight: 8 }
+      ]
+    },
+    {
+      id: "endless_plane",
+      number: 4,
+      category: "endless",
+      mode: "plane",
+      name: "Infinito Avión",
+      shortName: "∞ AVIÓN",
+      difficulty: "Arcade ∞",
+      targetDistance: null,
+      baseSpeed: 405,
+      maxSpeed: 800,
+      accelPerSec: 8.5,
+      spawnScale: 0.74,
+      dayNightCycleDist: 230,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #00d2d3 0%, #54a0ff 50%, #ff6b81 100%)",
+      description: "Vuelo infinito en mini-avión: esquiva bloques y derriba drones y aves.",
+      day: {
+        skyTop: "#1e3799",
+        skyBottom: "#70a1ff",
+        cloud: "#dff9fb",
+        farBg: "#3c6382",
+        nearBg: "#2c3e50",
+        groundTop: "#00d2d3",
+        groundFill: "#1e272e",
+        groundDetail: "#48dbfb",
+        sunMoon: "#ffffff"
+      },
+      night: {
+        skyTop: "#070919",
+        skyBottom: "#171c3d",
+        cloud: "#293266",
+        farBg: "#0e122b",
+        nearBg: "#171d45",
+        groundTop: "#ff4757",
+        groundFill: "#060814",
+        groundDetail: "#00d2d3",
+        sunMoon: "#48dbfb"
+      },
+      obstacles: [
+        { type: "skyBlock", weight: 34 },
+        { type: "bird", weight: 30 },
+        { type: "drone", weight: 36 }
+      ]
     }
   ];
 
+  const LEVELS = [...STORY_LEVELS, ...ENDLESS_LEVELS];
+
   function getLevelById(id) {
-    return LEVELS.find((l) => l.id === id) || LEVELS[0];
+    return LEVELS.find((l) => l.id === id) || STORY_LEVELS[0];
   }
 
   function getNextLevel(id) {
-    const idx = LEVELS.findIndex((l) => l.id === id);
-    if (idx === -1 || idx + 1 >= LEVELS.length) return null;
-    return LEVELS[idx + 1];
+    const idx = STORY_LEVELS.findIndex((l) => l.id === id);
+    if (idx === -1 || idx + 1 >= STORY_LEVELS.length) return null;
+    return STORY_LEVELS[idx + 1];
   }
 
   function isLevelUnlocked(id) {
-    const idx = LEVELS.findIndex((l) => l.id === id);
+    if (RC.Storage && RC.Storage.isDevUnlockAll()) return true;
+    const lvl = LEVELS.find((l) => l.id === id);
+    if (!lvl) return false;
+    if (lvl.category === "endless") return true;
+    const idx = STORY_LEVELS.findIndex((l) => l.id === id);
     if (idx <= 0) return true;
     if (!RC.Storage) return idx === 0;
-    const prevLvl = LEVELS[idx - 1];
+    const prevLvl = STORY_LEVELS[idx - 1];
     return Boolean(RC.Storage.getLevelRecord(prevLvl.id).cleared);
   }
 
@@ -676,6 +886,8 @@
 
   RC.Levels = {
     LIST: LEVELS,
+    STORY_LIST: STORY_LEVELS,
+    ENDLESS_LIST: ENDLESS_LEVELS,
     CAT_SKINS,
     getLevelById,
     getNextLevel,

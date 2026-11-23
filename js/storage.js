@@ -7,6 +7,7 @@
   const DEFAULT_DATA = {
     globalHi: 0,
     soundEnabled: true,
+    devUnlockAll: false,
     selectedCat: "ginger",
     selectedLevel: "alley",
     levels: {}
@@ -34,6 +35,7 @@
     return {
       globalHi: DEFAULT_DATA.globalHi,
       soundEnabled: DEFAULT_DATA.soundEnabled,
+      devUnlockAll: DEFAULT_DATA.devUnlockAll,
       selectedCat: DEFAULT_DATA.selectedCat,
       selectedLevel: DEFAULT_DATA.selectedLevel,
       levels: {}
@@ -84,6 +86,13 @@
     recordRun,
     setSoundEnabled(enabled) {
       state.soundEnabled = Boolean(enabled);
+      save();
+    },
+    isDevUnlockAll() {
+      return Boolean(state.devUnlockAll);
+    },
+    setDevUnlockAll(enabled) {
+      state.devUnlockAll = Boolean(enabled);
       save();
     },
     setSelectedCat(catId) {

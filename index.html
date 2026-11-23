@@ -91,13 +91,25 @@
               <p class="eyebrow">PIXEL RUNNER ARCADE</p>
               <h2>SELECCIONA TU NIVEL Y GATO</h2>
             </div>
-            <button id="btn-help" class="pixel-btn btn-secondary btn-sm">❓ CONTROLES</button>
+            <div class="menu-header-actions">
+              <button id="btn-dev-unlock" class="pixel-btn btn-secondary btn-sm" title="Desbloquear todos los niveles para pruebas">
+                🔒 DEV: ACTIVAR TODOS
+              </button>
+              <button id="btn-help" class="pixel-btn btn-secondary btn-sm">❓ CONTROLES</button>
+            </div>
           </div>
 
-          <!-- Level Selection Grid -->
-          <div class="section-label">1. ELIGE EL ESCENARIO</div>
-          <div id="level-grid" class="level-grid">
-            <!-- Populated by ui.js -->
+          <!-- Level Selection Sections: Story & Endless -->
+          <div class="levels-scroll-area">
+            <div class="section-label">1. MODO HISTORIA (NIVELES 1–12)</div>
+            <div id="story-grid" class="level-grid">
+              <!-- Populated by ui.js -->
+            </div>
+
+            <div class="section-label section-label-inf">2. MODO INFINITO</div>
+            <div id="endless-grid" class="level-grid">
+              <!-- Populated by ui.js -->
+            </div>
           </div>
 
           <!-- Cat Skin Selector + Play Button -->

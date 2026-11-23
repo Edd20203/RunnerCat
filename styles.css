@@ -379,7 +379,20 @@ html, body {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+}
+
+.menu-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-dev-active {
+  background: #1c3e2b !important;
+  color: var(--accent-green) !important;
+  border-color: var(--accent-green) !important;
 }
 
 .eyebrow {
@@ -404,15 +417,24 @@ html, body {
   margin-bottom: 6px;
 }
 
+.section-label-inf {
+  margin-top: 8px;
+  color: var(--accent-cyan);
+}
+
+.levels-scroll-area {
+  max-height: 184px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-bottom: 8px;
+}
+
 /* Level Grid */
 .level-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
-  margin-bottom: 8px;
-  max-height: 196px;
-  overflow-y: auto;
-  padding-right: 2px;
+  margin-bottom: 4px;
 }
 
 .level-card {
@@ -514,7 +536,10 @@ html, body {
 .cat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 7px;
+  gap: 6px;
+  max-height: 82px;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .cat-card {
