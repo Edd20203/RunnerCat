@@ -1213,6 +1213,100 @@
         { type: "bird", weight: 30 },
         { type: "drone", weight: 36 }
       ]
+    },
+    {
+      id: "endless_spooky",
+      number: 5,
+      category: "endless",
+      mode: "bat",
+      thumbSprite: "zombie1",
+      name: "Infinito Transilvania",
+      shortName: "∞ TRANSILVANIA",
+      difficulty: "Arcade ∞",
+      targetDistance: null,
+      baseSpeed: 390,
+      maxSpeed: 790,
+      accelPerSec: 8.5,
+      spawnScale: 0.74,
+      dayNightCycleDist: 230,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #2c2240 0%, #6c5ce7 55%, #ff4757 100%)",
+      description: "Transilvania infinita: vuela como murciélago y enfrenta esqueletos, arañas, zombis y cuervos.",
+      day: {
+        skyTop: "#2c2240",
+        skyBottom: "#59437a",
+        cloud: "#7b659e",
+        farBg: "#3d2f57",
+        nearBg: "#281e3b",
+        groundTop: "#6ab04c",
+        groundFill: "#2f2a38",
+        groundDetail: "#574f66",
+        sunMoon: "#ffeaa7"
+      },
+      night: {
+        skyTop: "#110c1c",
+        skyBottom: "#251a3d",
+        cloud: "#3c2b61",
+        farBg: "#19112b",
+        nearBg: "#221738",
+        groundTop: "#ff4757",
+        groundFill: "#171321",
+        groundDetail: "#4834d4",
+        sunMoon: "#f5f6fa"
+      },
+      obstacles: [
+        { type: "tombstone", weight: 18 },
+        { type: "miniSkeleton", weight: 24 },
+        { type: "spider", weight: 20 },
+        { type: "zombie", weight: 18 },
+        { type: "crow", weight: 20 }
+      ]
+    },
+    {
+      id: "endless_space",
+      number: 6,
+      category: "endless",
+      mode: "space",
+      thumbSprite: "alienFloater1",
+      name: "Infinito Espacio",
+      shortName: "∞ ESPACIO",
+      difficulty: "Arcade ∞",
+      targetDistance: null,
+      baseSpeed: 375,
+      maxSpeed: 760,
+      accelPerSec: 8.2,
+      spawnScale: 0.75,
+      dayNightCycleDist: 240,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #0c2461 0%, #6c5ce7 55%, #00d2d3 100%)",
+      description: "Espacio infinito: gravedad lunar flotante, láser y oleadas de alienígenas armados.",
+      day: {
+        skyTop: "#0a0e29",
+        skyBottom: "#1b2452",
+        cloud: "#2e3b7a",
+        farBg: "#161d42",
+        nearBg: "#222c5c",
+        groundTop: "#a4b0be",
+        groundFill: "#57606f",
+        groundDetail: "#747d8c",
+        sunMoon: "#dff9fb"
+      },
+      night: {
+        skyTop: "#040614",
+        skyBottom: "#0e1330",
+        cloud: "#1c2454",
+        farBg: "#090d24",
+        nearBg: "#12193d",
+        groundTop: "#48dbfb",
+        groundFill: "#140b24",
+        groundDetail: "#ff4757",
+        sunMoon: "#48dbfb"
+      },
+      obstacles: [
+        { type: "alienWalker", weight: 35 },
+        { type: "alienFloater", weight: 37 },
+        { type: "spaceRock", weight: 28 }
+      ]
     }
   ];
 
