@@ -238,6 +238,7 @@
       this.laserLevel = 1;
       this.endingTimer = 0;
       this.endingFromBoss = false;
+      this.introTimer = 0;
       this.particles = [];
       this.floatingTexts = [];
 
@@ -360,6 +361,14 @@
       this.particles = [];
       this.floatingTexts = [];
       RC.Audio.victory();
+    }
+
+    startIntro(skinId) {
+      this.skinId = skinId || this.skinId;
+      this.mode = "intro";
+      this.introTimer = 0;
+      this.particles = [];
+      this.floatingTexts = [];
     }
 
     pause() {
@@ -568,6 +577,8 @@
         this.updateMenuPreview(rawDt);
       } else if (this.mode === "playing") {
         this.updatePlaying(rawDt);
+      } else if (this.mode === "intro") {
+        this.updateIntro(rawDt);
       } else if (this.mode === "ending") {
         this.updateEnding(rawDt);
       } else if (this.mode === "victory" || this.mode === "gameover") {
@@ -2437,6 +2448,10 @@
 
     // ---- Rendering ----
     render() {
+      if (this.mode === "intro") {
+        this.renderIntro();
+        return;
+      }
       if (this.mode === "ending") {
         this.renderEnding();
         return;
@@ -3089,15 +3104,20 @@
         ctx.drawImage(catSpr, catX, GROUND_Y - 42);
 
         if (walkProgress > 0.75) {
-          ctx.fillStyle = "#ffdf8e";
-          ctx.font = '900 13px "Courier New", monospace';
-          ctx.fillText("¡Mi gatito volvió! ♥", grandmaX - 28, grandmaY - 12);
+          ctx.fillStyle = "rgba(255, 248, 232, 0.92)";
+          ctx.fillRect(grandmaX - 36, grandmaY - 28, 178, 22);
+          ctx.strokeStyle = "#2f1b14";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(grandmaX - 36, grandmaY - 28, 178, 22);
+          ctx.fillStyle = "#1e1624";
+          ctx.font = '900 12px "Courier New", monospace';
+          ctx.fillText("¡Mi gatito volvió! ♥", grandmaX - 28, grandmaY - 13);
         }
       } else if (t < 6.0) {
         // Phase 2: Abuelita greets and cuddles the cat at the porch
         const catSpr = RC.Sprites.getCatSprite("run1", this.skinId, 3);
         ctx.drawImage(catSpr, hx + 46, GROUND_Y - 42);
-        ctx.fillStyle = "#ff6b81";
+        ctx.fillStyle = "#b81d3a";
         ctx.font = '900 16px "Courier New", monospace';
         const heartY = grandmaY - 14 - Math.floor(Math.sin(t * 6) * 5);
         ctx.fillText("♥  ♥", grandmaX + 4, heartY);
@@ -3110,12 +3130,12 @@
         ctx.fillStyle = "#ff9ff3";
         ctx.fillRect(bedX + 10, bedY + 2, 34, 11);
 
-        // Floating Zzz and hearts
+        // Floating Zzz and hearts (dark readable text)
         const zOff = (t * 14) % 24;
-        ctx.fillStyle = "#48dbfb";
+        ctx.fillStyle = "#1b263b";
         ctx.font = '900 14px "Courier New", monospace';
         ctx.fillText("Zzz...", bedX + 26, Math.floor(bedY - 22 - zOff));
-        ctx.fillStyle = "#ff6b81";
+        ctx.fillStyle = "#b81d3a";
         ctx.fillText("♥", grandmaX + 22, grandmaY - 10);
 
         // Ending Banner
@@ -3130,6 +3150,140 @@
         ctx.fillStyle = "#ffffff";
         ctx.font = '700 12px "Courier New", monospace';
         ctx.fillText("Comida, leche y sueños felinos. ¡FIN!", WIDTH / 2 - 145, 70);
+      }
+    }
+
+    // ---- Intro Cutscene (Sleeping cat woken up angry by noisy planes, UFOs & birds) ----
+    updateIntro(dt) {
+      this.time += dt;
+      this.introTimer += dt;
+      this.cat.runAnimTimer += dt * 9;
+
+      if (this.introTimer >= 7.5 && this.callbacks.onIntroEnd) {
+        this.callbacks.onIntroEnd();
+      }
+    }
+
+    renderIntro() {
+      const ctx = this.ctx;
+      const t = this.introTimer;
+
+      // Sky
+      const sky = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
+      sky.addColorStop(0, "#5fa8d3");
+      sky.addColorStop(1, "#cae9ff");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, WIDTH, GROUND_Y);
+
+      // Ground & yard
+      ctx.fillStyle = "#3c6e47";
+      ctx.fillRect(0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y);
+      ctx.fillStyle = "#5cb874";
+      ctx.fillRect(0, GROUND_Y, WIDTH, 4);
+
+      // Cozy House on the left
+      const hx = 60;
+      const hy = 132;
+      ctx.fillStyle = "#f7e3c3";
+      ctx.fillRect(hx, hy, 250, GROUND_Y - hy);
+      ctx.fillStyle = "#b8402e";
+      ctx.beginPath();
+      ctx.moveTo(hx - 16, hy + 4);
+      ctx.lineTo(hx + 125, hy - 54);
+      ctx.lineTo(hx + 266, hy + 4);
+      ctx.closePath();
+      ctx.fill();
+
+      // Open bedroom view inside house
+      ctx.fillStyle = "#ffe8b3";
+      ctx.fillRect(hx + 22, hy + 30, 148, GROUND_Y - hy - 36);
+      ctx.strokeStyle = "#6e472b";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(hx + 22, hy + 30, 148, GROUND_Y - hy - 36);
+
+      // Door on right of house
+      ctx.fillStyle = "#7a4b2a";
+      ctx.fillRect(hx + 186, hy + 72, 48, GROUND_Y - (hy + 72));
+
+      // Cat bed inside room
+      const bedX = hx + 46;
+      const bedY = GROUND_Y - 22;
+      ctx.fillStyle = "#e84118";
+      ctx.fillRect(bedX, bedY, 68, 20);
+      ctx.fillStyle = "#ffeaa7";
+      ctx.fillRect(bedX + 6, bedY + 3, 56, 12);
+
+      // Phase 2+: Noisy flying things outside (birds, drones, UFOs, planes)
+      if (t >= 1.8) {
+        const nt = t - 1.8;
+        const flyers = [
+          { spr: Math.floor(t * 10) % 2 === 0 ? "bird1" : "bird2", x: WIDTH - (nt * 210) % (WIDTH + 120), y: 74 },
+          { spr: Math.floor(t * 12) % 2 === 0 ? "drone1" : "drone2", x: WIDTH - ((nt * 260 + 180) % (WIDTH + 140)), y: 120 },
+          { spr: Math.floor(t * 8) % 2 === 0 ? "miniUfo1" : "miniUfo2", x: WIDTH - ((nt * 300 + 340) % (WIDTH + 160)), y: 50 },
+          { spr: Math.floor(t * 14) % 2 === 0 ? "bossPlane1" : "bossPlane2", x: WIDTH - ((nt * 330 + 90) % (WIDTH + 220)), y: 158 }
+        ];
+        flyers.forEach((f) => {
+          const spr = RC.Sprites.getWorldSprite(f.spr, 3);
+          if (spr) ctx.drawImage(spr, Math.floor(f.x), f.y);
+        });
+
+        if (t < 6.0) {
+          // Noise text bubbles outside
+          ctx.fillStyle = "#1e272e";
+          ctx.font = '900 13px "Courier New", monospace';
+          const shakeY = Math.sin(t * 28) * 3;
+          ctx.fillText("¡BEEP! ¡BRRR!", 420, Math.floor(96 + shakeY));
+          ctx.fillText("¡PIO! ¡ZOOOM!", 580, Math.floor(142 - shakeY));
+          ctx.fillText("💥 ¡RUIDO!", 490, Math.floor(54 + shakeY));
+        }
+      }
+
+      // Cat animation
+      if (t < 4.2) {
+        // Sleeping in bed
+        const catSpr = RC.Sprites.getCatSprite("duck1", this.skinId, 3);
+        ctx.drawImage(catSpr, bedX + 8, bedY - 12);
+        ctx.fillStyle = "#ff9ff3";
+        ctx.fillRect(bedX + 10, bedY + 2, 34, 11);
+
+        if (t < 2.3) {
+          ctx.fillStyle = "#1e272e";
+          ctx.font = '900 14px "Courier New", monospace';
+          ctx.fillText("Zzz...", bedX + 26, Math.floor(bedY - 22 - (t * 12) % 18));
+        } else {
+          ctx.fillStyle = "#c0392b";
+          ctx.font = '900 16px "Courier New", monospace';
+          ctx.fillText("!?", bedX + 34, bedY - 24);
+        }
+      } else if (t < 5.7) {
+        // Wakes up ANGRY!
+        const catSpr = RC.Sprites.getCatSprite("hurt", this.skinId, 3);
+        ctx.drawImage(catSpr, bedX + 18, GROUND_Y - 44 - Math.abs(Math.sin(t * 14) * 6));
+
+        ctx.fillStyle = "rgba(255, 248, 232, 0.94)";
+        ctx.fillRect(bedX - 8, GROUND_Y - 86, 224, 24);
+        ctx.strokeStyle = "#c0392b";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bedX - 8, GROUND_Y - 86, 224, 24);
+        ctx.fillStyle = "#1e272e";
+        ctx.font = '900 12px "Courier New", monospace';
+        ctx.fillText("💢 ¡GRRR! ¡MUCHO RUIDO!", bedX, GROUND_Y - 70);
+      } else {
+        // Runs out the door to investigate!
+        const runProg = (t - 5.7) / 1.8;
+        const catX = Math.floor(hx + 186 + runProg * 620);
+        const pose = Math.floor(this.cat.runAnimTimer) % 2 === 0 ? "run1" : "run2";
+        const catSpr = RC.Sprites.getCatSprite(pose, this.skinId, 3);
+        ctx.drawImage(catSpr, catX, GROUND_Y - 42);
+
+        ctx.fillStyle = "rgba(255, 248, 232, 0.94)";
+        ctx.fillRect(catX - 24, GROUND_Y - 74, 150, 22);
+        ctx.strokeStyle = "#1e272e";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(catX - 24, GROUND_Y - 74, 150, 22);
+        ctx.fillStyle = "#1e272e";
+        ctx.font = '900 12px "Courier New", monospace';
+        ctx.fillText("¡A INVESTIGAR!", catX - 14, GROUND_Y - 59);
       }
     }
   }

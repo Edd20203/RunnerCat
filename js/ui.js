@@ -47,6 +47,7 @@
     const levelSummaryBox = document.getElementById("selected-level-summary");
     const btnPlay = document.getElementById("btn-play");
     const btnDevUnlock = document.getElementById("btn-dev-unlock");
+    const btnDevIntro = document.getElementById("btn-dev-intro");
     const btnDevEnding = document.getElementById("btn-dev-ending");
     const btnBackMode = document.getElementById("btn-back-mode");
     const btnCloseCats = document.getElementById("btn-close-cats");
@@ -59,6 +60,8 @@
     const btnExitDemo = document.getElementById("btn-exit-demo");
     const endingBanner = document.getElementById("ending-banner");
     const btnExitEnding = document.getElementById("btn-exit-ending");
+    const introBanner = document.getElementById("intro-banner");
+    const btnExitIntro = document.getElementById("btn-exit-intro");
     const btnHelp = document.getElementById("btn-help");
     const btnCloseHelp = document.getElementById("btn-close-help");
 
@@ -114,6 +117,8 @@
     let activeCategory = "story"; // "story" | "endless"
     let returnScreen = "title"; // "title" | "mode"
     let pendingEndingSummary = null;
+    let introSeenThisSession = false;
+    let introWillStartGame = false;
     let selectedLevelId = RC.Storage.getState().selectedLevel;
     if (
       !RC.Levels.LIST.some((l) => l.id === selectedLevelId) ||
@@ -148,6 +153,7 @@
         endingBanner.classList.remove("hidden");
         game.startEnding(selectedCatId, true);
       },
+      onIntroEnd: finishIntro,
       onPauseChange: (paused) => {
         screenPause.classList.toggle("hidden", !paused);
       }
@@ -168,6 +174,7 @@
       const active = RC.Storage.isDevUnlockAll();
       btnDevUnlock.textContent = active ? "🔓 DEV: TODO ACTIVO" : "🔒 DEV: ACTIVAR TODOS";
       btnDevUnlock.classList.toggle("btn-dev-active", active);
+      btnDevIntro.classList.toggle("hidden", !active);
       btnDevEnding.classList.toggle("hidden", !active);
     }
 
@@ -288,6 +295,7 @@
       levelsEyebrow.textContent = isStory ? "MODO HISTORIA" : "MODO ARCADE INFINITO";
       levelsTitle.textContent = isStory ? "NIVELES 1–16" : "ELIGE TU ESCENARIO INFINITO";
       btnDevUnlock.classList.toggle("hidden", !isStory);
+      btnDevIntro.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
       btnDevEnding.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
 
       if (!list.some((l) => l.id === selectedLevelId)) {
@@ -359,16 +367,43 @@
       renderMenu();
     }
 
-    function startCurrentLevel() {
-      RC.Audio.uiClick();
-      tryLockLandscape();
+    function finishIntro() {
+      introBanner.classList.add("hidden");
+      if (introWillStartGame) {
+        introWillStartGame = false;
+        launchLevelDirect();
+      } else {
+        showMenu("story");
+      }
+    }
+
+    function launchLevelDirect() {
       hideAllOverlays();
       demoBanner.classList.add("hidden");
+      introBanner.classList.add("hidden");
       hud.classList.remove("hidden");
       btnPause.classList.remove("hidden");
       btnMenuTop.classList.remove("hidden");
       applyControlModeUI(true);
       game.startLevel(selectedLevelId, selectedCatId);
+    }
+
+    function startCurrentLevel() {
+      RC.Audio.uiClick();
+      tryLockLandscape();
+      if (selectedLevelId === "alley" && !introSeenThisSession) {
+        introSeenThisSession = true;
+        introWillStartGame = true;
+        hud.classList.add("hidden");
+        btnPause.classList.add("hidden");
+        btnMenuTop.classList.add("hidden");
+        applyControlModeUI(false);
+        hideAllOverlays();
+        introBanner.classList.remove("hidden");
+        game.startIntro(selectedCatId);
+        return;
+      }
+      launchLevelDirect();
     }
 
     function startControlDemo() {
@@ -571,6 +606,23 @@
     };
     btnCloseControls.addEventListener("click", closeControlsAction);
     btnSaveControls.addEventListener("click", closeControlsAction);
+
+    btnDevIntro.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      introWillStartGame = false;
+      hud.classList.add("hidden");
+      btnPause.classList.add("hidden");
+      btnMenuTop.classList.add("hidden");
+      applyControlModeUI(false);
+      hideAllOverlays();
+      introBanner.classList.remove("hidden");
+      game.startIntro(selectedCatId);
+    });
+
+    btnExitIntro.addEventListener("click", () => {
+      RC.Audio.uiClick();
+      finishIntro();
+    });
 
     btnDevEnding.addEventListener("click", () => {
       RC.Audio.uiClick();
