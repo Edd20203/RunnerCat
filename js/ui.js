@@ -105,6 +105,7 @@
     const gestureControls = document.getElementById("gesture-controls");
     const gestureLeftZone = document.getElementById("gesture-left-zone");
     const gestureSlowBtn = document.getElementById("gesture-slow-btn");
+    const gestureDuckBtn = document.getElementById("gesture-duck-btn");
     const gestureFireBtn = document.getElementById("gesture-fire-btn");
 
     let activeCategory = "story"; // "story" | "endless"
@@ -756,48 +757,33 @@
     touchClaw.addEventListener("pointerup", () => touchClaw.classList.remove("active"));
     touchClaw.addEventListener("pointerleave", () => touchClaw.classList.remove("active"));
 
-    // ---- Gesture Controls (Left Drag Up/Down + Right Fire/Slow) ----
-    let gestureStartY = 0;
-    let gestureTriggered = null;
+    // ---- Gesture / Zone Controls (Left Tap = Jump / Double Tap = Double Jump, Right = Claw, Duck, Slow) ----
     gestureLeftZone.addEventListener("pointerdown", (e) => {
       if (game.mode !== "playing") return;
       e.preventDefault();
-      gestureStartY = e.clientY;
-      gestureTriggered = null;
-      if (gestureLeftZone.setPointerCapture) {
-        try {
-          gestureLeftZone.setPointerCapture(e.pointerId);
-        } catch (_err) {}
-      }
+      gestureLeftZone.classList.add("active");
+      game.setUp(true);
+      game.pressJump();
     });
-    gestureLeftZone.addEventListener("pointermove", (e) => {
-      if (game.mode !== "playing" || gestureStartY === 0) return;
-      const dy = e.clientY - gestureStartY;
-      if (dy < -22 && gestureTriggered !== "up") {
-        gestureTriggered = "up";
-        game.setDuck(false);
-        game.setUp(true);
-        game.pressJump();
-      } else if (dy > 22 && gestureTriggered !== "down") {
-        gestureTriggered = "down";
-        game.setUp(false);
-        game.setDuck(true);
-      }
-    });
-    const endGesture = () => {
-      gestureStartY = 0;
-      gestureTriggered = null;
+    const endLeftTap = (e) => {
+      if (e) e.preventDefault();
+      gestureLeftZone.classList.remove("active");
       game.setUp(false);
-      game.setDuck(false);
       game.releaseJump();
     };
-    gestureLeftZone.addEventListener("pointerup", endGesture);
-    gestureLeftZone.addEventListener("pointercancel", endGesture);
+    gestureLeftZone.addEventListener("pointerup", endLeftTap);
+    gestureLeftZone.addEventListener("pointercancel", endLeftTap);
+    gestureLeftZone.addEventListener("pointerleave", endLeftTap);
 
     bindHoldButton(
       gestureSlowBtn,
       () => game.setSlow(true),
       () => game.setSlow(false)
+    );
+    bindHoldButton(
+      gestureDuckBtn,
+      () => game.setDuck(true),
+      () => game.setDuck(false)
     );
     bindHoldButton(
       gestureFireBtn,

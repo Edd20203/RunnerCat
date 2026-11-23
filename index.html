@@ -94,11 +94,14 @@
       <!-- Gesture Controls Overlay (active during gameplay/demo when controlMode === 'gestures') -->
       <div id="gesture-controls" class="gesture-controls hidden">
         <div id="gesture-left-zone" class="gesture-left-zone">
-          <span class="gesture-hint">⬆ ARRASTRA ARRIBA: SALTAR<br/>⬇ ARRASTRA ABAJO: AGACHAR</span>
+          <span class="gesture-hint">👆 TOCA: SALTAR<br/>👆👆 DOBLE TOQUE: DOBLE SALTO</span>
         </div>
         <div class="gesture-right-zone">
-          <button id="gesture-slow-btn" class="gesture-btn gesture-slow-btn" type="button">⏱ LENTO</button>
-          <button id="gesture-fire-btn" class="gesture-btn gesture-fire-btn" type="button">🐾 ATACAR</button>
+          <div class="gesture-right-top">
+            <button id="gesture-slow-btn" class="gesture-btn gesture-slow-btn" type="button">⏱ LENTO</button>
+            <button id="gesture-duck-btn" class="gesture-btn gesture-duck-btn" type="button">⬇ AGACHAR</button>
+          </div>
+          <button id="gesture-fire-btn" class="gesture-btn gesture-fire-btn" type="button">🐾 ARAÑAR</button>
         </div>
       </div>
 
@@ -221,8 +224,8 @@
               <p>Barra inferior con botones táctiles dedicados: Saltar, Agachar, Atacar y Lento.</p>
             </button>
             <button id="btn-ctrl-gestures" class="mode-choice-card ctrl-choice" type="button">
-              <h3>👆 GESTOS + BOTÓN</h3>
-              <p>Izquierda: arrastra arriba (saltar) o abajo (agachar). Derecha: botón para disparar/atacar.</p>
+              <h3>👆 TOQUE + BOTONES</h3>
+              <p>Izquierda: toca para saltar (doble toque = doble salto). Derecha: botones de Arañar, Agachar y Lento.</p>
             </button>
           </div>
 
