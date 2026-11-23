@@ -178,6 +178,30 @@
       btnDevEnding.classList.toggle("hidden", !active);
     }
 
+    function getLevelThumbSprite(lvl) {
+      if (lvl.thumbSprite) return RC.Sprites.getWorldSprite(lvl.thumbSprite, 2);
+      const map = {
+        alley: "hydrant",
+        park: "bird1",
+        rooftops: "drone1",
+        boss: "chicken1",
+        ocean: "fish",
+        ocean2: "proxMine",
+        ocean3: "seaweed",
+        squidBoss: "squid1",
+        skyplane: "skyBlock",
+        skyplane2: "drone1",
+        skyplane3: "bird1",
+        planeBoss: "bossPlane1",
+        endless: "hydrant",
+        endless_rooftops: "drone1",
+        endless_swim: "proxMine",
+        endless_plane: "bossPlane1"
+      };
+      const key = map[lvl.id] || "fish";
+      return RC.Sprites.getWorldSprite(key, 2);
+    }
+
     function renderLevelCards(list, containerEl) {
       containerEl.innerHTML = "";
       list.forEach((lvl) => {
@@ -193,7 +217,11 @@
 
         const goalStr = lvl.targetDistance
           ? `Meta: ${lvl.targetDistance}m`
-          : lvl.mode === "boss" || lvl.mode === "swimBoss" || lvl.mode === "planeBoss" || lvl.mode === "spaceBoss"
+          : lvl.mode === "boss" ||
+            lvl.mode === "swimBoss" ||
+            lvl.mode === "planeBoss" ||
+            lvl.mode === "batBoss" ||
+            lvl.mode === "spaceBoss"
           ? `Jefe: ${lvl.bossMaxHp} HP`
           : "Sin meta (∞)";
         const statusTag = !unlocked
@@ -211,10 +239,29 @@
             <span class="level-num">${lvl.category === "endless" ? "MODO ∞" : `NIVEL ${lvl.number}`}</span>
             ${statusTag}
           </div>
-          <div class="level-name">${lvl.name}</div>
-          <div class="level-meta">${lvl.difficulty} · ${goalStr}</div>
+          <div class="level-card-body">
+            <div class="level-card-info">
+              <div class="level-name">${lvl.name}</div>
+              <div class="level-meta">${lvl.difficulty} · ${goalStr}</div>
+            </div>
+          </div>
           <div class="level-hi">${footerText}</div>
         `;
+
+        const thumbSpr = getLevelThumbSprite(lvl);
+        if (thumbSpr) {
+          const thumb = document.createElement("canvas");
+          thumb.className = "level-thumb";
+          thumb.width = 24;
+          thumb.height = 24;
+          const tctx = thumb.getContext("2d");
+          tctx.imageSmoothingEnabled = false;
+          const scale = Math.min(24 / thumbSpr.width, 24 / thumbSpr.height);
+          const dw = Math.floor(thumbSpr.width * scale);
+          const dh = Math.floor(thumbSpr.height * scale);
+          tctx.drawImage(thumbSpr, Math.floor((24 - dw) / 2), Math.floor((24 - dh) / 2), dw, dh);
+          card.querySelector(".level-card-body").appendChild(thumb);
+        }
 
         card.addEventListener("click", () => {
           if (!unlocked) return;
@@ -293,7 +340,7 @@
       const isStory = activeCategory === "story";
       const list = isStory ? RC.Levels.STORY_LIST : RC.Levels.ENDLESS_LIST;
       levelsEyebrow.textContent = isStory ? "MODO HISTORIA" : "MODO ARCADE INFINITO";
-      levelsTitle.textContent = isStory ? "NIVELES 1–16" : "ELIGE TU ESCENARIO INFINITO";
+      levelsTitle.textContent = isStory ? "NIVELES 1–20" : "ELIGE TU ESCENARIO INFINITO";
       btnDevUnlock.classList.toggle("hidden", !isStory);
       btnDevIntro.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
       btnDevEnding.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
@@ -436,6 +483,8 @@
             ? "🦑 CALAMAR"
             : data.level.mode === "planeBoss"
             ? "✈ AVIÓN JEFE"
+            : data.level.mode === "batBoss"
+            ? "💀 ESQUELETO"
             : data.level.mode === "spaceBoss"
             ? "🛸 NAVE NODRIZA"
             : "🐔 GALLINA";
@@ -456,6 +505,7 @@
 
       // Active power-up pills
       let pills = "";
+      if (data.lightningCharge != null) pills += `<span class="powerup-pill shield">⚡ RAYO ${data.lightningCharge}/5</span>`;
       if (data.laserLevel > 1) pills += `<span class="powerup-pill shield">⚡ LÁSER N${data.laserLevel}</span>`;
       if (data.missiles > 0) pills += `<span class="powerup-pill milk">🚀 MISIL x${data.missiles}</span>`;
       if (data.shield) pills += `<span class="powerup-pill shield">🧶 ESCUDO</span>`;

@@ -157,6 +157,26 @@
       ".RRRRRRYYYYYYRRRR.",
       "...RRRRRRRRRRRRRY.",
       ".....DD......DD..."
+    ],
+    bat1: [
+      "..DD..........DD..",
+      ".DBBD..D..D..DBBD.",
+      "DBBBBDDBDBBDDBBBBD",
+      "DBBBBDBBBBBBDBBBBD",
+      ".DBBBDBEBEDDBBBBD.",
+      "..DBDDBBBBNDDDBD..",
+      "...DD.DBBBD..DD...",
+      ".......D.D........"
+    ],
+    bat2: [
+      "......D....D......",
+      ".....DBD..DBD.....",
+      "...DDBBBBBBBBDD...",
+      "..DBBDBEBEDDBBBD..",
+      ".DBBBDBBBBNDBBBBD.",
+      "DBBD..DBBBD..DBBBD",
+      "DD.....D.D......DD",
+      ".................."
     ]
   };
 
@@ -995,6 +1015,199 @@
         "..DBBBBBBD..",
         "..DBBBBBBD..",
         "...DD..DD..."
+      ]
+    },
+    tombstone: {
+      palette: { D: "#1e272e", M: "#747d8c", L: "#ced6e0", S: "#57606f" },
+      matrix: [
+        "...DDDDDD...",
+        "..DLLLLLLD..",
+        ".DLMMMMMMLD.",
+        ".DMMDDDDMMD.",
+        ".DMMMDMMMMD.",
+        ".DMMDDDDMMD.",
+        ".DMMMDMMMMD.",
+        ".DMMMDMMMMD.",
+        ".DMMMMMMMMD.",
+        "DDSSSSSSSSDD",
+        "DDDDDDDDDDDD"
+      ]
+    },
+    miniSkeleton1: {
+      palette: { D: "#1e272e", W: "#f5f6fa", S: "#ced6e0", E: "#ff4757" },
+      matrix: [
+        "...DDDDDD...",
+        "..DWWWWWWD..",
+        "..DWEWWEWD..",
+        "..DWWWWWWD..",
+        "...DWDDWD...",
+        "..DDWWWWDD..",
+        ".DW.DSSD.WD.",
+        "....DSSD....",
+        "...DW..WD...",
+        "..DD....DD.."
+      ]
+    },
+    miniSkeleton2: {
+      palette: { D: "#1e272e", W: "#f5f6fa", S: "#ced6e0", E: "#ff4757" },
+      matrix: [
+        "...DDDDDD...",
+        "..DWWWWWWD..",
+        "..DWEWWEWD..",
+        "..DWWWWWWD..",
+        "...DWDDWD...",
+        "..DDWWWWDD..",
+        "....DSSDDW..",
+        "....DSSD....",
+        "....DW.WD...",
+        "....DD..DD.."
+      ]
+    },
+    spider1: {
+      palette: { D: "#140c1c", P: "#6c5ce7", R: "#ff4757" },
+      matrix: [
+        ".D..DDDD..D.",
+        "D.DDPPPPDD.D",
+        ".DDPRPPPRDD.",
+        "DDPPPPPPPPDD",
+        ".D.DDDDDD.D.",
+        "D..D....D..D"
+      ]
+    },
+    spider2: {
+      palette: { D: "#140c1c", P: "#6c5ce7", R: "#ff4757" },
+      matrix: [
+        "D...DDDD...D",
+        ".DDDPPPPDDD.",
+        "D.DPRPPPRD.D",
+        ".DPPPPPPPPD.",
+        "D..DDDDDD..D",
+        "...D....D..."
+      ]
+    },
+    zombie1: {
+      palette: { D: "#132917", G: "#2ed573", L: "#7bed9f", P: "#5f27cd", E: "#ffd32a" },
+      matrix: [
+        "...DDDDDD...",
+        "..DGGGGGGD..",
+        "..DGEGGGED..",
+        "..DGGGGGGD..",
+        "...DDGGDD...",
+        "DDDPPPPPPD..",
+        "GGDPPPPPPD..",
+        "...DPPPPD...",
+        "..DG....GD..",
+        "..DD....DD.."
+      ]
+    },
+    zombie2: {
+      palette: { D: "#132917", G: "#2ed573", L: "#7bed9f", P: "#5f27cd", E: "#ffd32a" },
+      matrix: [
+        "...DDDDDD...",
+        "..DGGGGGGD..",
+        "..DGEGGGED..",
+        "..DGGGGGGD..",
+        "...DDGGDD...",
+        ".DDPPPPPPD..",
+        "GGDPPPPPPD..",
+        "...DPPPPD...",
+        "...DG..GD...",
+        "...DD..DD..."
+      ]
+    },
+    crow1: {
+      palette: { D: "#0c0d14", B: "#2f3640", L: "#57606f", Y: "#ffa502", E: "#ff4757" },
+      matrix: [
+        ".....DDDD...",
+        "YYDDBBBBBD..",
+        "..DBEBLLLBD.",
+        "...DBBBBBBD.",
+        "....DDBBDDD.",
+        "......DD...."
+      ]
+    },
+    crow2: {
+      palette: { D: "#0c0d14", B: "#2f3640", L: "#57606f", Y: "#ffa502", E: "#ff4757" },
+      matrix: [
+        "..DD........",
+        "YYDBBDDDD...",
+        "..DBEBLLLBD.",
+        "...DBBBBBBD.",
+        ".....DDBBDD.",
+        ".......DD..."
+      ]
+    },
+    bone: {
+      palette: { D: "#2f3640", W: "#ffffff", S: "#dfe4ea" },
+      matrix: [
+        ".DD....DD.",
+        "DWWD..DWWD",
+        ".DWWWWWWSD",
+        "DWWD..DWWD",
+        ".DD....DD."
+      ]
+    },
+    vomitGlob: {
+      palette: { D: "#143d18", G: "#2ed573", L: "#a3cb38" },
+      matrix: [
+        "..DDDD..",
+        ".DGLLGD.",
+        "DGGGGGGD",
+        ".DDDDDD."
+      ]
+    },
+    giantSkeleton1: {
+      palette: { D: "#191b26", W: "#f5f6fa", S: "#b2bec3", E: "#ff4757", P: "#6c5ce7" },
+      matrix: [
+        "....DDDDDDDD....",
+        "...DWWWWWWWWD...",
+        "..DWWWEWWWEWWD..",
+        "..DWWWWDDWWWWD..",
+        "...DWDDDDDDWD...",
+        "....DWWWWWWD....",
+        ".DDDWWWWWWWWDDD.",
+        "DWWWDSSSSSSDWWWD",
+        "DWW.DWWWWWWSD.WW",
+        "....DSSSSSSD....",
+        "...DWW....WWD...",
+        "..DWW......WWD..",
+        "..DDD......DDD.."
+      ]
+    },
+    giantSkeleton2: {
+      palette: { D: "#191b26", W: "#f5f6fa", S: "#b2bec3", E: "#ff4757", P: "#6c5ce7" },
+      matrix: [
+        "....DDDDDDDD....",
+        "...DWWWWWWWWD...",
+        "..DWWWEWWWEWWD..",
+        "..DWWWWDDWWWWD..",
+        "...DWDDDDDDWD...",
+        "....DWWWWWWD....",
+        "..DDWWWWWWWWDD..",
+        ".DWWDSSSSSSDWWWD",
+        ".DW.DWWWWWWSD.WW",
+        "....DSSSSSSD....",
+        "....DWW..WWD....",
+        "...DWW....WWD...",
+        "...DDD....DDD..."
+      ]
+    },
+    giantSkeletonHurt: {
+      palette: { D: "#5c0f0f", W: "#ffd32a", S: "#48dbfb", E: "#ffffff", P: "#ff4757" },
+      matrix: [
+        "....DDDDDDDD....",
+        "...DWWWWWWWWD...",
+        "..DWWWEWWWEWWD..",
+        "..DWWWWDDWWWWD..",
+        "...DWDDDDDDWD...",
+        "....DWWWWWWD....",
+        ".DDDWWWWWWWWDDD.",
+        "DWWWDSSSSSSDWWWD",
+        "DWW.DWWWWWWSD.WW",
+        "....DSSSSSSD....",
+        "...DWW....WWD...",
+        "..DWW......WWD..",
+        "..DDD......DDD.."
       ]
     }
   };

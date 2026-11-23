@@ -168,6 +168,11 @@
       return m === "space" || m === "spaceBoss";
     }
 
+    isBatMode(lvlMode) {
+      const m = lvlMode || this.level.mode || "runner";
+      return m === "bat" || m === "batBoss";
+    }
+
     setPreviewConfig(levelId, skinId) {
       this.level = RC.Levels.getLevelById(levelId);
       this.skinId = skinId;
@@ -234,8 +239,11 @@
       this.bossPiranhas = []; // giant squid piranhas
       this.bossTrash = [];   // boss plane trash bags
       this.alienShots = [];  // space alien plasma shots
+      this.spookyShots = []; // zombie vomit, spider drops, crow eggs, skeleton bones
       this.catMissiles = 0;
       this.laserLevel = 1;
+      this.lightningCharge = 0;
+      this.lightningTimer = 0;
       this.endingTimer = 0;
       this.endingFromBoss = false;
       this.introTimer = 0;
@@ -300,6 +308,22 @@
           dir: 1,
           trashTimer: 0.9,
           bagCount: 0,
+          hurtTimer: 0,
+          animTimer: 0
+        };
+      } else if (lvlMode === "batBoss") {
+        const maxHp = lvl.bossMaxHp || 5;
+        this.boss = {
+          kind: "skeleton",
+          active: true,
+          hp: maxHp,
+          maxHp,
+          x: WIDTH - 148,
+          y: GROUND_Y - 78,
+          w: 96,
+          h: 78,
+          boneTimer: 1.0,
+          minionTimer: 2.3,
           hurtTimer: 0,
           animTimer: 0
         };
@@ -540,6 +564,7 @@
     tryExecuteJump() {
       const cat = this.cat;
       const isSpace = this.isSpaceMode();
+      const isBat = this.isBatMode();
       const canGroundJump = cat.onGround || cat.coyoteTimer > 0;
 
       if (canGroundJump) {
@@ -551,6 +576,20 @@
         cat.ducking = false;
         RC.Audio.jump();
         this.spawnDust(cat.x + 18, GROUND_Y - 2, 7, isSpace ? "#70a1ff" : "#d9ccb4");
+        return true;
+      }
+
+      if (isBat) {
+        // Transform into Vampire Bat & flap/fly in mid-air!
+        cat.vy = -480;
+        cat.jumpsUsed += 1;
+        cat.jumpBufferTimer = 0;
+        cat.ducking = false;
+        RC.Audio.doubleJump();
+        this.spawnDust(cat.x + 22, cat.y + cat.h, 8, "#a55eea");
+        if (cat.jumpsUsed === 2) {
+          this.addFloatingText("🦇 ¡MURCIÉLAGO!", cat.x + 4, cat.y - 6, "#a55eea", 11);
+        }
         return true;
       }
 
@@ -746,7 +785,12 @@
 
       // ---- Spawning ----
       if (!this.finishGateSpawned) {
-        if (!this.isDemo && this.level.mode !== "planeBoss" && this.level.mode !== "spaceBoss") {
+        if (
+          !this.isDemo &&
+          this.level.mode !== "planeBoss" &&
+          this.level.mode !== "spaceBoss" &&
+          this.level.mode !== "batBoss"
+        ) {
           this.spawnTimer -= worldDt;
           if (this.spawnTimer <= 0) {
             this.spawnObstacle();
@@ -787,12 +831,14 @@
       this.updateLaunchedMines(rawDt);
       if (this.mode !== "playing") return;
 
-      // ---- Update Boss (Chicken, Squid, Plane, or Space UFO) ----
+      // ---- Update Boss (Chicken, Squid, Plane, Skeleton, or Space UFO) ----
       if (this.boss && this.boss.active) {
         if (this.boss.kind === "squid") {
           this.updateSquidBoss(rawDt, worldDt);
         } else if (this.boss.kind === "plane") {
           this.updatePlaneBoss(rawDt, worldDt);
+        } else if (this.boss.kind === "skeleton") {
+          this.updateSkeletonBoss(rawDt, worldDt);
         } else if (this.boss.kind === "ufo") {
           this.updateSpaceBoss(rawDt, worldDt);
         } else {
@@ -801,9 +847,12 @@
         if (this.mode !== "playing") return;
       }
 
-      // ---- Update Alien Shots ----
+      // ---- Update Alien & Spooky Shots ----
       this.updateAlienShots(worldDt);
       if (this.mode !== "playing") return;
+      this.updateSpookyShots(worldDt);
+      if (this.mode !== "playing") return;
+      if (this.lightningTimer > 0) this.lightningTimer = Math.max(0, this.lightningTimer - rawDt);
 
       // ---- Update Obstacles & Collisions ----
       this.updateObstacles(worldDt, movePx);
@@ -969,6 +1018,9 @@
       }
       if (this.isPlaneMode(lvlMode)) {
         return Math.floor(this.time * 16) % 2 === 0 ? "plane1" : "plane2";
+      }
+      if (this.isBatMode(lvlMode) && !cat.onGround && cat.jumpsUsed >= 2) {
+        return Math.floor(cat.runAnimTimer * 1.4) % 2 === 0 ? "bat1" : "bat2";
       }
       if (cat.clawTimer > 0) return "slash";
       if (!cat.onGround) return "jump";
@@ -1155,6 +1207,81 @@
           h: 30,
           scratchable: false,
           extraSpeed: 0
+        };
+      } else if (type === "tombstone") {
+        obs = {
+          type,
+          sprite: "tombstone",
+          x,
+          y: GROUND_Y - 33,
+          w: 36,
+          h: 33,
+          scratchable: false,
+          extraSpeed: 0
+        };
+      } else if (type === "miniSkeleton") {
+        obs = {
+          type,
+          sprite: "miniSkeleton1",
+          animFrames: ["miniSkeleton1", "miniSkeleton2"],
+          x,
+          y: GROUND_Y - 30,
+          w: 36,
+          h: 30,
+          scratchable: true,
+          points: 55,
+          extraSpeed: 60
+        };
+      } else if (type === "spider") {
+        const sy = 44 + Math.random() * 48;
+        obs = {
+          type,
+          sprite: "spider1",
+          animFrames: ["spider1", "spider2"],
+          x,
+          y: sy,
+          baseY: sy,
+          w: 36,
+          h: 18,
+          scratchable: true,
+          canDrop: true,
+          shootTimer: 0.75 + Math.random() * 0.9,
+          points: 60,
+          extraSpeed: 20,
+          bobPhase: Math.random() * Math.PI * 2
+        };
+      } else if (type === "zombie") {
+        obs = {
+          type,
+          sprite: "zombie1",
+          animFrames: ["zombie1", "zombie2"],
+          x,
+          y: GROUND_Y - 30,
+          w: 36,
+          h: 30,
+          scratchable: true,
+          canVomit: true,
+          shootTimer: 0.95 + Math.random() * 1.0,
+          points: 65,
+          extraSpeed: 25
+        };
+      } else if (type === "crow") {
+        const cy = 62 + Math.random() * 88;
+        obs = {
+          type,
+          sprite: "crow1",
+          animFrames: ["crow1", "crow2"],
+          x,
+          y: cy,
+          baseY: cy,
+          w: 36,
+          h: 18,
+          scratchable: true,
+          canEgg: true,
+          shootTimer: 0.8 + Math.random() * 1.0,
+          points: 60,
+          extraSpeed: 65,
+          bobPhase: Math.random() * Math.PI * 2
         };
       } else if (type === "alienWalker") {
         const canShoot = this.level.id !== "space1" ? Math.random() < 0.7 : Math.random() < 0.4;
@@ -1721,7 +1848,150 @@
       }
     }
 
-    // ---- Space Boss Logic (Level 16: Alien Mothership) ----
+    // ---- Skeleton Boss Logic (Level 16: Giant Skeleton + Lightning Charge) ----
+    updateSkeletonBoss(rawDt, worldDt) {
+      const boss = this.boss;
+      if (!boss || !boss.active) return;
+
+      boss.animTimer += rawDt * 6;
+      if (boss.hurtTimer > 0) boss.hurtTimer = Math.max(0, boss.hurtTimer - rawDt);
+
+      // Throws spinning bones toward the cat (scratchable!)
+      boss.boneTimer -= worldDt;
+      if (boss.boneTimer <= 0) {
+        const rage = boss.maxHp - boss.hp;
+        boss.boneTimer = Math.max(0.65, 1.25 - rage * 0.1) + Math.random() * 0.45;
+        RC.Audio.eggDrop();
+        const high = Math.random() < 0.45;
+        this.spookyShots.push({
+          sprite: "bone",
+          x: boss.x - 12,
+          y: high ? GROUND_Y - 96 : GROUND_Y - 36,
+          w: 30,
+          h: 15,
+          vx: -(330 + rage * 25),
+          vy: high ? 25 : 0
+        });
+      }
+
+      // Summons mini-skeletons & crows to build lightning charge
+      boss.minionTimer -= worldDt;
+      if (boss.minionTimer <= 0) {
+        boss.minionTimer = 1.9 + Math.random() * 1.1;
+        const isCrow = Math.random() < 0.45;
+        if (isCrow) {
+          const cy = 68 + Math.random() * 75;
+          this.obstacles.push({
+            type: "crow",
+            sprite: "crow1",
+            animFrames: ["crow1", "crow2"],
+            x: boss.x - 20,
+            y: cy,
+            baseY: cy,
+            w: 36,
+            h: 18,
+            scratchable: true,
+            canEgg: false,
+            points: 60,
+            extraSpeed: 55,
+            bobPhase: Math.random() * Math.PI * 2,
+            animTimer: 0
+          });
+        } else {
+          this.obstacles.push({
+            type: "miniSkeleton",
+            sprite: "miniSkeleton1",
+            animFrames: ["miniSkeleton1", "miniSkeleton2"],
+            x: boss.x - 20,
+            y: GROUND_Y - 30,
+            w: 36,
+            h: 30,
+            scratchable: true,
+            points: 55,
+            extraSpeed: 55,
+            animTimer: 0
+          });
+        }
+      }
+    }
+
+    addLightningCharge() {
+      if (this.level.mode !== "batBoss" || !this.boss || !this.boss.active) return;
+      this.lightningCharge += 1;
+      if (this.lightningCharge >= 5) {
+        this.lightningCharge = 0;
+        this.lightningTimer = 0.55;
+        const boss = this.boss;
+        boss.hp = Math.max(0, boss.hp - 1);
+        boss.hurtTimer = 0.55;
+        this.killScore += 250;
+        this.hitstopTimer = 0.06;
+        this.triggerShake(12, 0.3);
+        RC.Audio.mineExplode();
+        RC.Audio.bossHit();
+        this.spawnBurst(boss.x + boss.w * 0.5, boss.y + boss.h * 0.4, "#48dbfb", 28);
+        this.spawnBurst(boss.x + boss.w * 0.5, boss.y + boss.h * 0.4, "#ffd32a", 18);
+        this.addFloatingText("⚡ ¡RAYO! +250", boss.x - 20, boss.y - 16, "#ffd32a", 16);
+
+        if (boss.hp <= 0) {
+          boss.active = false;
+          this.killScore += 800;
+          this.triggerVictory();
+        }
+      } else {
+        this.addFloatingText(`⚡ ${this.lightningCharge}/5`, this.cat.x, this.cat.y - 18, "#48dbfb", 12);
+      }
+    }
+
+    updateSpookyShots(worldDt) {
+      const catBox = this.getCatHitbox();
+      const clawActive = this.cat.clawTimer > 0;
+      const clawBox = clawActive ? this.getClawHitbox() : null;
+
+      for (let i = this.spookyShots.length - 1; i >= 0; i--) {
+        const s = this.spookyShots[i];
+        s.x += s.vx * worldDt;
+        s.y += s.vy * worldDt;
+
+        if (s.x + s.w < -40 || s.y > GROUND_Y + 20) {
+          this.spookyShots.splice(i, 1);
+          continue;
+        }
+
+        if (clawActive && this.rectsOverlap(clawBox, s)) {
+          this.killScore += 30;
+          RC.Audio.scratchHit();
+          this.spawnBurst(s.x + s.w / 2, s.y + s.h / 2, "#ffd32a", 10);
+          this.addFloatingText("+30", s.x, s.y - 8, "#ffd32a", 12);
+          this.spookyShots.splice(i, 1);
+          this.addLightningCharge();
+          if (this.mode !== "playing") return;
+          continue;
+        }
+
+        if (this.rectsOverlap(catBox, s)) {
+          if (this.cat.milkTimer > 0) {
+            this.spawnBurst(s.x, s.y, "#ffd32a", 8);
+            this.spookyShots.splice(i, 1);
+            continue;
+          }
+          if (this.cat.invulnTimer > 0) continue;
+          if (this.cat.shield) {
+            this.cat.shield = false;
+            this.cat.invulnTimer = 1.15;
+            RC.Audio.shieldBreak();
+            this.triggerShake(8, 0.22);
+            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
+            this.spookyShots.splice(i, 1);
+            continue;
+          }
+          this.triggerGameOver();
+          return;
+        }
+      }
+    }
+
+    // ---- Space Boss Logic (Level 20: Alien Mothership) ----
     updateSpaceBoss(rawDt, worldDt) {
       const boss = this.boss;
       if (!boss || !boss.active) return;
@@ -2045,6 +2315,7 @@
 
       const tag = this.comboCount >= 2 ? `+${pts} x${this.comboCount}!` : `+${pts}!`;
       this.addFloatingText(tag, cx - 20, cy - 16, "#ff9f43", 13);
+      this.addLightningCharge();
     }
 
     updateObstacles(worldDt, movePx) {
@@ -2079,6 +2350,34 @@
               h: 6,
               vx: -460
             });
+          }
+        }
+
+        if ((obs.canDrop || obs.canVomit || obs.canEgg) && obs.x < WIDTH - 30 && obs.x > this.cat.x + 40) {
+          obs.shootTimer -= worldDt;
+          if (obs.shootTimer <= 0) {
+            obs.shootTimer = 1.2 + Math.random() * 0.9;
+            if (obs.canVomit) {
+              this.spookyShots.push({
+                sprite: "vomitGlob",
+                x: obs.x - 12,
+                y: obs.y + 8,
+                w: 24,
+                h: 12,
+                vx: -(this.speed * 0.65 + 140),
+                vy: 15
+              });
+            } else {
+              this.spookyShots.push({
+                sprite: obs.canEgg ? "egg" : "vomitGlob",
+                x: obs.x + 6,
+                y: obs.y + obs.h,
+                w: 24,
+                h: 20,
+                vx: -this.speed * 0.35,
+                vy: 190
+              });
+            }
           }
         }
 
@@ -2442,6 +2741,7 @@
         bossMaxHp: this.boss ? this.boss.maxHp : null,
         missiles: this.catMissiles,
         laserLevel: this.isSpaceMode() ? this.laserLevel : 0,
+        lightningCharge: this.level.mode === "batBoss" ? this.lightningCharge : null,
         levelHi: RC.Storage.getLevelRecord(this.level.id).hiScore
       });
     }
@@ -2607,12 +2907,16 @@
         }
       });
 
-      // Alien Plasma Shots
+      // Alien & Spooky Shots
       this.alienShots.forEach((s) => {
         ctx.fillStyle = "#ff4757";
         ctx.fillRect(Math.floor(s.x), Math.floor(s.y), s.w, s.h);
         ctx.fillStyle = "#ffd32a";
         ctx.fillRect(Math.floor(s.x + 2), Math.floor(s.y + 1), s.w - 6, s.h - 2);
+      });
+      this.spookyShots.forEach((s) => {
+        const spr = RC.Sprites.getWorldSprite(s.sprite, 3);
+        if (spr) ctx.drawImage(spr, Math.floor(s.x), Math.floor(s.y));
       });
 
       // Boss (Chicken, Squid, or Plane) & Projectiles
@@ -2787,6 +3091,42 @@
         ctx.font = '900 11px "Courier New", monospace';
         ctx.fillStyle = "#ffd32a";
         ctx.fillText("¡LÁNZALE MINAS (X)!", bx - 20, by - 8);
+        ctx.restore();
+        return;
+      }
+
+      if (boss.kind === "skeleton") {
+        const sprName =
+          boss.hurtTimer > 0
+            ? "giantSkeletonHurt"
+            : Math.floor(boss.animTimer) % 2 === 0
+            ? "giantSkeleton1"
+            : "giantSkeleton2";
+        const spr = RC.Sprites.getWorldSprite(sprName, 6);
+        if (spr) ctx.drawImage(spr, bx, by);
+
+        if (this.lightningTimer > 0) {
+          ctx.save();
+          ctx.strokeStyle = "#48dbfb";
+          ctx.lineWidth = 8;
+          ctx.beginPath();
+          const lx = bx + boss.w * 0.5;
+          ctx.moveTo(lx, 0);
+          ctx.lineTo(lx - 18, by * 0.35);
+          ctx.lineTo(lx + 16, by * 0.65);
+          ctx.lineTo(lx, by + 24);
+          ctx.stroke();
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.save();
+        ctx.globalAlpha = 0.75 + 0.25 * Math.sin(this.time * 8);
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillStyle = "#48dbfb";
+        ctx.fillText(`⚡ RAYO: ${this.lightningCharge}/5`, bx - 6, by - 8);
         ctx.restore();
         return;
       }
