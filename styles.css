@@ -162,57 +162,58 @@ html, body {
 .hud {
   position: absolute;
   inset: 0 0 auto 0;
-  padding: 10px 14px;
+  padding: 5px 8px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   pointer-events: none;
   z-index: 5;
 }
 
 .hud-left,
 .hud-right {
-  background: rgba(18, 20, 34, 0.76);
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  padding: 7px 10px;
+  background: rgba(18, 20, 34, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 3px 6px;
   border-radius: 3px;
-  backdrop-filter: blur(2px);
 }
 
 .hud-level-pill {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   color: var(--accent-gold);
-  margin-bottom: 5px;
+  margin-bottom: 2px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
 }
 
 .meters {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 168px;
+  gap: 2px;
+  min-width: 112px;
 }
 
 .meter-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .meter-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  width: 58px;
+  width: 46px;
   color: #e8ecff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
 }
 
 .meter-track {
   flex: 1;
-  height: 9px;
-  background: #0d0e17;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  height: 6px;
+  background: rgba(13, 14, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   overflow: hidden;
 }
 
@@ -231,17 +232,17 @@ html, body {
 
 .powerup-badges {
   display: flex;
-  gap: 5px;
-  margin-top: 5px;
+  gap: 3px;
+  margin-top: 3px;
   flex-wrap: wrap;
 }
 
 .powerup-pill {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 900;
-  padding: 2px 6px;
+  padding: 1px 4px;
   border: 1px solid #fff;
-  background: rgba(16, 18, 30, 0.9);
+  background: rgba(16, 18, 30, 0.72);
   color: #fff;
 }
 
@@ -251,32 +252,33 @@ html, body {
 
 .hud-center {
   flex: 1;
-  max-width: 240px;
+  max-width: 210px;
   display: flex;
   justify-content: center;
 }
 
 .progress-wrap {
   width: 100%;
-  background: rgba(18, 20, 34, 0.76);
-  border: 2px solid rgba(255, 255, 255, 0.22);
-  padding: 6px 8px;
+  background: rgba(18, 20, 34, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 3px 6px;
   border-radius: 3px;
 }
 
 .progress-label {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   color: #dce2ff;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
 }
 
 .progress-track {
-  height: 8px;
-  background: #0d0e17;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  height: 6px;
+  background: rgba(13, 14, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .progress-fill {
@@ -291,43 +293,46 @@ html, body {
 
 .hud-right {
   text-align: right;
-  min-width: 165px;
+  min-width: 112px;
 }
 
 .score-main {
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 5px;
 }
 
 .score-tag {
-  font-size: 10px;
+  font-size: 8px;
   color: var(--text-muted);
   font-weight: 700;
 }
 
 #hud-score {
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   color: #ffffff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
 }
 
 .score-sub-row {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  font-size: 11px;
+  gap: 6px;
+  font-size: 9px;
   color: #dbe1ff;
-  margin-top: 2px;
+  margin-top: 1px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
 }
 
 .score-hi-row {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--accent-gold);
-  margin-top: 2px;
+  margin-top: 1px;
   font-weight: 700;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
 }
 
 /* Overlays (Menu, Help, Pause, Result) */
