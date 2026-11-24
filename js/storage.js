@@ -8,6 +8,7 @@
     globalHi: 0,
     soundEnabled: true,
     devUnlockAll: false,
+    insanityMode: false,
     controlMode: "buttons",
     selectedCat: "ginger",
     selectedLevel: "alley",
@@ -37,6 +38,7 @@
       globalHi: DEFAULT_DATA.globalHi,
       soundEnabled: DEFAULT_DATA.soundEnabled,
       devUnlockAll: DEFAULT_DATA.devUnlockAll,
+      insanityMode: DEFAULT_DATA.insanityMode,
       controlMode: DEFAULT_DATA.controlMode,
       selectedCat: DEFAULT_DATA.selectedCat,
       selectedLevel: DEFAULT_DATA.selectedLevel,
@@ -95,6 +97,13 @@
     },
     setDevUnlockAll(enabled) {
       state.devUnlockAll = Boolean(enabled);
+      save();
+    },
+    isInsanityMode() {
+      return Boolean(state.insanityMode);
+    },
+    setInsanityMode(enabled) {
+      state.insanityMode = Boolean(enabled);
       save();
     },
     getControlMode() {

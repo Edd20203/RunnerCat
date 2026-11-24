@@ -1209,6 +1209,139 @@
         "..DWW......WWD..",
         "..DDD......DDD.."
       ]
+    },
+    heart: {
+      palette: { D: "#4a0814", R: "#ff4757", L: "#ff7f8f", W: "#ffffff" },
+      matrix: [
+        ".DDD....DDD.",
+        "DRRRD..DRRRD",
+        "DRWWRDDRRRRD",
+        "DRWRRRRRRRRD",
+        "DRRRRRRRRRRD",
+        ".DRRRRRRRRD.",
+        "..DRRRRRRD..",
+        "...DRRRRD...",
+        "....DRRD....",
+        ".....DD....."
+      ]
+    },
+    movingCrate: {
+      palette: { D: "#3d220c", B: "#e67e22", L: "#ffd32a", W: "#ffffff" },
+      matrix: [
+        "WW..DDDDDDDD..WW",
+        ".WW.DLLLLLLD.WW.",
+        "....DLBBBBLD....",
+        "....DLBWWBLD....",
+        "....DLBBBBLD....",
+        "....DLBBBBLD....",
+        "....DDDDDDDD...."
+      ]
+    },
+    whirlpool1: {
+      palette: { D: "#071e3d", B: "#0984e3", C: "#48dbfb", W: "#dff9fb" },
+      matrix: [
+        "..DDDDDDDDDD..",
+        ".DCCCCCCCCCCD.",
+        "DCWWWWWWWWWCCD",
+        "DCWBBBBBBBBWCD",
+        ".DCWBBWWBBWCD.",
+        "..DCWBWWBWCD..",
+        "...DCBBBBCD...",
+        "....DDDDDD...."
+      ]
+    },
+    whirlpool2: {
+      palette: { D: "#071e3d", B: "#0984e3", C: "#48dbfb", W: "#dff9fb" },
+      matrix: [
+        "..DDDDDDDDDD..",
+        ".DBBBBBBBBBBD.",
+        "DBCCCCCCCCCCBD",
+        "DBCWWWWWWWWCBD",
+        ".DBCWBBBBWCBD.",
+        "..DBCBBBBWBD..",
+        "...DBCCCCBD...",
+        "....DDDDDD...."
+      ]
+    },
+    tornado1: {
+      palette: { D: "#2f3640", M: "#747d8c", L: "#dfe4ea", W: "#ffffff" },
+      matrix: [
+        "DDDDDDDDDDDDDD",
+        "DLLLLLLLLLLLLD",
+        ".DMMMMMMMMMMD.",
+        "..DLLLLLLLLD..",
+        "...DMMMMMMD...",
+        "....DWWWWD....",
+        "....DMMMMD....",
+        ".....DLLD.....",
+        "......DD......"
+      ]
+    },
+    tornado2: {
+      palette: { D: "#2f3640", M: "#747d8c", L: "#dfe4ea", W: "#ffffff" },
+      matrix: [
+        "DDDDDDDDDDDDDD",
+        ".DLLLLLLLLLLD.",
+        "DMMMMMMMMMMMMD",
+        "..DWWWWWWWWD..",
+        "...DMMMMMMD...",
+        "....DLLLLD....",
+        "....DMMMMD....",
+        ".....DLLD.....",
+        "......DD......"
+      ]
+    },
+    ghost1: {
+      palette: { D: "#2c2440", W: "#f5f6fa", C: "#c7ecee", E: "#1e272e", P: "#a55eea" },
+      matrix: [
+        "....DDDDDD....",
+        "..DDWWWWWWDD..",
+        ".DWWWWWWWWWWD.",
+        ".DWWWEWWWEWWD.",
+        "DWWWWWWWWWWWWD",
+        "DWWWWWWPWWWWWD",
+        "DWWWWWWWWWWWWD",
+        "DWWCCCCCCCCWWD",
+        "DW.DW.DD.WD.WD",
+        "D..D......D..D"
+      ]
+    },
+    ghost2: {
+      palette: { D: "#2c2440", W: "#f5f6fa", C: "#c7ecee", E: "#ff4757", P: "#a55eea" },
+      matrix: [
+        "....DDDDDD....",
+        "..DDWWWWWWDD..",
+        ".DWWWWWWWWWWD.",
+        ".DWWWEWWWEWWD.",
+        "DWWWWWWWWWWWWD",
+        "DWWWWWWPWWWWWD",
+        "DWWWWWWWWWWWWD",
+        "DWWCCCCCCCCWWD",
+        ".DW.DW..WD.WD.",
+        "..D..D..D..D.."
+      ]
+    },
+    abductorUfo1: {
+      palette: { D: "#11131f", C: "#48dbfb", P: "#a55eea", M: "#747d8c", Y: "#ffd32a" },
+      matrix: [
+        ".....DDDDDD.....",
+        "...DDCCCCCCDD...",
+        "..DCCCCCCCCCCD..",
+        ".DDDDDDDDDDDDDD.",
+        "DMMYMMMPPMMMYMMD",
+        ".DDDDDDDDDDDDDD."
+      ]
+    },
+    abductorUfo2: {
+      palette: { D: "#11131f", C: "#48dbfb", P: "#a55eea", M: "#747d8c", Y: "#ff4757" },
+      matrix: [
+        ".....DDDDDD.....",
+        "...DDCCCCCCDD...",
+        "..DCCCCCCCCCCD..",
+        ".DDDDDDDDDDDDDD.",
+        "DMMYMMMPPMMMYMMD",
+        ".DDDDDDDDDDDDDD."
+      ]
     }
   };
 
@@ -1238,9 +1371,10 @@
     return c;
   }
 
-  function getCatSprite(pose, skinId, scale) {
+  function getCatSprite(pose, skinId, scale, hatColor) {
     const s = scale || 3;
-    const key = `cat_${pose}_${skinId}_${s}`;
+    const hc = hatColor || "";
+    const key = `cat_${pose}_${skinId}_${s}_${hc}`;
     if (cache.has(key)) return cache.get(key);
 
     const skin = RC.Levels.getCatSkinById(skinId);
@@ -1308,6 +1442,27 @@
           cctx.fillRect(5 * s, 7 * s, s, 2 * s);
           cctx.fillRect(8 * s, 7 * s, s, 2 * s);
         }
+      } else if (skin.pattern === "hat" && !isPlane) {
+        const hatCol = hatColor || "#ff4757";
+        const hx = isDuck ? 10 * s : isSwim ? 9 * s : 9 * s;
+        const hy = isDuck ? 0 : isSwim ? 1 * s : 0;
+        cctx.fillStyle = "#1e272e";
+        cctx.fillRect(hx, hy, 5 * s, 2 * s);
+        cctx.fillStyle = hatCol;
+        cctx.fillRect(hx + Math.floor(s * 0.5), hy, 4 * s, 2 * s);
+        cctx.fillRect(hx + s, hy - s, 3 * s, s);
+        cctx.fillStyle = "#ffffff";
+        cctx.fillRect(hx, hy + s, 6 * s, s);
+      } else if (skin.pattern === "crown" && !isPlane) {
+        const kx = isDuck ? 10 * s : 9 * s;
+        const ky = isDuck ? 0 : 0;
+        cctx.fillStyle = "#ffd32a";
+        cctx.fillRect(kx, ky + s, 5 * s, s);
+        cctx.fillRect(kx, ky, s, s);
+        cctx.fillRect(kx + 2 * s, ky, s, s);
+        cctx.fillRect(kx + 4 * s, ky, s, s);
+        cctx.fillStyle = "#ff4757";
+        cctx.fillRect(kx + 2 * s, ky + s, s, s);
       }
     }
 

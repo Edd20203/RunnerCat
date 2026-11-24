@@ -45,7 +45,10 @@
       <!-- Live HUD Overlay (visible during gameplay) -->
       <div id="hud" class="hud hidden">
         <div class="hud-left">
-          <div class="hud-level-pill" id="hud-level-name">NIVEL 1: CALLEJÓN</div>
+          <div class="hud-top-row">
+            <div class="hud-level-pill" id="hud-level-name">NIVEL 1: CALLEJÓN</div>
+            <div class="hud-lives" id="hud-lives" title="Vidas restantes">♥♥♥</div>
+          </div>
           <div class="meters">
             <div class="meter-row" title="Mantén SHIFT o ← para ralentizar el tiempo">
               <span class="meter-label">⏱ LENTO</span>
@@ -153,9 +156,9 @@
 
           <div class="mode-grid">
             <button id="btn-mode-story" class="mode-choice-card" type="button">
-              <span class="mode-badge">20 NIVELES</span>
+              <span class="mode-badge">25 NIVELES</span>
               <h3>📖 MODO HISTORIA</h3>
-              <p>Supera los 20 escenarios: callejones, buceo, mini-avión, Transilvania, espacio y 5 jefes.</p>
+              <p>5 zonas de 5 niveles cada una: Techos, Mar, Avión, Transilvania y Espacio.</p>
             </button>
             <button id="btn-mode-arcade" class="mode-choice-card mode-choice-arcade" type="button">
               <span class="mode-badge badge-cyan">6 MODOS ∞</span>
@@ -167,6 +170,7 @@
           <div class="mode-footer-bar">
             <button id="btn-mode-cats" class="pixel-btn btn-secondary btn-sm" type="button">🐱 GATO: <span id="lbl-cur-cat">Tigre</span></button>
             <button id="btn-mode-controls" class="pixel-btn btn-secondary btn-sm" type="button">🎮 CONTROL: <span id="lbl-cur-ctrl">Botones</span></button>
+            <button id="btn-insanity-mode" class="pixel-btn btn-secondary btn-sm hidden" type="button">🔥 LOCURA: OFF</button>
           </div>
         </div>
       </section>
@@ -180,6 +184,9 @@
               <h2 id="levels-title">SELECCIONA TU NIVEL</h2>
             </div>
             <div class="menu-header-actions">
+              <button id="btn-insanity-levels" class="pixel-btn btn-secondary btn-sm hidden" title="Aumenta velocidad, spawns y vida de jefes" type="button">
+                🔥 LOCURA: OFF
+              </button>
               <button id="btn-dev-intro" class="pixel-btn btn-accent btn-sm hidden" title="Probar animación de inicio" type="button">
                 🎬 DEV: VER INTRO
               </button>

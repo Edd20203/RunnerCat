@@ -49,6 +49,8 @@
     const btnDevUnlock = document.getElementById("btn-dev-unlock");
     const btnDevIntro = document.getElementById("btn-dev-intro");
     const btnDevEnding = document.getElementById("btn-dev-ending");
+    const btnInsanityMode = document.getElementById("btn-insanity-mode");
+    const btnInsanityLevels = document.getElementById("btn-insanity-levels");
     const btnBackMode = document.getElementById("btn-back-mode");
     const btnCloseCats = document.getElementById("btn-close-cats");
     const btnCloseControls = document.getElementById("btn-close-controls");
@@ -89,6 +91,7 @@
 
     // HUD elements
     const hudLevelName = document.getElementById("hud-level-name");
+    const hudLives = document.getElementById("hud-lives");
     const hudScore = document.getElementById("hud-score");
     const hudDist = document.getElementById("hud-dist");
     const hudFish = document.getElementById("hud-fish");
@@ -176,6 +179,75 @@
       btnDevUnlock.classList.toggle("btn-dev-active", active);
       btnDevIntro.classList.toggle("hidden", !active);
       btnDevEnding.classList.toggle("hidden", !active);
+      refreshInsanityBtns();
+    }
+
+    function refreshInsanityBtns() {
+      const unlocked = RC.Levels.isInsanityUnlocked();
+      const on = RC.Storage.isInsanityMode() && unlocked;
+      const text = on ? "🔥 LOCURA: ON" : "🔥 LOCURA: OFF";
+      [btnInsanityMode, btnInsanityLevels].forEach((btn) => {
+        if (!btn) return;
+        btn.classList.toggle("hidden", !unlocked);
+        btn.textContent = text;
+        btn.classList.toggle("btn-insanity-active", on);
+      });
+    }
+
+    function drawZoneCover(canvasEl, zoneId) {
+      const ctx = canvasEl.getContext("2d");
+      const w = canvasEl.width;
+      const h = canvasEl.height;
+      ctx.imageSmoothingEnabled = false;
+
+      if (zoneId === "city") {
+        ctx.fillStyle = "#2c2447";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#eb7d5b";
+        ctx.fillRect(0, h - 14, w, 14);
+        ctx.fillStyle = "#191529";
+        [8, 28, 52, 78, 98].forEach((bx, idx) => {
+          const bh = 18 + (idx % 3) * 7;
+          ctx.fillRect(bx, h - bh, 16, bh);
+        });
+        const spr = RC.Sprites.getWorldSprite("chicken1", 2);
+        if (spr) ctx.drawImage(spr, w - 34, 6, 26, 26);
+      } else if (zoneId === "ocean") {
+        ctx.fillStyle = "#083059";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#00a8ff";
+        ctx.fillRect(0, 0, w, 8);
+        ctx.fillStyle = "#e1b12c";
+        ctx.fillRect(0, h - 8, w, 8);
+        const spr = RC.Sprites.getWorldSprite("squid1", 2);
+        if (spr) ctx.drawImage(spr, w - 36, 8, 28, 24);
+      } else if (zoneId === "sky") {
+        ctx.fillStyle = "#3c8ce7";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(10, 8, 28, 8);
+        ctx.fillRect(54, 16, 24, 7);
+        const spr = RC.Sprites.getWorldSprite("bossPlane1", 2);
+        if (spr) ctx.drawImage(spr, w - 42, 10, 34, 20);
+      } else if (zoneId === "spooky") {
+        ctx.fillStyle = "#19112b";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#ffeaa7";
+        ctx.fillRect(12, 6, 12, 12);
+        ctx.fillStyle = "#2f2a38";
+        ctx.fillRect(0, h - 10, w, 10);
+        const spr = RC.Sprites.getWorldSprite("giantSkeleton1", 2);
+        if (spr) ctx.drawImage(spr, w - 34, 6, 28, 28);
+      } else if (zoneId === "space") {
+        ctx.fillStyle = "#06081a";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#ffffff";
+        [10, 26, 44, 66, 82].forEach((sx, idx) => ctx.fillRect(sx, 6 + (idx * 7) % 24, 2, 2));
+        ctx.fillStyle = "#57606f";
+        ctx.fillRect(0, h - 8, w, 8);
+        const spr = RC.Sprites.getWorldSprite("mothership1", 2);
+        if (spr) ctx.drawImage(spr, w - 42, 8, 36, 20);
+      }
     }
 
     function getLevelThumbSprite(lvl) {
@@ -295,9 +367,13 @@
     function renderCatsModal() {
       catGrid.innerHTML = "";
       RC.Levels.CAT_SKINS.forEach((skin) => {
+        const unlocked = RC.Levels.isCatUnlocked(skin.id);
         const card = document.createElement("button");
         card.type = "button";
-        card.className = `cat-card${skin.id === selectedCatId ? " selected" : ""}`;
+        card.className = `cat-card${skin.id === selectedCatId ? " selected" : ""}${
+          !unlocked ? " locked" : ""
+        }`;
+        card.disabled = !unlocked;
 
         const swatch = document.createElement("canvas");
         swatch.className = "cat-swatch";
@@ -305,17 +381,23 @@
         swatch.height = 28;
         const sctx = swatch.getContext("2d");
         sctx.imageSmoothingEnabled = false;
-        const catSpr = RC.Sprites.getCatSprite("run1", skin.id, 2);
+        const catSpr = RC.Sprites.getCatSprite(
+          "run1",
+          skin.id,
+          2,
+          skin.id === "winicat" ? "#48dbfb" : null
+        );
         sctx.drawImage(catSpr, 0, 0);
 
         const label = document.createElement("span");
         label.className = "cat-name";
-        label.textContent = skin.name;
+        label.textContent = unlocked ? skin.name : `🔒 ${skin.name}`;
 
         card.appendChild(swatch);
         card.appendChild(label);
 
         card.addEventListener("click", () => {
+          if (!unlocked) return;
           RC.Audio.uiClick();
           selectedCatId = skin.id;
           RC.Storage.setSelectedCat(skin.id);
@@ -328,7 +410,8 @@
       });
 
       const curSkin = RC.Levels.getCatSkinById(selectedCatId);
-      catSelectedDesc.innerHTML = `<strong>${curSkin.name}</strong> — ${curSkin.desc}`;
+      const lockedNote = curSkin.unlockBossName ? ` (Desbloqueado tras ${curSkin.unlockBossName})` : "";
+      catSelectedDesc.innerHTML = `<strong>${curSkin.name}</strong> — ${curSkin.desc}${lockedNote}`;
     }
 
     // ---- Build Level Selection Cards ----
@@ -340,7 +423,7 @@
       const isStory = activeCategory === "story";
       const list = isStory ? RC.Levels.STORY_LIST : RC.Levels.ENDLESS_LIST;
       levelsEyebrow.textContent = isStory ? "MODO HISTORIA" : "MODO ARCADE INFINITO";
-      levelsTitle.textContent = isStory ? "NIVELES 1–20" : "ELIGE TU ESCENARIO INFINITO";
+      levelsTitle.textContent = isStory ? "5 ZONAS · 25 NIVELES" : "ELIGE TU ESCENARIO INFINITO";
       btnDevUnlock.classList.toggle("hidden", !isStory);
       btnDevIntro.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
       btnDevEnding.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
@@ -351,7 +434,43 @@
         game.setPreviewConfig(selectedLevelId, selectedCatId);
       }
 
-      renderLevelCards(list, levelGrid);
+      levelGrid.innerHTML = "";
+      if (isStory) {
+        levelGrid.className = "zones-container";
+        RC.Levels.STORY_ZONES.forEach((zone) => {
+          const zoneGroup = document.createElement("div");
+          zoneGroup.className = "zone-group";
+
+          const banner = document.createElement("div");
+          banner.className = "zone-banner";
+          banner.style.background = zone.gradient;
+
+          const cover = document.createElement("canvas");
+          cover.className = "zone-cover";
+          cover.width = 112;
+          cover.height = 42;
+          drawZoneCover(cover, zone.id);
+
+          const textWrap = document.createElement("div");
+          textWrap.className = "zone-banner-text";
+          textWrap.innerHTML = `<h3>${zone.title}</h3><p>${zone.subtitle}</p>`;
+
+          banner.appendChild(cover);
+          banner.appendChild(textWrap);
+          zoneGroup.appendChild(banner);
+
+          const zGrid = document.createElement("div");
+          zGrid.className = "level-grid zone-level-grid";
+          const zoneLevels = list.filter((l) => l.zoneId === zone.id);
+          renderLevelCards(zoneLevels, zGrid);
+          zoneGroup.appendChild(zGrid);
+
+          levelGrid.appendChild(zoneGroup);
+        });
+      } else {
+        levelGrid.className = "level-grid endless-grid";
+        renderLevelCards(list, levelGrid);
+      }
 
       // Selected level summary
       const curLvl = RC.Levels.getLevelById(selectedLevelId);
@@ -467,6 +586,11 @@
 
     function updateHud(data) {
       hudLevelName.textContent = data.level.shortName;
+      if (hudLives) {
+        const l = Math.max(0, data.lives != null ? data.lives : 3);
+        const empty = Math.max(0, 3 - l);
+        hudLives.textContent = "♥".repeat(l) + "♡".repeat(empty);
+      }
       hudScore.textContent = padScore(data.score);
       hudDist.textContent = data.distance;
       hudFish.textContent = data.fish;
@@ -700,6 +824,15 @@
 
     btnPlay.addEventListener("click", startCurrentLevel);
 
+    const toggleInsanity = () => {
+      if (!RC.Levels.isInsanityUnlocked()) return;
+      RC.Audio.uiClick();
+      RC.Storage.setInsanityMode(!RC.Storage.isInsanityMode());
+      refreshInsanityBtns();
+    };
+    if (btnInsanityMode) btnInsanityMode.addEventListener("click", toggleInsanity);
+    if (btnInsanityLevels) btnInsanityLevels.addEventListener("click", toggleInsanity);
+
     btnDevUnlock.addEventListener("click", () => {
       RC.Audio.uiClick();
       const nextState = !RC.Storage.isDevUnlockAll();
@@ -708,6 +841,10 @@
         selectedLevelId = RC.Levels.STORY_LIST[0].id;
         RC.Storage.setSelectedLevel(selectedLevelId);
         game.setPreviewConfig(selectedLevelId, selectedCatId);
+      }
+      if (!RC.Levels.isCatUnlocked(selectedCatId)) {
+        selectedCatId = RC.Levels.CAT_SKINS[0].id;
+        RC.Storage.setSelectedCat(selectedCatId);
       }
       renderMenu();
     });

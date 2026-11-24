@@ -179,13 +179,28 @@ html, body {
   border-radius: 3px;
 }
 
+.hud-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
 .hud-level-pill {
   font-size: 9px;
   font-weight: 900;
   letter-spacing: 0.5px;
   color: var(--accent-gold);
-  margin-bottom: 2px;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
+}
+
+.hud-lives {
+  font-size: 11px;
+  font-weight: 900;
+  color: #ff4757;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.85);
 }
 
 .meters {
@@ -396,6 +411,91 @@ html, body {
   background: #1c3e2b !important;
   color: var(--accent-green) !important;
   border-color: var(--accent-green) !important;
+}
+
+.btn-insanity-active {
+  background: #4a1218 !important;
+  color: #ffd32a !important;
+  border-color: #ff4757 !important;
+  box-shadow: 0 0 8px rgba(255, 71, 87, 0.55);
+}
+
+.zones-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zone-group {
+  background: rgba(14, 16, 28, 0.55);
+  border: 2px solid var(--border-pixel);
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.zone-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  margin-bottom: 6px;
+  border-radius: 3px;
+}
+
+.zone-cover {
+  width: 112px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  image-rendering: pixelated;
+  border-radius: 2px;
+}
+
+.zone-banner-text h3 {
+  font-size: 12px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.zone-banner-text p {
+  font-size: 10px;
+  color: #f1f2f6;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.7);
+}
+
+.zone-level-grid {
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.endless-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px;
+}
+
+@media (max-width: 780px) {
+  .zone-level-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .endless-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+.cat-card.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.65);
+}
+
+.cat-grid-full {
+  grid-template-columns: repeat(6, 1fr) !important;
+  max-height: 175px !important;
+  overflow-y: auto !important;
+  padding-right: 4px;
 }
 
 .eyebrow {

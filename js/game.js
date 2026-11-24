@@ -181,7 +181,11 @@
     resetRunState() {
       const lvl = this.level;
       const lvlMode = lvl.mode || "runner";
-      this.speed = lvl.baseSpeed;
+      const insane = RC.Storage && RC.Storage.isInsanityMode();
+      this.insaneMult = insane ? 1.35 : 1.0;
+      this.speed = lvl.baseSpeed * this.insaneMult;
+      this.lives = 3;
+      this.maxLives = 5;
       this.timeScale = 1;
       this.slowActive = false;
       this.slowEnergy = 100;
@@ -253,6 +257,10 @@
       this.spawnTimer = 1.05;
       this.collectibleTimer = 1.4;
       this.powerupTimer = 7.0;
+      this.movingCrateTimer = 7.0 + Math.random() * 4.5;
+      this.zoneHazardTimer = 5.5 + Math.random() * 3.5;
+      this.pits = [];
+      this.hazardEvent = null;
       this.finishGateSpawned = false;
       this.finishGateX = null;
       this.isDemo = false;
@@ -346,6 +354,11 @@
         };
       } else {
         this.boss = null;
+      }
+
+      if (this.boss && insane) {
+        this.boss.hp = Math.ceil(this.boss.hp * 1.5);
+        this.boss.maxHp = this.boss.hp;
       }
     }
 
@@ -616,6 +629,8 @@
         this.updateMenuPreview(rawDt);
       } else if (this.mode === "playing") {
         this.updatePlaying(rawDt);
+      } else if (this.mode === "hazardEvent") {
+        this.updateHazardEvent(rawDt);
       } else if (this.mode === "intro") {
         this.updateIntro(rawDt);
       } else if (this.mode === "ending") {
@@ -698,7 +713,10 @@
       this.timeScale += (targetScale - this.timeScale) * Math.min(1, rawDt * 14);
       const worldDt = rawDt * this.timeScale;
 
-      this.speed = Math.min(this.level.maxSpeed, this.speed + this.level.accelPerSec * worldDt);
+      this.speed = Math.min(
+        this.level.maxSpeed * this.insaneMult,
+        this.speed + this.level.accelPerSec * this.insaneMult * worldDt
+      );
       const effectiveSpeed = this.speed;
       const movePx = effectiveSpeed * worldDt;
 
@@ -796,7 +814,8 @@
             this.spawnObstacle();
             const speedRatio = Math.max(0, (this.speed - 320) / 480);
             const lvlMode = this.level.mode || "runner";
-            const scale = this.level.spawnScale || 1.0;
+            const insaneScale = RC.Storage && RC.Storage.isInsanityMode() ? 0.72 : 1.0;
+            const scale = (this.level.spawnScale || 1.0) * insaneScale;
             let minInterval = Math.max(0.56, (1.02 - speedRatio * 0.35) * scale);
             let maxInterval = Math.max(0.9, (1.7 - speedRatio * 0.55) * scale);
             if (lvlMode === "boss") {
@@ -823,6 +842,21 @@
         if (this.powerupTimer <= 0) {
           this.spawnPowerup();
           this.powerupTimer = 9.5 + Math.random() * 6.5;
+        }
+
+        if (!this.isDemo) {
+          this.movingCrateTimer -= worldDt;
+          if (this.movingCrateTimer <= 0) {
+            this.spawnMovingCrate();
+            this.movingCrateTimer = 8.5 + Math.random() * 6.5;
+          }
+
+          this.zoneHazardTimer -= worldDt;
+          if (this.zoneHazardTimer <= 0) {
+            this.spawnZoneHazard();
+            const hScale = RC.Storage && RC.Storage.isInsanityMode() ? 0.72 : 1.0;
+            this.zoneHazardTimer = (6.5 + Math.random() * 4.5) * hScale;
+          }
         }
       }
 
@@ -854,7 +888,9 @@
       if (this.mode !== "playing") return;
       if (this.lightningTimer > 0) this.lightningTimer = Math.max(0, this.lightningTimer - rawDt);
 
-      // ---- Update Obstacles & Collisions ----
+      // ---- Update Pits & Obstacles & Collisions ----
+      this.updatePits(movePx);
+      if (this.mode !== "playing") return;
       this.updateObstacles(worldDt, movePx);
       if (this.mode !== "playing") return;
 
@@ -961,6 +997,11 @@
 
         const physDt = this.slowActive ? rawDt * 0.68 : rawDt;
         const isSpace = this.isSpaceMode(lvlMode);
+        const overPit = this.isOverPit(cat.x + cat.w * 0.5);
+        if (cat.onGround && overPit) {
+          cat.onGround = false;
+          cat.vy = 90;
+        }
         if (!cat.onGround) {
           const g = isSpace
             ? this.keys.duckHeld
@@ -977,8 +1018,13 @@
             if (cat.vy < 0) cat.vy = 0;
           }
 
+          if (overPit && cat.y > GROUND_Y + 12) {
+            this.triggerHazardEvent("pit");
+            return;
+          }
+
           const targetH = this.keys.duckHeld ? 27 : 42;
-          if (cat.y + targetH >= GROUND_Y) {
+          if (!overPit && cat.y + targetH >= GROUND_Y) {
             cat.ducking = this.keys.duckHeld;
             cat.h = targetH;
             cat.w = cat.ducking ? 54 : 48;
@@ -1489,6 +1535,257 @@
       });
     }
 
+    isOverPit(cx) {
+      for (let i = 0; i < this.pits.length; i++) {
+        const p = this.pits[i];
+        if (cx > p.x + 12 && cx < p.x + p.w - 12) return true;
+      }
+      return false;
+    }
+
+    updatePits(movePx) {
+      for (let i = this.pits.length - 1; i >= 0; i--) {
+        this.pits[i].x -= movePx;
+        if (this.pits[i].x + this.pits[i].w < -40) {
+          this.pits.splice(i, 1);
+        }
+      }
+    }
+
+    spawnMovingCrate() {
+      const laneY = 54 + Math.random() * (GROUND_Y - 115);
+      this.obstacles.push({
+        type: "movingCrate",
+        sprite: "movingCrate",
+        x: WIDTH + 40,
+        y: laneY,
+        baseY: laneY,
+        w: 48,
+        h: 21,
+        scratchable: true,
+        shootable: true,
+        isMovingCrate: true,
+        points: 45,
+        extraSpeed: 35,
+        bobPhase: Math.random() * Math.PI * 2,
+        animTimer: 0
+      });
+    }
+
+    spawnZoneHazard() {
+      const lvlMode = this.level.mode || "runner";
+      const x = WIDTH + 60;
+
+      if (lvlMode === "runner" || lvlMode === "boss") {
+        // Pit in the ground (Hueco en el suelo)
+        this.pits.push({ x, w: 78 + Math.floor(Math.random() * 18) });
+      } else if (this.isSwimMode(lvlMode)) {
+        // Whirlpool (Remolino marino)
+        const wy = 70 + Math.random() * (GROUND_Y - 140);
+        this.obstacles.push({
+          type: "whirlpool",
+          sprite: "whirlpool1",
+          animFrames: ["whirlpool1", "whirlpool2"],
+          x,
+          y: wy,
+          baseY: wy,
+          w: 42,
+          h: 24,
+          scratchable: false,
+          shootable: false,
+          isZoneHazard: "whirlpool",
+          suctionRadius: 118,
+          extraSpeed: 10,
+          bobPhase: Math.random() * Math.PI * 2,
+          animTimer: 0
+        });
+      } else if (this.isPlaneMode(lvlMode)) {
+        // Tornado
+        const ty = 48 + Math.random() * (GROUND_Y - 120);
+        this.obstacles.push({
+          type: "tornado",
+          sprite: "tornado1",
+          animFrames: ["tornado1", "tornado2"],
+          x,
+          y: ty,
+          baseY: ty,
+          w: 42,
+          h: 27,
+          scratchable: false,
+          shootable: false,
+          isZoneHazard: "tornado",
+          extraSpeed: 35,
+          bobPhase: Math.random() * Math.PI * 2,
+          animTimer: 0
+        });
+      } else if (this.isBatMode(lvlMode)) {
+        // Floating Ghost (Fantasma secuestrador)
+        const gy = 54 + Math.random() * (GROUND_Y - 115);
+        this.obstacles.push({
+          type: "ghost",
+          sprite: "ghost1",
+          animFrames: ["ghost1", "ghost2"],
+          x,
+          y: gy,
+          baseY: gy,
+          w: 42,
+          h: 30,
+          scratchable: false,
+          shootable: false,
+          isZoneHazard: "ghost",
+          extraSpeed: 30,
+          bobPhase: Math.random() * Math.PI * 2,
+          animTimer: 0
+        });
+      } else if (this.isSpaceMode(lvlMode)) {
+        // Abductor UFO with tractor beam
+        const uy = 38 + Math.random() * 45;
+        this.obstacles.push({
+          type: "abductorUfo",
+          sprite: "abductorUfo1",
+          animFrames: ["abductorUfo1", "abductorUfo2"],
+          x,
+          y: uy,
+          baseY: uy,
+          w: 48,
+          h: 18,
+          scratchable: false,
+          shootable: false,
+          isZoneHazard: "abductor",
+          extraSpeed: 20,
+          bobPhase: Math.random() * Math.PI * 2,
+          animTimer: 0
+        });
+      }
+    }
+
+    takeDamage() {
+      if (this.cat.milkTimer > 0 || this.cat.invulnTimer > 0) return false;
+      if (this.cat.shield) {
+        this.cat.shield = false;
+        this.cat.invulnTimer = 1.15;
+        RC.Audio.shieldBreak();
+        this.triggerShake(8, 0.22);
+        this.addFloatingText("¡ESCUDO ROTO!", this.cat.x, this.cat.y - 16, "#48dbfb", 13);
+        this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 16);
+        return false;
+      }
+
+      this.lives -= 1;
+      this.triggerShake(10, 0.25);
+      this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#ff4757", 16);
+
+      if (this.lives > 0) {
+        this.cat.invulnTimer = 1.5;
+        RC.Audio.shieldBreak();
+        this.addFloatingText("💔 -1 VIDA!", this.cat.x, this.cat.y - 18, "#ff4757", 14);
+        this.notifyHud();
+        return false;
+      }
+
+      this.triggerGameOver();
+      return true;
+    }
+
+    triggerHazardEvent(kind, obs) {
+      this.lives = 0;
+      this.mode = "hazardEvent";
+      this.slowActive = false;
+      RC.Audio.gameOver();
+      this.triggerShake(12, 0.35);
+
+      const texts = {
+        pit: "¡CAÍSTE AL HUECO!",
+        whirlpool: "¡SUCCIONADO POR EL REMOLINO!",
+        tornado: "¡ESTRELLADO EN EL TORNADO!",
+        ghost: "¡SECUESTRADO POR EL FANTASMA!",
+        abductor: "¡ABDUCIDO POR LOS ALIENS!"
+      };
+      this.hazardEvent = {
+        kind,
+        timer: 0,
+        duration: 1.85,
+        x: obs ? obs.x : this.cat.x,
+        y: obs ? obs.y : GROUND_Y,
+        catX: this.cat.x,
+        catY: this.cat.y,
+        text: texts[kind] || "¡PELIGRO LETAL!"
+      };
+      this.notifyHud();
+    }
+
+    updateHazardEvent(dt) {
+      this.time += dt;
+      if (!this.hazardEvent) {
+        this.triggerGameOver();
+        return;
+      }
+      this.hazardEvent.timer += dt;
+      if (this.hazardEvent.timer >= this.hazardEvent.duration) {
+        this.triggerGameOver();
+      }
+    }
+
+    renderHazardEvent() {
+      // Draw the current world background first, then animate the event over it
+      const savedMode = this.mode;
+      this.mode = "gameover";
+      this.render();
+      this.mode = savedMode;
+
+      const ctx = this.ctx;
+      const ev = this.hazardEvent;
+      if (!ev) return;
+      const p = Math.min(1, ev.timer / ev.duration);
+      const cx = Math.floor(ev.catX);
+      const cy = Math.floor(ev.catY);
+
+      ctx.save();
+      if (ev.kind === "pit") {
+        const spr = RC.Sprites.getCatSprite("hurt", this.skinId, 3);
+        ctx.drawImage(spr, cx, Math.floor(cy + p * 120));
+      } else if (ev.kind === "whirlpool") {
+        const ang = p * Math.PI * 6;
+        const r = (1 - p) * 32;
+        const spr = RC.Sprites.getCatSprite("hurt", this.skinId, 3);
+        ctx.drawImage(spr, Math.floor(ev.x + Math.cos(ang) * r), Math.floor(ev.y + Math.sin(ang) * r));
+      } else if (ev.kind === "tornado") {
+        const ang = p * Math.PI * 8;
+        const spr = RC.Sprites.getCatSprite("hurt", this.skinId, 3);
+        ctx.drawImage(spr, Math.floor(ev.x + Math.cos(ang) * 24), Math.floor(ev.y - p * 40));
+      } else if (ev.kind === "ghost") {
+        const gx = Math.floor(ev.catX - p * 140);
+        const gy = Math.floor(ev.catY - p * 110);
+        const spr = RC.Sprites.getCatSprite("hurt", this.skinId, 3);
+        const ghostSpr = RC.Sprites.getWorldSprite("ghost1", 3);
+        ctx.drawImage(spr, gx, gy);
+        if (ghostSpr) ctx.drawImage(ghostSpr, gx + 10, gy - 26);
+      } else if (ev.kind === "abductor") {
+        const ufoX = Math.floor(ev.x);
+        const ufoY = Math.floor(ev.y);
+        ctx.fillStyle = "rgba(72, 219, 251, 0.35)";
+        ctx.fillRect(ufoX + 10, ufoY + 18, 32, GROUND_Y - ufoY);
+        const spr = RC.Sprites.getCatSprite("hurt", this.skinId, 3);
+        ctx.drawImage(spr, ufoX + 4, Math.floor(cy + (ufoY + 10 - cy) * p));
+        const ufoSpr = RC.Sprites.getWorldSprite("abductorUfo1", 3);
+        if (ufoSpr) ctx.drawImage(ufoSpr, ufoX, ufoY);
+      }
+
+      // Loss of all lives banner
+      ctx.fillStyle = "rgba(18, 12, 20, 0.85)";
+      ctx.fillRect(WIDTH / 2 - 220, 34, 440, 56);
+      ctx.strokeStyle = "#ff4757";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(WIDTH / 2 - 220, 34, 440, 56);
+      ctx.fillStyle = "#ff4757";
+      ctx.font = '900 16px "Courier New", monospace';
+      ctx.fillText(ev.text, WIDTH / 2 - 175, 58);
+      ctx.fillStyle = "#ffd32a";
+      ctx.font = '900 12px "Courier New", monospace';
+      ctx.fillText("💔 PERDISTE TODAS TUS VIDAS — REGRESANDO AL INICIO", WIDTH / 2 - 195, 78);
+      ctx.restore();
+    }
+
     // ---- Boss Logic (Level 5: Giant Chicken) ----
     updateBoss(rawDt, worldDt) {
       const boss = this.boss;
@@ -1609,17 +1906,8 @@
             continue;
           }
           if (this.cat.invulnTimer > 0) continue;
-          if (this.cat.shield) {
-            this.cat.shield = false;
-            this.cat.invulnTimer = 1.15;
-            RC.Audio.shieldBreak();
-            this.triggerShake(8, 0.22);
-            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
-            this.bossEggs.splice(i, 1);
-            continue;
-          }
-          this.triggerGameOver();
-          return;
+          this.bossEggs.splice(i, 1);
+          if (this.takeDamage()) return;
         }
       }
     }
@@ -1717,17 +2005,8 @@
             continue;
           }
           if (this.cat.invulnTimer > 0) continue;
-          if (this.cat.shield) {
-            this.cat.shield = false;
-            this.cat.invulnTimer = 1.15;
-            RC.Audio.shieldBreak();
-            this.triggerShake(8, 0.22);
-            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
-            this.bossPiranhas.splice(i, 1);
-            continue;
-          }
-          this.triggerGameOver();
-          return;
+          this.bossPiranhas.splice(i, 1);
+          if (this.takeDamage()) return;
         }
       }
     }
@@ -1811,17 +2090,8 @@
             continue;
           }
           if (this.cat.invulnTimer > 0) continue;
-          if (this.cat.shield) {
-            this.cat.shield = false;
-            this.cat.invulnTimer = 1.15;
-            RC.Audio.shieldBreak();
-            this.triggerShake(8, 0.22);
-            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
-            this.bossTrash.splice(i, 1);
-            continue;
-          }
-          this.triggerGameOver();
-          return;
+          this.bossTrash.splice(i, 1);
+          if (this.takeDamage()) return;
         }
       }
     }
@@ -1976,17 +2246,8 @@
             continue;
           }
           if (this.cat.invulnTimer > 0) continue;
-          if (this.cat.shield) {
-            this.cat.shield = false;
-            this.cat.invulnTimer = 1.15;
-            RC.Audio.shieldBreak();
-            this.triggerShake(8, 0.22);
-            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
-            this.spookyShots.splice(i, 1);
-            continue;
-          }
-          this.triggerGameOver();
-          return;
+          this.spookyShots.splice(i, 1);
+          if (this.takeDamage()) return;
         }
       }
     }
@@ -2096,17 +2357,8 @@
             continue;
           }
           if (this.cat.invulnTimer > 0) continue;
-          if (this.cat.shield) {
-            this.cat.shield = false;
-            this.cat.invulnTimer = 1.15;
-            RC.Audio.shieldBreak();
-            this.triggerShake(8, 0.22);
-            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 14);
-            this.alienShots.splice(i, 1);
-            continue;
-          }
-          this.triggerGameOver();
-          return;
+          this.alienShots.splice(i, 1);
+          if (this.takeDamage()) return;
         }
       }
     }
@@ -2316,6 +2568,19 @@
       const tag = this.comboCount >= 2 ? `+${pts} x${this.comboCount}!` : `+${pts}!`;
       this.addFloatingText(tag, cx - 20, cy - 16, "#ff9f43", 13);
       this.addLightningCharge();
+
+      // Moving crates very sporadically drop +1 Life!
+      if (obs.isMovingCrate && Math.random() < 0.25) {
+        this.collectibles.push({
+          kind: "heart",
+          x: obs.x + 8,
+          y: obs.y,
+          w: 30,
+          h: 26,
+          phase: Math.random() * Math.PI * 2
+        });
+        this.addFloatingText("♥ ¡VIDA!", obs.x, obs.y - 24, "#ff4757", 13);
+      }
     }
 
     updateObstacles(worldDt, movePx) {
@@ -2335,7 +2600,36 @@
           obs.sprite = obs.animFrames[Math.floor(obs.animTimer) % obs.animFrames.length];
         }
         if (obs.baseY != null) {
-          obs.y = obs.baseY + Math.sin(this.time * 5 + obs.bobPhase) * 6;
+          const amp = obs.isMovingCrate ? 28 : 6;
+          obs.y = obs.baseY + Math.sin(this.time * 5 + obs.bobPhase) * amp;
+        }
+
+        // Zone Hazard behaviors
+        if (obs.isZoneHazard === "whirlpool") {
+          const catCx = this.cat.x + this.cat.w / 2;
+          const catCy = this.cat.y + this.cat.h / 2;
+          const wCx = obs.x + obs.w / 2;
+          const wCy = obs.y + obs.h / 2;
+          const dist = Math.hypot(catCx - wCx, catCy - wCy);
+          if (dist < obs.suctionRadius && dist > 1) {
+            const pull = 175 * worldDt;
+            this.cat.y += ((wCy - catCy) / dist) * pull;
+          }
+          if (dist < 26) {
+            this.triggerHazardEvent("whirlpool", obs);
+            return;
+          }
+        } else if (obs.isZoneHazard === "abductor") {
+          const beamBox = {
+            x: obs.x + 8,
+            y: obs.y + obs.h,
+            w: obs.w - 16,
+            h: GROUND_Y - (obs.y + obs.h)
+          };
+          if (this.rectsOverlap(catBox, beamBox)) {
+            this.triggerHazardEvent("abductor", obs);
+            return;
+          }
         }
 
         if (obs.canShoot && obs.x < WIDTH - 40 && obs.x > this.cat.x + 110) {
@@ -2387,6 +2681,27 @@
         }
 
         // Proximity Mine logic (Levels 6 & 7)
+        if (obs.isZoneHazard === "abductor") {
+          ctx.save();
+          ctx.fillStyle = `rgba(72, 219, 251, ${0.2 + 0.1 * Math.sin(this.time * 12)})`;
+          ctx.beginPath();
+          ctx.moveTo(ox + 12, oy + obs.h);
+          ctx.lineTo(ox + obs.w - 12, oy + obs.h);
+          ctx.lineTo(ox + obs.w + 8, GROUND_Y);
+          ctx.lineTo(ox - 8, GROUND_Y);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        } else if (obs.isZoneHazard === "whirlpool") {
+          ctx.save();
+          ctx.strokeStyle = "rgba(72, 219, 251, 0.35)";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(ox + obs.w / 2, oy + obs.h / 2, obs.suctionRadius, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
         if (obs.isProximityMine) {
           const catCx = this.cat.x + this.cat.w / 2;
           const catCy = this.cat.y + this.cat.h / 2;
@@ -2421,16 +2736,8 @@
                 if (this.cat.milkTimer > 0 || this.cat.invulnTimer > 0) {
                   continue;
                 }
-                if (this.cat.shield) {
-                  this.cat.shield = false;
-                  this.cat.invulnTimer = 1.15;
-                  RC.Audio.shieldBreak();
-                  this.addFloatingText("¡ESCUDO ROTO!", this.cat.x, this.cat.y - 16, "#48dbfb", 13);
-                  this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 16);
-                  continue;
-                }
-                this.triggerGameOver();
-                return;
+                if (this.takeDamage()) return;
+                continue;
               }
               continue;
             }
@@ -2468,6 +2775,11 @@
 
         // 2. Check Cat Collision
         if (this.rectsOverlap(catBox, obsBox)) {
+          if (obs.isZoneHazard) {
+            this.triggerHazardEvent(obs.isZoneHazard, obs);
+            return;
+          }
+
           if (this.cat.milkTimer > 0) {
             this.destroyObstacleByClaw({ ...obs, points: obs.points || 35 });
             this.obstacles.splice(i, 1);
@@ -2476,19 +2788,9 @@
 
           if (this.cat.invulnTimer > 0) continue;
 
-          if (this.cat.shield) {
-            this.cat.shield = false;
-            this.cat.invulnTimer = 1.15;
-            RC.Audio.shieldBreak();
-            this.triggerShake(8, 0.22);
-            this.addFloatingText("¡ESCUDO ROTO!", this.cat.x, this.cat.y - 16, "#48dbfb", 13);
-            this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#48dbfb", 16);
-            this.obstacles.splice(i, 1);
-            continue;
-          }
-
-          this.triggerGameOver();
-          return;
+          this.obstacles.splice(i, 1);
+          if (this.takeDamage()) return;
+          continue;
         }
       }
     }
@@ -2557,6 +2859,15 @@
           this.addFloatingText("🥛 BRILLO DORADO!", cx - 32, cy - 10, "#ffd32a", 13);
           this.spawnBurst(cx, cy, "#ffd32a", 16);
         }
+        return;
+      }
+
+      if (item.kind === "heart") {
+        RC.Audio.powerup();
+        this.lives = Math.min(this.maxLives, this.lives + 1);
+        this.itemScore += 60;
+        this.addFloatingText("♥ +1 VIDA!", cx - 24, cy - 12, "#ff4757", 14);
+        this.spawnBurst(cx, cy, "#ff4757", 14);
         return;
       }
 
@@ -2739,6 +3050,8 @@
         milkSec: Math.ceil(cat.milkTimer),
         bossHp: this.boss ? this.boss.hp : null,
         bossMaxHp: this.boss ? this.boss.maxHp : null,
+        lives: this.lives,
+        maxLives: this.maxLives,
         missiles: this.catMissiles,
         laserLevel: this.isSpaceMode() ? this.laserLevel : 0,
         lightningCharge: this.level.mode === "batBoss" ? this.lightningCharge : null,
@@ -2748,6 +3061,10 @@
 
     // ---- Rendering ----
     render() {
+      if (this.mode === "hazardEvent") {
+        this.renderHazardEvent();
+        return;
+      }
       if (this.mode === "intro") {
         this.renderIntro();
         return;
@@ -2867,6 +3184,16 @@
         ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.w, p.h);
       });
 
+      // Ground Pits (Huecos en los techos/suelo)
+      this.pits.forEach((p) => {
+        const px = Math.floor(p.x);
+        ctx.fillStyle = "#080910";
+        ctx.fillRect(px, GROUND_Y, p.w, HEIGHT - GROUND_Y);
+        ctx.fillStyle = "#ff4757";
+        ctx.fillRect(px, GROUND_Y, 4, 6);
+        ctx.fillRect(px + p.w - 4, GROUND_Y, 4, 6);
+      });
+
       // Finish Gate
       if (this.finishGateSpawned && this.finishGateX != null) {
         this.renderFinishGate(Math.floor(this.finishGateX));
@@ -2959,6 +3286,27 @@
           ctx.globalAlpha = 0.5 + 0.35 * Math.sin(this.time * 16);
           ctx.fillStyle = obs.type === "seaWall" ? "#ffd32a" : "#ff6b81";
           ctx.fillRect(ox + obs.w / 2 - 5, oy - 8, 10, 3);
+          ctx.restore();
+        }
+
+        if (obs.isZoneHazard === "abductor") {
+          ctx.save();
+          ctx.fillStyle = `rgba(72, 219, 251, ${0.2 + 0.1 * Math.sin(this.time * 12)})`;
+          ctx.beginPath();
+          ctx.moveTo(ox + 12, oy + obs.h);
+          ctx.lineTo(ox + obs.w - 12, oy + obs.h);
+          ctx.lineTo(ox + obs.w + 8, GROUND_Y);
+          ctx.lineTo(ox - 8, GROUND_Y);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        } else if (obs.isZoneHazard === "whirlpool") {
+          ctx.save();
+          ctx.strokeStyle = "rgba(72, 219, 251, 0.35)";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(ox + obs.w / 2, oy + obs.h / 2, obs.suctionRadius, 0, Math.PI * 2);
+          ctx.stroke();
           ctx.restore();
         }
 
@@ -3215,7 +3563,12 @@
       }
 
       const pose = this.getCatPose();
-      const spr = RC.Sprites.getCatSprite(pose, this.skinId, 3);
+      const hatPalette = ["#ff4757", "#ff9f43", "#ffd32a", "#2ed573", "#48dbfb", "#5352ed", "#a55eea", "#ff6b81"];
+      const hatColor =
+        this.skinId === "winicat"
+          ? hatPalette[Math.floor(this.time * 4) % hatPalette.length]
+          : null;
+      const spr = RC.Sprites.getCatSprite(pose, this.skinId, 3, hatColor);
 
       // Redesigned Power-Up Visual: Golden Glow Aura (NO boxy square!)
       const hasGoldPower = cat.milkTimer > 0 || cat.shield || cat.magnetTimer > 0;

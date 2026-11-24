@@ -111,6 +111,232 @@
         nose: "#ff7675",
         collar: "#ff4757"
       }
+    },
+    // --- 10 Unlockable Cats (2 per Boss) ---
+    {
+      id: "gold_rooster",
+      name: "Kikirikí",
+      desc: "Dorado de granja",
+      unlockBossId: "boss",
+      unlockBossName: "Gallina Gigante",
+      palette: {
+        body: "#ffd32a",
+        dark: "#cc8e00",
+        light: "#fff2a6",
+        eye: "#e84118",
+        nose: "#ff6b81",
+        collar: "#ff4757"
+      }
+    },
+    {
+      id: "feather_cream",
+      name: "Pluma",
+      desc: "Crema suave",
+      pattern: "bow",
+      bowColor: "#ffa502",
+      unlockBossId: "boss",
+      unlockBossName: "Gallina Gigante",
+      palette: {
+        body: "#fff1d0",
+        dark: "#b5835a",
+        light: "#ffffff",
+        eye: "#5f27cd",
+        nose: "#ff9ff3",
+        collar: "#ffa502"
+      }
+    },
+    {
+      id: "coral_pink",
+      name: "Coral",
+      desc: "Rosa marino",
+      unlockBossId: "squidBoss",
+      unlockBossName: "Calamar Gigante",
+      palette: {
+        body: "#ff7979",
+        dark: "#b33939",
+        light: "#ffd3d3",
+        eye: "#48dbfb",
+        nose: "#ffffff",
+        collar: "#00cec9"
+      }
+    },
+    {
+      id: "deep_teal",
+      name: "Kraken",
+      desc: "Azul abisal",
+      pattern: "tabby",
+      unlockBossId: "squidBoss",
+      unlockBossName: "Calamar Gigante",
+      palette: {
+        body: "#00a8cc",
+        dark: "#0c2461",
+        light: "#81ecec",
+        eye: "#ffd32a",
+        nose: "#ff9ff3",
+        collar: "#ff4757"
+      }
+    },
+    {
+      id: "ace_blue",
+      name: "Piloto",
+      desc: "As del cielo",
+      unlockBossId: "planeBoss",
+      unlockBossName: "Avión Basurero",
+      palette: {
+        body: "#54a0ff",
+        dark: "#2e86de",
+        light: "#dff9fb",
+        eye: "#1e272e",
+        nose: "#ff9f43",
+        collar: "#ffd32a"
+      }
+    },
+    {
+      id: "crimson_jet",
+      name: "Turbo",
+      desc: "Rojo supersónico",
+      pattern: "tabby",
+      unlockBossId: "planeBoss",
+      unlockBossName: "Avión Basurero",
+      palette: {
+        body: "#ee5253",
+        dark: "#831616",
+        light: "#ffcccc",
+        eye: "#ffd32a",
+        nose: "#ffffff",
+        collar: "#48dbfb"
+      }
+    },
+    {
+      id: "vampire_cat",
+      name: "Drácula",
+      desc: "Conde felino",
+      unlockBossId: "spookyBoss",
+      unlockBossName: "Esqueleto Gigante",
+      palette: {
+        body: "#2c2440",
+        dark: "#120c1c",
+        light: "#a55eea",
+        eye: "#ff4757",
+        nose: "#ffffff",
+        collar: "#ff4757"
+      }
+    },
+    {
+      id: "bone_white",
+      name: "Calavera",
+      desc: "Blanco espectral",
+      pattern: "spots",
+      unlockBossId: "spookyBoss",
+      unlockBossName: "Esqueleto Gigante",
+      palette: {
+        body: "#dfe4ea",
+        dark: "#2f3542",
+        light: "#ffffff",
+        eye: "#2ed573",
+        nose: "#1e272e",
+        collar: "#6c5ce7"
+      }
+    },
+    {
+      id: "cosmic_purple",
+      name: "Astro",
+      desc: "Viajero cósmico",
+      unlockBossId: "spaceBoss",
+      unlockBossName: "Nave Nodriza",
+      palette: {
+        body: "#6c5ce7",
+        dark: "#341f97",
+        light: "#a29bfe",
+        eye: "#48dbfb",
+        nose: "#ffd32a",
+        collar: "#00d2d3"
+      }
+    },
+    {
+      id: "starlight_gold",
+      name: "Estrella",
+      desc: "Brillo estelar",
+      pattern: "bow",
+      bowColor: "#48dbfb",
+      unlockBossId: "spaceBoss",
+      unlockBossName: "Nave Nodriza",
+      palette: {
+        body: "#ffeaa7",
+        dark: "#e17055",
+        light: "#ffffff",
+        eye: "#0984e3",
+        nose: "#ff7675",
+        collar: "#48dbfb"
+      }
+    },
+    {
+      id: "winicat",
+      name: "Winicat",
+      desc: "Beige con gorrito arcoíris",
+      pattern: "hat",
+      palette: {
+        body: "#e6ccb2",
+        dark: "#9c7a5b",
+        light: "#fdf0d5",
+        eye: "#1e272e",
+        nose: "#ff7675",
+        collar: "#ff9f43"
+      }
+    },
+    {
+      id: "champion_cat",
+      name: "Campeón",
+      desc: "Leyenda al acabar el juego",
+      pattern: "crown",
+      unlockBossId: "spaceBoss",
+      unlockBossName: "Acabar el juego (N25)",
+      palette: {
+        body: "#fff8e7",
+        dark: "#b8860b",
+        light: "#ffffff",
+        eye: "#48dbfb",
+        nose: "#ff6b81",
+        collar: "#ffd32a"
+      }
+    }
+  ];
+
+  const STORY_ZONES = [
+    {
+      id: "city",
+      title: "ZONA 1: CIUDAD Y TECHOS",
+      subtitle: "Salta huecos en los techos y derrota a la Gallina Gigante",
+      bossId: "boss",
+      gradient: "linear-gradient(135deg, #2c2447 0%, #eb7d5b 60%, #ffd32a 100%)"
+    },
+    {
+      id: "ocean",
+      title: "ZONA 2: ABISMO MARINO",
+      subtitle: "Esquiva remolinos, lanza minas y vence al Calamar Gigante",
+      bossId: "squidBoss",
+      gradient: "linear-gradient(135deg, #071e3d 0%, #0984e3 60%, #00cec9 100%)"
+    },
+    {
+      id: "sky",
+      title: "ZONA 3: CIELOS EN MINI-AVIÓN",
+      subtitle: "Evita tornados, dispara y derriba al Avión Basurero",
+      bossId: "planeBoss",
+      gradient: "linear-gradient(135deg, #3c8ce7 0%, #5f27cd 60%, #ff6b81 100%)"
+    },
+    {
+      id: "spooky",
+      title: "ZONA 4: TRANSILVANIA",
+      subtitle: "Vuela como murciélago, evita fantasmas y fulmina al Esqueleto",
+      bossId: "spookyBoss",
+      gradient: "linear-gradient(135deg, #110c1c 0%, #6c5ce7 60%, #ff4757 100%)"
+    },
+    {
+      id: "space",
+      title: "ZONA 5: ESPACIO EXTERIOR",
+      subtitle: "Gravedad lunar, láseres, OVNIs abductores y la Nave Nodriza",
+      bossId: "spaceBoss",
+      gradient: "linear-gradient(135deg, #040614 0%, #5352ed 60%, #00d2d3 100%)"
     }
   ];
 
@@ -259,11 +485,59 @@
       ]
     },
     {
-      id: "boss",
+      id: "rooftops2",
       number: 4,
+      mode: "runner",
+      name: "Torreón Urbano",
+      shortName: "N4: TORREÓN",
+      difficulty: "Difícil",
+      targetDistance: 1200,
+      baseSpeed: 465,
+      maxSpeed: 820,
+      accelPerSec: 11.0,
+      spawnScale: 0.65,
+      dayNightCycleDist: 180,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #ff4757 0%, #ff9f43 50%, #5f27cd 100%)",
+      description: "Antesala del jefe: techos altos con huecos, drones veloces y cajas móviles.",
+      day: {
+        skyTop: "#2c2447",
+        skyBottom: "#eb7d5b",
+        cloud: "#ffd3b6",
+        farBg: "#4a304d",
+        nearBg: "#2e1f36",
+        groundTop: "#ff9f43",
+        groundFill: "#2c2447",
+        groundDetail: "#ff6b81",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#090814",
+        skyBottom: "#24163b",
+        cloud: "#3d2661",
+        farBg: "#150e29",
+        nearBg: "#20153d",
+        groundTop: "#48dbfb",
+        groundFill: "#0f0a1c",
+        groundDetail: "#ff4757",
+        sunMoon: "#f5f6fa"
+      },
+      obstacles: [
+        { type: "hydrant", weight: 10 },
+        { type: "antenna", weight: 16 },
+        { type: "crate", weight: 12 },
+        { type: "mouse", weight: 14 },
+        { type: "bird", weight: 16 },
+        { type: "drone", weight: 18 },
+        { type: "skyDrop", weight: 14 }
+      ]
+    },
+    {
+      id: "boss",
+      number: 5,
       mode: "boss",
       name: "La Gallina Gigante",
-      shortName: "N4: JEFE GALLINA",
+      shortName: "N5: JEFE GALLINA",
       difficulty: "Jefe",
       targetDistance: null,
       bossMaxHp: 10,
@@ -442,11 +716,57 @@
       ]
     },
     {
+      id: "ocean4",
+      number: 9,
+      mode: "swim",
+      name: "Fosa Mariana",
+      shortName: "N9: BUCEO IV",
+      difficulty: "Experto",
+      targetDistance: 1400,
+      baseSpeed: 415,
+      maxSpeed: 710,
+      accelPerSec: 9.5,
+      spawnScale: 0.66,
+      dayNightCycleDist: 220,
+      bgStyle: "ocean",
+      previewGradient: "linear-gradient(90deg, #071e3d 0%, #6c5ce7 55%, #ff4757 100%)",
+      description: "Corrientes letales con remolinos, bombas de proximidad y muros de algas.",
+      day: {
+        skyTop: "#0c2461",
+        skyBottom: "#060e29",
+        cloud: "#3c6382",
+        farBg: "#12295c",
+        nearBg: "#0a183b",
+        groundTop: "#ff4757",
+        groundFill: "#19182b",
+        groundDetail: "#5352ed",
+        sunMoon: "#48dbfb"
+      },
+      night: {
+        skyTop: "#030510",
+        skyBottom: "#010208",
+        cloud: "#101533",
+        farBg: "#070a1c",
+        nearBg: "#040612",
+        groundTop: "#ff6b81",
+        groundFill: "#0a0814",
+        groundDetail: "#4834d4",
+        sunMoon: "#ff4757"
+      },
+      obstacles: [
+        { type: "proxMine", weight: 30 },
+        { type: "seaweed", weight: 26 },
+        { type: "seaWall", weight: 14 },
+        { type: "jellyfish", weight: 18 },
+        { type: "seaMine", weight: 12 }
+      ]
+    },
+    {
       id: "squidBoss",
-      number: 8,
+      number: 10,
       mode: "swimBoss",
       name: "El Calamar Gigante",
-      shortName: "N8: JEFE CALAMAR",
+      shortName: "N10: JEFE CALAMAR",
       difficulty: "Jefe",
       targetDistance: null,
       bossMaxHp: 8,
@@ -618,11 +938,55 @@
       ]
     },
     {
+      id: "skyplane4",
+      number: 14,
+      mode: "plane",
+      name: "Huracán Aéreo",
+      shortName: "N14: AVIÓN IV",
+      difficulty: "Experto",
+      targetDistance: 1500,
+      baseSpeed: 475,
+      maxSpeed: 800,
+      accelPerSec: 10.0,
+      spawnScale: 0.62,
+      dayNightCycleDist: 200,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #222f3e 0%, #00d2d3 50%, #ff4757 100%)",
+      description: "Antesala del cielo: tornados implacables y escuadrones de drones.",
+      day: {
+        skyTop: "#130f40",
+        skyBottom: "#5352ed",
+        cloud: "#dff9fb",
+        farBg: "#2c2c54",
+        nearBg: "#1e1e3b",
+        groundTop: "#ff9f43",
+        groundFill: "#161626",
+        groundDetail: "#48dbfb",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#050612",
+        skyBottom: "#141836",
+        cloud: "#252c5e",
+        farBg: "#0a0d21",
+        nearBg: "#121633",
+        groundTop: "#ff4757",
+        groundFill: "#04050d",
+        groundDetail: "#00d2d3",
+        sunMoon: "#48dbfb"
+      },
+      obstacles: [
+        { type: "skyBlock", weight: 32 },
+        { type: "bird", weight: 24 },
+        { type: "drone", weight: 44 }
+      ]
+    },
+    {
       id: "planeBoss",
-      number: 12,
+      number: 15,
       mode: "planeBoss",
       name: "El Avión Basurero",
-      shortName: "N12: JEFE AVIÓN",
+      shortName: "N15: JEFE AVIÓN",
       difficulty: "Jefe Final",
       targetDistance: null,
       bossMaxHp: 8,
@@ -800,12 +1164,59 @@
       ]
     },
     {
+      id: "spooky4",
+      number: 19,
+      mode: "bat",
+      thumbSprite: "spider1",
+      name: "Castillo del Conde",
+      shortName: "N19: TRANSILVANIA IV",
+      difficulty: "Experto",
+      targetDistance: 1500,
+      baseSpeed: 455,
+      maxSpeed: 780,
+      accelPerSec: 9.8,
+      spawnScale: 0.62,
+      dayNightCycleDist: 200,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #140409 0%, #6c5ce7 50%, #ff4757 100%)",
+      description: "Fantasmas acechantes, zombis y cuervos custodian la puerta del Esqueleto Gigante.",
+      day: {
+        skyTop: "#240714",
+        skyBottom: "#52132e",
+        cloud: "#782447",
+        farBg: "#330a1c",
+        nearBg: "#1f0611",
+        groundTop: "#ff4757",
+        groundFill: "#1a0b12",
+        groundDetail: "#9b59b6",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#0a0206",
+        skyBottom: "#1f0614",
+        cloud: "#380d25",
+        farBg: "#12040b",
+        nearBg: "#1c0612",
+        groundTop: "#a55eea",
+        groundFill: "#0d0409",
+        groundDetail: "#ff4757",
+        sunMoon: "#ff4757"
+      },
+      obstacles: [
+        { type: "tombstone", weight: 16 },
+        { type: "miniSkeleton", weight: 24 },
+        { type: "spider", weight: 20 },
+        { type: "zombie", weight: 20 },
+        { type: "crow", weight: 20 }
+      ]
+    },
+    {
       id: "spookyBoss",
-      number: 16,
+      number: 20,
       mode: "batBoss",
       thumbSprite: "giantSkeleton1",
       name: "El Esqueleto Gigante",
-      shortName: "N16: JEFE ESQUELETO",
+      shortName: "N20: JEFE ESQUELETO",
       difficulty: "Jefe",
       targetDistance: null,
       bossMaxHp: 5,
@@ -977,12 +1388,57 @@
       ]
     },
     {
+      id: "space4",
+      number: 24,
+      mode: "space",
+      thumbSprite: "miniUfo1",
+      name: "Agujero Negro",
+      shortName: "N24: ESPACIO IV",
+      difficulty: "Experto",
+      targetDistance: 1500,
+      baseSpeed: 440,
+      maxSpeed: 750,
+      accelPerSec: 9.5,
+      spawnScale: 0.64,
+      dayNightCycleDist: 210,
+      bgStyle: "neon",
+      previewGradient: "linear-gradient(90deg, #000000 0%, #5352ed 50%, #ff4757 100%)",
+      description: "Antesala final: OVNIs abductores con rayo de luz y lluvia de láseres alienígenas.",
+      day: {
+        skyTop: "#130f40",
+        skyBottom: "#08061c",
+        cloud: "#2e2770",
+        farBg: "#191547",
+        nearBg: "#0f0c2e",
+        groundTop: "#48dbfb",
+        groundFill: "#141026",
+        groundDetail: "#ff4757",
+        sunMoon: "#ff9ff3"
+      },
+      night: {
+        skyTop: "#03020a",
+        skyBottom: "#0a071c",
+        cloud: "#1b1442",
+        farBg: "#060414",
+        nearBg: "#0d0924",
+        groundTop: "#ff4757",
+        groundFill: "#080614",
+        groundDetail: "#48dbfb",
+        sunMoon: "#48dbfb"
+      },
+      obstacles: [
+        { type: "alienWalker", weight: 38 },
+        { type: "alienFloater", weight: 40 },
+        { type: "spaceRock", weight: 22 }
+      ]
+    },
+    {
       id: "spaceBoss",
-      number: 20,
+      number: 25,
       mode: "spaceBoss",
       thumbSprite: "mothership1",
       name: "La Nave Nodriza",
-      shortName: "N20: JEFE FINAL",
+      shortName: "N25: JEFE FINAL",
       difficulty: "Jefe Final",
       targetDistance: null,
       bossMaxHp: 24,
@@ -1310,6 +1766,28 @@
     }
   ];
 
+  // Normalize sequential story numbers (1..25) and zoneId tags
+  STORY_LEVELS.forEach((lvl, i) => {
+    lvl.number = i + 1;
+    const m = lvl.mode;
+    lvl.zoneId =
+      m === "swim" || m === "swimBoss"
+        ? "ocean"
+        : m === "plane" || m === "planeBoss"
+        ? "sky"
+        : m === "bat" || m === "batBoss"
+        ? "spooky"
+        : m === "space" || m === "spaceBoss"
+        ? "space"
+        : "city";
+    if (!lvl.shortName.startsWith(`N${lvl.number}:`)) {
+      const colonIdx = lvl.shortName.indexOf(":");
+      if (colonIdx !== -1) {
+        lvl.shortName = `N${lvl.number}${lvl.shortName.slice(colonIdx)}`;
+      }
+    }
+  });
+
   const LEVELS = [...STORY_LEVELS, ...ENDLESS_LEVELS];
 
   function getLevelById(id) {
@@ -1338,14 +1816,36 @@
     return CAT_SKINS.find((c) => c.id === id) || CAT_SKINS[0];
   }
 
+  function isCatUnlocked(catId) {
+    if (RC.Storage && RC.Storage.isDevUnlockAll()) return true;
+    const skin = getCatSkinById(catId);
+    if (!skin.unlockBossId) return true;
+    if (!RC.Storage) return false;
+    return Boolean(RC.Storage.getLevelRecord(skin.unlockBossId).cleared);
+  }
+
+  function areAllBossesCleared() {
+    if (!RC.Storage) return false;
+    const bossIds = ["boss", "squidBoss", "planeBoss", "spookyBoss", "spaceBoss"];
+    return bossIds.every((id) => Boolean(RC.Storage.getLevelRecord(id).cleared));
+  }
+
+  function isInsanityUnlocked() {
+    return areAllBossesCleared() || Boolean(RC.Storage && RC.Storage.isDevUnlockAll());
+  }
+
   RC.Levels = {
     LIST: LEVELS,
     STORY_LIST: STORY_LEVELS,
     ENDLESS_LIST: ENDLESS_LEVELS,
+    STORY_ZONES,
     CAT_SKINS,
     getLevelById,
     getNextLevel,
     isLevelUnlocked,
-    getCatSkinById
+    getCatSkinById,
+    isCatUnlocked,
+    areAllBossesCleared,
+    isInsanityUnlocked
   };
 })(window.RunnerCat = window.RunnerCat || {});
