@@ -554,6 +554,11 @@ html, body {
   gap: 8px;
 }
 
+.ency-card.locked {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
 .ency-card canvas {
   width: 32px;
   height: 32px;

@@ -26,6 +26,7 @@
     selectedCat: "ginger",
     selectedLevel: "alley",
     levels: {},
+    discovered: {},
     customCat: {
       name: "Mi Michi",
       breed: "classic",
@@ -55,6 +56,10 @@
         ...cloneDefault(),
         ...parsed,
         levels: parsed && typeof parsed.levels === "object" ? parsed.levels : {},
+        discovered:
+          parsed && typeof parsed.discovered === "object" && parsed.discovered
+            ? parsed.discovered
+            : {},
         customCat: {
           ...DEFAULT_DATA.customCat,
           ...(parsed && typeof parsed.customCat === "object" ? parsed.customCat : {})
@@ -103,6 +108,7 @@
       selectedCat: DEFAULT_DATA.selectedCat,
       selectedLevel: DEFAULT_DATA.selectedLevel,
       levels: {},
+      discovered: {},
       customCat: { ...DEFAULT_DATA.customCat },
       profile: { ...DEFAULT_DATA.profile, history: [] }
     };
@@ -243,6 +249,17 @@
     addPlayTime(seconds) {
       if (!seconds || seconds <= 0) return;
       state.profile.totalPlaySeconds = (state.profile.totalPlaySeconds || 0) + seconds;
+      save();
+    },
+    isDiscovered(id) {
+      if (state.devUnlockAll) return true;
+      return Boolean(state.discovered && state.discovered[id]);
+    },
+    discoverEntry(id) {
+      if (!id) return;
+      if (!state.discovered) state.discovered = {};
+      if (state.discovered[id]) return;
+      state.discovered[id] = true;
       save();
     }
   };

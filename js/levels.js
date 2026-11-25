@@ -2560,7 +2560,15 @@
     { id: "magnet", name: "Imán", sprite: "magnet", category: "bonus", destructible: false, zone: "Todas", desc: "Atrae pescaditos automáticamente." },
     { id: "milk", name: "Leche Felina", sprite: "milk", category: "bonus", destructible: false, zone: "Todas", desc: "Brillo dorado: inmunidad temporal y destruye enemigos." },
     { id: "snowBoost", name: "Impulso Helado", sprite: "snowBoost", category: "bonus", destructible: false, zone: "Nieve", desc: "Aumenta velocidad y rompe bloques de hielo al tocarlos." },
-    { id: "weaponPickup", name: "Mejora Láser", sprite: "weaponPickup", category: "bonus", destructible: false, zone: "Espacio", desc: "Potencia tu láser espacial hasta Nivel 3." }
+    { id: "weaponPickup", name: "Mejora Láser", sprite: "weaponPickup", category: "bonus", destructible: false, zone: "Espacio", desc: "Potencia tu láser espacial hasta Nivel 3." },
+    // Bosses
+    { id: "boss_chicken", name: "La Gallina Gigante", sprite: "chicken1", category: "boss", destructible: true, zone: "Zona 1 (N5)", desc: "Lanza huevos desde arriba; golpéala con X cuando baje a un costado." },
+    { id: "boss_squid", name: "El Calamar Gigante", sprite: "squid1", category: "boss", destructible: true, zone: "Zona 2 (N10)", desc: "Lanza pirañas; araña bombas de proximidad (X) para lanzárselas." },
+    { id: "boss_plane", name: "El Avión Basurero", sprite: "bossPlane1", category: "boss", destructible: true, zone: "Zona 3 (N15)", desc: "Lanza bolsas de basura; destrúyelas para recoger misiles y derribarlo." },
+    { id: "boss_skeleton", name: "El Esqueleto Gigante", sprite: "giantSkeleton1", category: "boss", destructible: true, zone: "Zona 4 (N20)", desc: "Lanza huesos e invoca monstruos; cada 5 destruidos le cae un rayo." },
+    { id: "boss_ufo", name: "La Nave Nodriza", sprite: "mothership1", category: "boss", destructible: true, zone: "Zona 5 (N25)", desc: "Lanza mini-naves con mejoras de láser y rocas espaciales." },
+    { id: "boss_penguin", name: "El Pingüino Gigante", sprite: "penguin1", category: "boss", destructible: true, zone: "Zona 6 (N30)", desc: "Lanza bolas de nieve; aliméntalo lanzándole peces hasta llenarlo." },
+    { id: "boss_snake", name: "La Serpiente Ácida", sprite: "snake1", category: "boss", destructible: true, zone: "Zona 7 (N35)", desc: "Escupe veneno ácido; recoge bolas de lodo y lánzaselas." }
   ];
 
   const ZONE_TUTORIALS = {

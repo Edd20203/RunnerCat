@@ -428,6 +428,9 @@
       this.keys.duckHeld = false;
       this.keys.slowHeld = false;
       this.keys.fireHeld = false;
+      if (this.boss && RC.Storage) {
+        RC.Storage.discoverEntry(`boss_${this.boss.kind}`);
+      }
       this.notifyHud();
     }
 
@@ -443,6 +446,9 @@
       this.keys.duckHeld = false;
       this.keys.slowHeld = false;
       this.keys.fireHeld = false;
+      if (this.boss && RC.Storage) {
+        RC.Storage.discoverEntry(`boss_${this.boss.kind}`);
+      }
       this.notifyHud();
     }
 
@@ -1855,6 +1861,11 @@
       if (obs) {
         obs.animTimer = 0;
         this.obstacles.push(obs);
+        if (RC.Storage && !this.isDemo) {
+          const encKey =
+            type === "trash" || type === "bush" || type === "antenna" ? "hydrant" : type;
+          RC.Storage.discoverEntry(encKey);
+        }
 
         // In harder runner levels (N2, N3, Endless), occasionally pair ground obstacles with an aerial hazard
         const isGroundRunner =
@@ -2045,6 +2056,7 @@
     }
 
     spawnMovingCrate() {
+      if (RC.Storage) RC.Storage.discoverEntry("movingCrate");
       const laneY = 54 + Math.random() * (GROUND_Y - 115);
       this.obstacles.push({
         type: "movingCrate",
@@ -2065,6 +2077,7 @@
     }
 
     spawnZoneHazard() {
+      if (RC.Storage) RC.Storage.discoverEntry("whirlpool");
       const lvlMode = this.level.mode || "runner";
       const x = WIDTH + 60;
 
@@ -3562,6 +3575,9 @@
     }
 
     collectItem(item) {
+      if (RC.Storage && item && item.kind) {
+        RC.Storage.discoverEntry(item.kind);
+      }
       const cx = item.x + item.w / 2;
       const cy = item.y + item.h / 2;
 

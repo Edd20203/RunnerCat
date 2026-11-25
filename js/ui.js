@@ -1040,39 +1040,58 @@
     // ---- Encyclopedia Logic ----
     const encyTabs = document.getElementById("ency-tabs");
     const encyGrid = document.getElementById("ency-grid");
+    const encyProgress = document.getElementById("ency-progress");
     const btnCloseEncyclopedia = document.getElementById("btn-close-encyclopedia");
     let activeEncyCat = "all";
 
     function renderEncyclopedia() {
       if (!encyGrid) return;
       encyGrid.innerHTML = "";
+      const totalAll = RC.Levels.ENCYCLOPEDIA.length;
+      const unlockedAll = RC.Levels.ENCYCLOPEDIA.filter((it) => RC.Storage.isDiscovered(it.id)).length;
+      if (encyProgress) encyProgress.textContent = `${unlockedAll} / ${totalAll} DESCUBIERTOS`;
+
       const items = RC.Levels.ENCYCLOPEDIA.filter(
         (it) => activeEncyCat === "all" || it.category === activeEncyCat
       );
       items.forEach((it) => {
+        const unlocked = RC.Storage.isDiscovered(it.id);
         const card = document.createElement("div");
-        card.className = "ency-card";
+        card.className = `ency-card${!unlocked ? " locked" : ""}`;
         const c = document.createElement("canvas");
         c.width = 32;
         c.height = 32;
         const cctx = c.getContext("2d");
         cctx.imageSmoothingEnabled = false;
-        const spr = RC.Sprites.getWorldSprite(it.sprite, 2);
-        if (spr) {
-          const sc = Math.min(32 / spr.width, 32 / spr.height);
-          const dw = Math.floor(spr.width * sc);
-          const dh = Math.floor(spr.height * sc);
-          cctx.drawImage(spr, Math.floor((32 - dw) / 2), Math.floor((32 - dh) / 2), dw, dh);
+        if (unlocked) {
+          const spr = RC.Sprites.getWorldSprite(it.sprite, 2);
+          if (spr) {
+            const sc = Math.min(32 / spr.width, 32 / spr.height);
+            const dw = Math.floor(spr.width * sc);
+            const dh = Math.floor(spr.height * sc);
+            cctx.drawImage(spr, Math.floor((32 - dw) / 2), Math.floor((32 - dh) / 2), dw, dh);
+          }
+        } else {
+          cctx.fillStyle = "#1d1e2c";
+          cctx.fillRect(0, 0, 32, 32);
+          cctx.fillStyle = "#7d85b8";
+          cctx.font = '900 18px "Courier New", monospace';
+          cctx.fillText("?", 10, 22);
         }
-        const tag =
-          it.category === "bonus"
-            ? "Bonus"
-            : it.destructible
-            ? "Destructible"
-            : "Esquivar";
+        const tag = !unlocked
+          ? "Bloqueado"
+          : it.category === "bonus"
+          ? "Bonus"
+          : it.category === "boss"
+          ? "Jefe"
+          : it.destructible
+          ? "Destructible"
+          : "Esquivar";
         const info = document.createElement("div");
         info.className = "ency-info";
-        info.innerHTML = `<h4>${it.name}</h4><small>${it.zone} · ${tag}</small><p>${it.desc}</p>`;
+        info.innerHTML = unlocked
+          ? `<h4>${it.name}</h4><small>${it.zone} · ${tag}</small><p>${it.desc}</p>`
+          : `<h4>🔒 ???</h4><small>${it.zone} · ${tag}</small><p>Encuéntralo en ${it.zone} para desbloquear.</p>`;
         card.appendChild(c);
         card.appendChild(info);
         encyGrid.appendChild(card);
