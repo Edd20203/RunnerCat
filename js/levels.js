@@ -2644,11 +2644,12 @@
 
   function isAllStoryCleared() {
     if (!RC.Storage) return false;
-    return STORY_LIST.every((l) => Boolean(RC.Storage.getLevelRecord(l.id).cleared));
+    return STORY_LEVELS.every((l) => Boolean(RC.Storage.getLevelRecord(l.id).cleared));
   }
 
   function isSpecialModesUnlocked() {
-    return isAllStoryCleared() || Boolean(RC.Storage && RC.Storage.isDevUnlockAll());
+    if (RC.Storage && RC.Storage.isDevUnlockAll()) return true;
+    return isAllStoryCleared();
   }
 
   const ZONE_TUTORIALS = {

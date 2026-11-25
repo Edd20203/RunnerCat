@@ -28,6 +28,7 @@
     const screenCtrlCustom = document.getElementById("screen-ctrl-custom");
     const screenEncyclopedia = document.getElementById("screen-encyclopedia");
     const screenShop = document.getElementById("screen-shop");
+    const screenSpecialModes = document.getElementById("screen-special-modes");
     const screenHelp = document.getElementById("screen-help");
     const screenInsanityConfirm = document.getElementById("screen-insanity-confirm");
     const insanityConfirmScope = document.getElementById("insanity-confirm-scope");
@@ -45,8 +46,6 @@
     const btnOpenEncyclopedia = document.getElementById("btn-open-encyclopedia");
     const btnOpenShop = document.getElementById("btn-open-shop");
     const lblTitleCoins = document.getElementById("lbl-title-coins");
-    const specialModesSection = document.getElementById("special-modes-section");
-    const specialModesLockMsg = document.getElementById("special-modes-lock-msg");
     const specialModesGrid = document.getElementById("special-modes-grid");
     const lblTitleCat = document.getElementById("lbl-title-cat");
     const lblTitleCtrl = document.getElementById("lbl-title-ctrl");
@@ -664,7 +663,6 @@
       refreshModeBadges();
     }
 
-    const screenSpecialModes = document.getElementById("screen-special-modes");
     const btnModeSpecial = document.getElementById("btn-mode-special");
     const specialModeBadge = document.getElementById("special-mode-badge");
     const specialModeDesc = document.getElementById("special-mode-desc");

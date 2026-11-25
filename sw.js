@@ -1,4 +1,4 @@
-const CACHE_NAME = "runnercat-v3";
+const CACHE_NAME = "runnercat-v4";
 const ASSETS = [
   "./",
   "./index.html",
