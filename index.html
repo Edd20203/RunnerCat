@@ -37,6 +37,9 @@
         <button id="btn-sound" class="icon-btn" title="Activar/Desactivar sonido" aria-label="Sonido">
           🔊 SFX
         </button>
+        <button id="btn-music" class="icon-btn" title="Activar/Desactivar música" aria-label="Música">
+          🎵 MUS
+        </button>
         <button id="btn-pause" class="icon-btn hidden" title="Pausar (P / Esc)" aria-label="Pausa">
           ⏸ PAUSA
         </button>
@@ -68,6 +71,12 @@
               <span class="meter-label">🐾 ZARPA</span>
               <div class="meter-track">
                 <div id="meter-claw" class="meter-fill meter-claw" style="width: 100%"></div>
+              </div>
+            </div>
+            <div id="meter-dash-row" class="meter-row" title="Adelante en Joystick para Dash">
+              <span class="meter-label">💨 DASH</span>
+              <div class="meter-track">
+                <div id="meter-dash" class="meter-fill meter-dash" style="width: 100%"></div>
               </div>
             </div>
           </div>
@@ -180,6 +189,10 @@
                 <span>📖 ENCICLOPEDIA</span>
                 <small>Enemigos y Bonus</small>
               </button>
+              <button id="btn-open-shop" class="menu-list-item" type="button">
+                <span>🐟 TIENDA</span>
+                <small id="lbl-title-coins">0 🐟</small>
+              </button>
               <button id="btn-help" class="menu-list-item" type="button">
                 <span>❓ AYUDA</span>
                 <small>Teclas y Reglas</small>
@@ -217,6 +230,15 @@
             <button id="btn-mode-cats" class="pixel-btn btn-secondary btn-sm" type="button">🐱 GATO: <span id="lbl-cur-cat">Tigre</span></button>
             <button id="btn-mode-controls" class="pixel-btn btn-secondary btn-sm" type="button">🎮 CONTROL: <span id="lbl-cur-ctrl">Botones</span></button>
             <button id="btn-insanity-mode" class="pixel-btn btn-secondary btn-sm hidden" type="button">🔥 LOCURA: OFF</button>
+          </div>
+
+          <!-- Post-Story Special Modes Section -->
+          <div id="special-modes-section" class="special-modes-section">
+            <div class="special-modes-header">
+              <span class="section-label" style="margin:0;color:var(--accent-gold);">🏆 MODOS ESPECIALES</span>
+              <small id="special-modes-lock-msg" class="special-lock-msg">🔒 Termina todos los niveles del Modo Historia para acceder a estos modos.</small>
+            </div>
+            <div id="special-modes-grid" class="special-modes-grid"></div>
           </div>
         </div>
       </section>
@@ -347,10 +369,26 @@
               <div id="profile-avatar-grid" class="profile-avatar-grid"></div>
             </div>
             <div class="profile-right">
-              <div class="section-label">HISTORIAL RECIENTE</div>
+              <div class="section-label">LOGROS Y TÍTULOS (<span id="profile-title-badge">Novato</span>)</div>
+              <div id="profile-achievements-list" class="profile-achievements-list"></div>
+              <div class="section-label" style="margin-top:6px;">HISTORIAL RECIENTE</div>
               <div id="profile-history-list" class="profile-history-list"></div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- Screen 7: Fish Coin Shop -->
+      <section id="screen-shop" class="overlay-screen hidden">
+        <div class="menu-card">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">MEJORAS PERMANENTES · 🐟 <span id="shop-coins">0</span> PESCADITOS</p>
+              <h2>🐟 TIENDA FELINA</h2>
+            </div>
+            <button id="btn-close-shop" class="pixel-btn btn-primary btn-sm" type="button">✓ VOLVER</button>
+          </div>
+          <div id="shop-grid" class="shop-grid"></div>
         </div>
       </section>
 

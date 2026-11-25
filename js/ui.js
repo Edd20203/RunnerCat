@@ -12,6 +12,7 @@
     // Top bar elements
     const elGlobalHi = document.getElementById("global-hi-score");
     const btnSound = document.getElementById("btn-sound");
+    const btnMusic = document.getElementById("btn-music");
     const btnPause = document.getElementById("btn-pause");
     const btnMenuTop = document.getElementById("btn-menu-top");
 
@@ -26,6 +27,7 @@
     const screenControls = document.getElementById("screen-controls");
     const screenCtrlCustom = document.getElementById("screen-ctrl-custom");
     const screenEncyclopedia = document.getElementById("screen-encyclopedia");
+    const screenShop = document.getElementById("screen-shop");
     const screenHelp = document.getElementById("screen-help");
     const screenInsanityConfirm = document.getElementById("screen-insanity-confirm");
     const insanityConfirmScope = document.getElementById("insanity-confirm-scope");
@@ -41,6 +43,11 @@
     const btnOpenControls = document.getElementById("btn-open-controls");
     const btnOpenProfile = document.getElementById("btn-open-profile");
     const btnOpenEncyclopedia = document.getElementById("btn-open-encyclopedia");
+    const btnOpenShop = document.getElementById("btn-open-shop");
+    const lblTitleCoins = document.getElementById("lbl-title-coins");
+    const specialModesSection = document.getElementById("special-modes-section");
+    const specialModesLockMsg = document.getElementById("special-modes-lock-msg");
+    const specialModesGrid = document.getElementById("special-modes-grid");
     const lblTitleCat = document.getElementById("lbl-title-cat");
     const lblTitleCtrl = document.getElementById("lbl-title-ctrl");
     const lblTitleUser = document.getElementById("lbl-title-user");
@@ -119,6 +126,8 @@
     const hudLevelHi = document.getElementById("hud-level-hi");
     const meterSlow = document.getElementById("meter-slow");
     const meterClaw = document.getElementById("meter-claw");
+    const meterDashRow = document.getElementById("meter-dash-row");
+    const meterDash = document.getElementById("meter-dash");
     const activePowerups = document.getElementById("active-powerups");
     const levelProgressWrap = document.getElementById("level-progress-wrap");
     const hudGoalLabel = document.getElementById("hud-goal-label");
@@ -196,11 +205,16 @@
       }
     });
 
-    // ---- Sound button state ----
+    // ---- Sound & Music button state ----
     function refreshSoundBtn() {
       const on = RC.Audio.isEnabled();
       btnSound.textContent = on ? "🔊 SFX" : "🔇 MUTE";
       btnSound.classList.toggle("muted", !on);
+      if (btnMusic) {
+        const mon = RC.Audio.isMusicEnabled();
+        btnMusic.textContent = mon ? "🎵 MUS" : "🔇 MUS";
+        btnMusic.classList.toggle("muted", !mon);
+      }
     }
 
     function refreshGlobalHi() {
@@ -351,7 +365,7 @@
         const statusTag = !unlocked
           ? `<span class="level-badge-lock">🔒</span>`
           : rec.cleared
-          ? `<span class="level-badge-clear">✓ CLEAR</span>`
+          ? `<span class="level-stars">${"★".repeat(rec.stars || 1)}${"☆".repeat(Math.max(0, 3 - (rec.stars || 1)))}</span>`
           : "";
         const footerText = unlocked
           ? `HI: ${padScore(rec.hiScore)} · ${rec.bestDist}m`
@@ -460,7 +474,8 @@
       lblCurCtrl.textContent = ctrlLabel;
       if (lblTitleCat) lblTitleCat.textContent = skin.name;
       if (lblTitleCtrl) lblTitleCtrl.textContent = ctrlLabel;
-      if (lblTitleUser) lblTitleUser.textContent = prof.username;
+      if (lblTitleUser) lblTitleUser.textContent = `${prof.username} · ${RC.Storage.getActiveTitle()}`;
+      if (lblTitleCoins) lblTitleCoins.textContent = `${RC.Storage.getFishCoins()} 🐟`;
       btnCtrlButtons.classList.toggle("selected", ctrl === "buttons");
       btnCtrlGestures.classList.toggle("selected", ctrl === "gestures");
       if (btnCtrlJoystick) btnCtrlJoystick.classList.toggle("selected", ctrl === "joystick");
@@ -619,6 +634,7 @@
       if (screenProfile) screenProfile.classList.add("hidden");
       if (screenCtrlCustom) screenCtrlCustom.classList.add("hidden");
       if (screenEncyclopedia) screenEncyclopedia.classList.add("hidden");
+      if (screenShop) screenShop.classList.add("hidden");
       if (screenInsanityConfirm) screenInsanityConfirm.classList.add("hidden");
       screenControls.classList.add("hidden");
       screenHelp.classList.add("hidden");
@@ -641,6 +657,44 @@
       refreshModeBadges();
     }
 
+    function renderSpecialModes() {
+      if (!specialModesSection || !specialModesGrid) return;
+      const unlocked = RC.Levels.isSpecialModesUnlocked();
+      specialModesSection.classList.toggle("locked", !unlocked);
+      if (specialModesLockMsg) {
+        specialModesLockMsg.textContent = unlocked
+          ? "✓ ¡Modos Especiales desbloqueados!"
+          : "🔒 Termina todos los niveles del Modo Historia para acceder a estos modos.";
+      }
+      specialModesGrid.innerHTML = "";
+      RC.Levels.SPECIAL_MODES.forEach((m) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "special-mode-card";
+        card.disabled = !unlocked;
+        let extraNote = "";
+        if (m.id === "bossRush" && RC.Storage.getBossRushBest() != null) {
+          extraNote = ` (Récord: ${RC.Storage.getBossRushBest().toFixed(1)}s)`;
+        }
+        card.innerHTML = `<h4>${unlocked ? m.icon : "🔒"} ${m.name}${extraNote}</h4><p>${m.desc}</p>`;
+        card.addEventListener("click", () => {
+          if (!unlocked) return;
+          RC.Audio.uiClick();
+          tryLockLandscape();
+          hideAllOverlays();
+          demoBanner.classList.add("hidden");
+          hud.classList.remove("hidden");
+          btnPause.classList.remove("hidden");
+          btnMenuTop.classList.remove("hidden");
+          applyControlModeUI(true);
+          if (m.id === "bossRush") game.startBossRush(selectedCatId);
+          else if (m.id === "daily") game.startDailyChallenge(selectedCatId);
+          else if (m.id === "timeAttack") game.startTimeAttack(selectedCatId);
+        });
+        specialModesGrid.appendChild(card);
+      });
+    }
+
     function showModeScreen() {
       game.returnToMenu();
       hud.classList.add("hidden");
@@ -651,6 +705,8 @@
       hideAllOverlays();
       screenMode.classList.remove("hidden");
       refreshModeBadges();
+      refreshDevUnlockBtn();
+      renderSpecialModes();
     }
 
     function showMenu(category) {
@@ -733,6 +789,10 @@
 
       meterSlow.style.width = `${data.slowPct}%`;
       meterClaw.style.width = `${data.clawPct}%`;
+      if (meterDashRow && meterDash) {
+        meterDashRow.classList.toggle("hidden", !data.dashAllowed);
+        meterDash.style.width = `${data.dashPct != null ? data.dashPct : 100}%`;
+      }
 
       if (data.bossHp != null && data.bossMaxHp) {
         levelProgressWrap.classList.remove("hidden");
@@ -788,8 +848,17 @@
       if (summary.victory) {
         resBadge.textContent = "NIVEL COMPLETADO";
         resBadge.classList.add("victory");
-        resTitle.textContent = "🎉 ¡META ALCANZADA!";
-        resSubtitle.textContent = `Dominaste ${summary.level.name} como todo un felino ágil.`;
+        const starStr = summary.stars ? ` ${"★".repeat(summary.stars)}${"☆".repeat(3 - summary.stars)}` : "";
+        resTitle.textContent = `🎉 ¡META ALCANZADA!${starStr}`;
+        if (summary.isBossRush) {
+          resSubtitle.textContent = `¡Completaste el Boss Rush en ${summary.runElapsedSec.toFixed(1)}s!`;
+        } else if (summary.isTimeAttack) {
+          const t = summary.runElapsedSec;
+          const medal = t <= 28 ? "🥇 ORO" : t <= 38 ? "🥈 PLATA" : "🥉 BRONCE";
+          resSubtitle.textContent = `Contrarreloj: ${t.toFixed(1)}s — Medalla ${medal}`;
+        } else {
+          resSubtitle.textContent = `Dominaste ${summary.level.name} como todo un felino ágil.`;
+        }
       } else {
         resBadge.textContent = "FIN DE LA CARRERA";
         resBadge.classList.remove("victory");
@@ -824,6 +893,13 @@
       RC.Audio.toggle();
       refreshSoundBtn();
     });
+
+    if (btnMusic) {
+      btnMusic.addEventListener("click", () => {
+        RC.Audio.toggleMusic();
+        refreshSoundBtn();
+      });
+    }
 
     function openControlsModal(nextReturn) {
       returnScreen = nextReturn;
@@ -1185,6 +1261,8 @@
     const profileStatsGrid = document.getElementById("profile-stats-grid");
     const profileAvatarGrid = document.getElementById("profile-avatar-grid");
     const profileHistoryList = document.getElementById("profile-history-list");
+    const profileAchievementsList = document.getElementById("profile-achievements-list");
+    const profileTitleBadge = document.getElementById("profile-title-badge");
     const btnCloseProfile = document.getElementById("btn-close-profile");
 
     function renderCustomPreview() {
@@ -1293,6 +1371,33 @@
         });
       }
 
+      if (profileTitleBadge) profileTitleBadge.textContent = RC.Storage.getActiveTitle();
+
+      if (profileAchievementsList) {
+        const achMap = RC.Storage.getAchievements();
+        const activeTitle = RC.Storage.getActiveTitle();
+        profileAchievementsList.innerHTML = "";
+        RC.Levels.ACHIEVEMENTS.forEach((a) => {
+          const unlocked = Boolean(achMap[a.id]) || RC.Storage.isDevUnlockAll();
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `ach-pill${unlocked ? " unlocked" : ""}${
+            activeTitle === a.title ? " active" : ""
+          }`;
+          btn.disabled = !unlocked;
+          btn.title = a.desc;
+          btn.textContent = unlocked ? `🏆 ${a.name} (${a.title})` : `🔒 ${a.name}`;
+          btn.addEventListener("click", () => {
+            if (!unlocked) return;
+            RC.Audio.uiClick();
+            RC.Storage.setActiveTitle(a.title);
+            renderProfile();
+            refreshModeBadges();
+          });
+          profileAchievementsList.appendChild(btn);
+        });
+      }
+
       if (profileHistoryList) {
         const hist = prof.history || [];
         if (hist.length === 0) {
@@ -1336,6 +1441,53 @@
     }
     if (btnCloseCustomizer) {
       btnCloseCustomizer.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        showTitleScreen();
+      });
+    }
+
+    // ---- Fish Shop Logic ----
+    const shopCoinsEl = document.getElementById("shop-coins");
+    const shopGrid = document.getElementById("shop-grid");
+    const btnCloseShop = document.getElementById("btn-close-shop");
+
+    function renderShop() {
+      if (!shopGrid) return;
+      if (shopCoinsEl) shopCoinsEl.textContent = RC.Storage.getFishCoins();
+      shopGrid.innerHTML = "";
+      RC.Levels.SHOP_UPGRADES.forEach((up) => {
+        const owned = RC.Storage.hasUpgrade(up.id);
+        const canAfford = RC.Storage.getFishCoins() >= up.cost;
+        const card = document.createElement("div");
+        card.className = "shop-card";
+        card.innerHTML = `<div><h4>${up.icon} ${up.name}</h4><p>${up.desc}</p></div>`;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `pixel-btn btn-sm ${owned ? "btn-accent" : "btn-primary"}`;
+        btn.disabled = owned || !canAfford;
+        btn.textContent = owned ? "✓ ACTIVO" : `${up.cost} 🐟`;
+        btn.addEventListener("click", () => {
+          if (RC.Storage.buyUpgrade(up.id, up.cost)) {
+            RC.Audio.powerup();
+            renderShop();
+            refreshModeBadges();
+          }
+        });
+        card.appendChild(btn);
+        shopGrid.appendChild(card);
+      });
+    }
+
+    if (btnOpenShop) {
+      btnOpenShop.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        hideAllOverlays();
+        renderShop();
+        if (screenShop) screenShop.classList.remove("hidden");
+      });
+    }
+    if (btnCloseShop) {
+      btnCloseShop.addEventListener("click", () => {
         RC.Audio.uiClick();
         showTitleScreen();
       });

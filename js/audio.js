@@ -4,9 +4,25 @@
 (function (RC) {
   let ctx = null;
   let enabled = RC.Storage ? RC.Storage.getState().soundEnabled : true;
+  let musicEnabled = RC.Storage ? RC.Storage.isMusicEnabled() : true;
+  let musicTimer = null;
+  let musicStep = 0;
+  let currentTheme = "menu";
+
+  const MUSIC_THEMES = {
+    menu: { tempo: 240, wave: "triangle", notes: [262, 330, 392, 523, 392, 330, 294, 392] },
+    city: { tempo: 185, wave: "square", notes: [330, 392, 440, 523, 440, 392, 330, 294] },
+    ocean: { tempo: 240, wave: "sine", notes: [262, 311, 392, 466, 392, 311, 294, 349] },
+    sky: { tempo: 170, wave: "square", notes: [392, 494, 587, 784, 587, 494, 440, 523] },
+    spooky: { tempo: 210, wave: "sawtooth", notes: [220, 233, 262, 311, 294, 262, 233, 196] },
+    space: { tempo: 200, wave: "triangle", notes: [330, 494, 659, 587, 440, 523, 659, 784] },
+    snow: { tempo: 195, wave: "triangle", notes: [392, 440, 523, 659, 523, 440, 349, 440] },
+    jungle: { tempo: 180, wave: "square", notes: [294, 349, 440, 523, 440, 392, 349, 330] },
+    boss: { tempo: 145, wave: "sawtooth", notes: [196, 233, 262, 294, 262, 233, 220, 175] }
+  };
 
   function ensureContext() {
-    if (!enabled) return null;
+    if (!enabled && !musicEnabled) return null;
     if (!ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return null;
@@ -16,6 +32,23 @@
       ctx.resume().catch(() => {});
     }
     return ctx;
+  }
+
+  function playMusicNote(freq, wave, durSec) {
+    if (!musicEnabled || !freq) return;
+    const audio = ensureContext();
+    if (!audio) return;
+    const now = audio.currentTime;
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    osc.type = wave || "triangle";
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(0.032, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + durSec);
+    osc.connect(gain);
+    gain.connect(audio.destination);
+    osc.start(now);
+    osc.stop(now + durSec + 0.01);
   }
 
   function playTone(opts) {
@@ -82,6 +115,36 @@
       this.setEnabled(!enabled);
       if (enabled) this.uiClick();
       return enabled;
+    },
+    isMusicEnabled: () => musicEnabled,
+    toggleMusic() {
+      musicEnabled = !musicEnabled;
+      if (RC.Storage) RC.Storage.setMusicEnabled(musicEnabled);
+      if (!musicEnabled) {
+        this.stopMusic();
+      } else {
+        this.startMusic(currentTheme);
+      }
+      return musicEnabled;
+    },
+    startMusic(theme) {
+      currentTheme = theme || "menu";
+      this.stopMusic();
+      if (!musicEnabled) return;
+      const cfg = MUSIC_THEMES[currentTheme] || MUSIC_THEMES.menu;
+      musicStep = 0;
+      musicTimer = window.setInterval(() => {
+        if (!musicEnabled) return;
+        const f = cfg.notes[musicStep % cfg.notes.length];
+        playMusicNote(f, cfg.wave, (cfg.tempo / 1000) * 0.85);
+        musicStep += 1;
+      }, cfg.tempo);
+    },
+    stopMusic() {
+      if (musicTimer) {
+        window.clearInterval(musicTimer);
+        musicTimer = null;
+      }
     },
 
     uiClick() {

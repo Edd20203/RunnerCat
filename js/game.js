@@ -194,8 +194,12 @@
       const insane = RC.Storage && RC.Storage.isInsanityMode();
       this.insaneMult = insane ? 1.35 : 1.0;
       this.speed = lvl.baseSpeed * this.insaneMult;
-      this.lives = 3;
+      const hasExtraLife = RC.Storage && RC.Storage.hasUpgrade("extra_life");
+      const hasStartShield = RC.Storage && RC.Storage.hasUpgrade("start_shield");
+      this.lives = hasExtraLife ? 4 : 3;
       this.maxLives = 5;
+      this.hitsTaken = 0;
+      this.runElapsedSec = 0;
       this.timeScale = 1;
       this.slowActive = false;
       this.slowEnergy = 100;
@@ -241,7 +245,7 @@
         dashTimer: 0,
         dashCooldown: 0,
         invulnTimer: 0,
-        shield: false,
+        shield: hasStartShield,
         magnetTimer: 0,
         milkTimer: 0,
         afterimages: []
@@ -418,7 +422,24 @@
       }
     }
 
+    getMusicThemeForLevel(lvl) {
+      const m = (lvl && lvl.mode) || "runner";
+      if (m === "boss" || m === "swimBoss" || m === "planeBoss" || m === "batBoss" || m === "spaceBoss" || m === "snowBoss" || m === "jungleBoss") {
+        return "boss";
+      }
+      if (m === "swim") return "ocean";
+      if (m === "plane") return "sky";
+      if (m === "bat") return "spooky";
+      if (m === "space") return "space";
+      if (m === "snow") return "snow";
+      if (m === "jungle") return "jungle";
+      return "city";
+    }
+
     startLevel(levelId, skinId) {
+      this.isBossRush = false;
+      this.isTimeAttack = false;
+      this.isDaily = false;
       this.level = RC.Levels.getLevelById(levelId);
       this.skinId = skinId || this.skinId;
       this.resetRunState();
@@ -431,6 +452,56 @@
       if (this.boss && RC.Storage) {
         RC.Storage.discoverEntry(`boss_${this.boss.kind}`);
       }
+      RC.Audio.startMusic(this.getMusicThemeForLevel(this.level));
+      this.notifyHud();
+    }
+
+    startBossRush(skinId) {
+      const order = ["boss", "squidBoss", "planeBoss", "spookyBoss", "spaceBoss", "snowBoss", "jungleBoss"];
+      this.bossRushOrder = order;
+      this.bossRushIndex = 0;
+      this.isBossRush = true;
+      this.isTimeAttack = false;
+      this.isDaily = false;
+      this.level = RC.Levels.getLevelById(order[0]);
+      this.skinId = skinId || this.skinId;
+      this.resetRunState();
+      this.mode = "playing";
+      RC.Audio.startMusic("boss");
+      this.addFloatingText("👑 BOSS RUSH 1/7!", WIDTH / 2 - 70, 90, "#ffd32a", 16);
+      this.notifyHud();
+    }
+
+    startDailyChallenge(skinId) {
+      this.isBossRush = false;
+      this.isTimeAttack = false;
+      this.isDaily = true;
+      this.level = RC.Levels.getDailyLevelConfig();
+      this.skinId = skinId || this.skinId;
+      this.resetRunState();
+      this.mode = "playing";
+      RC.Audio.startMusic(this.getMusicThemeForLevel(this.level));
+      this.notifyHud();
+    }
+
+    startTimeAttack(skinId) {
+      const base = RC.Levels.getLevelById("rooftops");
+      this.isBossRush = false;
+      this.isTimeAttack = true;
+      this.isDaily = false;
+      this.level = {
+        ...base,
+        id: "timeAttack",
+        name: "Contrarreloj 900m",
+        shortName: "⏱ CONTRARRELOJ",
+        targetDistance: 900,
+        baseSpeed: 440,
+        maxSpeed: 850
+      };
+      this.skinId = skinId || this.skinId;
+      this.resetRunState();
+      this.mode = "playing";
+      RC.Audio.startMusic("city");
       this.notifyHud();
     }
 
@@ -540,8 +611,12 @@
 
     returnToMenu() {
       this.flushPlayTime();
+      this.isBossRush = false;
+      this.isTimeAttack = false;
+      this.isDaily = false;
       this.mode = "menu";
       this.resetRunState();
+      RC.Audio.startMusic("menu");
     }
 
     // ---- Input Handlers ----
@@ -834,6 +909,7 @@
 
     updatePlaying(rawDt) {
       this.time += rawDt;
+      this.runElapsedSec += rawDt;
       this.playSecondsAccum += rawDt;
       if (this.playSecondsAccum >= 5) {
         this.flushPlayTime();
@@ -864,7 +940,11 @@
           this.slowActive = false;
           RC.Audio.slowOff();
         }
-        this.slowEnergy = Math.min(100, this.slowEnergy + SLOW_REGEN_PER_SEC * rawDt);
+        const regenRate =
+          RC.Storage && RC.Storage.hasUpgrade("slow_regen")
+            ? SLOW_REGEN_PER_SEC * 1.35
+            : SLOW_REGEN_PER_SEC;
+        this.slowEnergy = Math.min(100, this.slowEnergy + regenRate * rawDt);
         if (this.slowLockout && this.slowEnergy >= SLOW_MIN_TO_START) {
           this.slowLockout = false;
         }
@@ -2183,6 +2263,7 @@
         return false;
       }
 
+      this.hitsTaken += 1;
       this.lives -= 1;
       this.triggerShake(10, 0.25);
       this.spawnBurst(this.cat.x + 24, this.cat.y + 20, "#ff4757", 16);
@@ -2860,6 +2941,10 @@
         boss.active = false;
         this.killScore += 1000;
         RC.Audio.mineExplode();
+        if (this.isBossRush) {
+          this.triggerVictory();
+          return;
+        }
         const dist = Math.floor(this.distanceMeters);
         const total = dist + this.itemScore + this.killScore;
         RC.Storage.recordRun(this.level.id, total, dist, true);
@@ -2991,6 +3076,10 @@
         boss.active = false;
         this.killScore += 1000;
         RC.Audio.mineExplode();
+        if (this.isBossRush) {
+          this.triggerVictory();
+          return;
+        }
         const dist = Math.floor(this.distanceMeters);
         const total = dist + this.itemScore + this.killScore;
         RC.Storage.recordRun(this.level.id, total, dist, true);
@@ -3588,7 +3677,8 @@
           this.addFloatingText("🧶 ESCUDO DORADO!", cx - 28, cy - 10, "#ffd32a", 13);
           this.spawnBurst(cx, cy, "#ffd32a", 14);
         } else if (item.kind === "magnet") {
-          this.cat.magnetTimer = 8.5;
+          const bonus = RC.Storage && RC.Storage.hasUpgrade("magnet_plus") ? 4.0 : 0;
+          this.cat.magnetTimer = 8.5 + bonus;
           this.addFloatingText("🧲 IMÁN!", cx - 18, cy - 10, "#ff6b81", 13);
           this.spawnBurst(cx, cy, "#ff6b81", 14);
         } else if (item.kind === "milk") {
@@ -3672,14 +3762,20 @@
       this.flushPlayTime();
       const dist = Math.floor(this.distanceMeters);
       const total = dist + this.itemScore + this.killScore;
+      const stars = victory ? (this.hitsTaken === 0 ? 3 : this.lives >= 3 ? 2 : 1) : 0;
       const recordInfo = RC.Storage.recordRun(this.level.id, total, dist, victory, {
         fishCount: this.fishCount,
         killCount: this.killCount,
-        levelName: this.level.shortName
+        levelName: this.level.shortName,
+        stars
       });
       return {
         victory,
         level: this.level,
+        stars,
+        runElapsedSec: this.runElapsedSec,
+        isBossRush: this.isBossRush,
+        isTimeAttack: this.isTimeAttack,
         distance: dist,
         distScore: dist,
         fishCount: this.fishCount,
@@ -3689,6 +3785,38 @@
         totalScore: total,
         ...recordInfo
       };
+    }
+
+    advanceBossRushIfNeeded() {
+      if (!this.isBossRush) return false;
+      this.bossRushIndex += 1;
+      if (this.bossRushIndex >= this.bossRushOrder.length) {
+        RC.Storage.setBossRushBest(this.runElapsedSec);
+        return false;
+      }
+      const nextBossId = this.bossRushOrder[this.bossRushIndex];
+      const savedLives = Math.min(this.maxLives, this.lives + 1);
+      const savedFish = this.fishCount;
+      const savedItemScore = this.itemScore;
+      const savedKillCount = this.killCount;
+      const savedKillScore = this.killScore;
+      const savedElapsed = this.runElapsedSec;
+      const savedDist = this.distanceMeters;
+
+      this.level = RC.Levels.getLevelById(nextBossId);
+      this.resetRunState();
+      this.lives = savedLives;
+      this.fishCount = savedFish;
+      this.itemScore = savedItemScore;
+      this.killCount = savedKillCount;
+      this.killScore = savedKillScore;
+      this.runElapsedSec = savedElapsed;
+      this.distanceMeters = savedDist;
+      this.mode = "playing";
+      if (this.boss && RC.Storage) RC.Storage.discoverEntry(`boss_${this.boss.kind}`);
+      this.addFloatingText(`👑 BOSS RUSH ${this.bossRushIndex + 1}/7! (+1 ♥)`, WIDTH / 2 - 110, 90, "#ffd32a", 15);
+      this.notifyHud();
+      return true;
     }
 
     triggerGameOver() {
@@ -3703,6 +3831,7 @@
     }
 
     triggerVictory() {
+      if (this.advanceBossRushIfNeeded()) return;
       this.mode = "victory";
       this.slowActive = false;
       if (this.level.targetDistance) {
@@ -3810,6 +3939,12 @@
         slowPct: Math.round(this.slowEnergy),
         slowActive: this.slowActive,
         clawPct: Math.round(Math.max(0, 1 - cat.clawCooldown / CLAW_COOLDOWN) * 100),
+        dashPct: Math.round(Math.max(0, 1 - cat.dashCooldown / 1.1) * 100),
+        dashAllowed: !this.isPlaneMode() && !this.isSwimMode(),
+        runElapsedSec: this.runElapsedSec,
+        isBossRush: this.isBossRush,
+        bossRushStage: (this.bossRushIndex || 0) + 1,
+        isTimeAttack: this.isTimeAttack,
         shield: cat.shield,
         magnetSec: Math.ceil(cat.magnetTimer),
         milkSec: Math.ceil(cat.milkTimer),

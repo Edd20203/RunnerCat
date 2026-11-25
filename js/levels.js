@@ -2571,6 +2571,81 @@
     { id: "boss_snake", name: "La Serpiente Ácida", sprite: "snake1", category: "boss", destructible: true, zone: "Zona 7 (N35)", desc: "Escupe veneno ácido; recoge bolas de lodo y lánzaselas." }
   ];
 
+  const SHOP_UPGRADES = [
+    { id: "start_shield", name: "Ovillo Inicial", cost: 30, icon: "🧶", desc: "Comienza cada partida con un Escudo protector." },
+    { id: "magnet_plus", name: "Súper Imán", cost: 45, icon: "🧲", desc: "Los imanes duran +4 segundos extra." },
+    { id: "slow_regen", name: "Mente Ágil", cost: 50, icon: "⏱", desc: "La energía de cámara lenta se recarga +35% más rápido." },
+    { id: "extra_life", name: "Corazón Extra", cost: 60, icon: "♥", desc: "Comienza cada nivel con 4 vidas en lugar de 3." }
+  ];
+
+  const ACHIEVEMENTS = [
+    { id: "first_clear", title: "Explorador", name: "Primer Paso", desc: "Supera tu primer nivel." },
+    { id: "slayer_50", title: "Cazador Felino", name: "Cazador x50", desc: "Derrota 50 enemigos en total." },
+    { id: "fish_100", title: "Pescador Pro", name: "Pescador x100", desc: "Recoge 100 pescaditos en total." },
+    { id: "ency_half", title: "Erudito", name: "Coleccionista", desc: "Descubre 20 entradas en la Enciclopedia." },
+    { id: "all_bosses", title: "Matagigantes", name: "Azote de Jefes", desc: "Derrota a los 5 jefes principales." },
+    { id: "insane_win", title: "Alma Loca", name: "Maestro Locura", desc: "Supera un nivel con Modo Locura activo." },
+    { id: "secret_win", title: "Leyenda Secreta", name: "Final Secreto", desc: "Derrota a la Serpiente Ácida (N35)." }
+  ];
+
+  const SPECIAL_MODES = [
+    {
+      id: "bossRush",
+      name: "Boss Rush",
+      shortName: "👑 BOSS RUSH",
+      icon: "👑",
+      desc: "Enfrenta a los 7 jefes seguidos en una sola corrida (+1 vida entre jefes)."
+    },
+    {
+      id: "daily",
+      name: "Desafío Diario",
+      shortName: "🎲 DESAFÍO DIARIO",
+      icon: "🎲",
+      desc: "Nivel único de hoy con modificador aleatorio y semilla diaria."
+    },
+    {
+      id: "timeAttack",
+      name: "Contrarreloj",
+      shortName: "⏱ CONTRARRELOJ",
+      icon: "⏱",
+      desc: "Corre 900m lo más rápido posible usando Dash para ganar Oro."
+    }
+  ];
+
+  function getDailyLevelConfig() {
+    const today = new Date().toISOString().slice(0, 10);
+    let hash = 0;
+    for (let i = 0; i < today.length; i++) {
+      hash = (hash * 31 + today.charCodeAt(i)) >>> 0;
+    }
+    const mods = [
+      { id: "moon", label: "Gravedad Lunar", mode: "space", base: "space2" },
+      { id: "blizzard", label: "Ventisca Turbo", mode: "snow", base: "snow2" },
+      { id: "bat", label: "Noche de Murciélagos", mode: "bat", base: "spooky2" },
+      { id: "jungle", label: "Selva Frenética", mode: "jungle", base: "jungle2" }
+    ];
+    const pick = mods[hash % mods.length];
+    const base = getLevelById(pick.base);
+    return {
+      ...base,
+      id: "daily",
+      name: `Diario: ${pick.label}`,
+      shortName: `🎲 ${pick.label.toUpperCase()}`,
+      targetDistance: 950,
+      baseSpeed: base.baseSpeed + 35,
+      dailyDate: today
+    };
+  }
+
+  function isAllStoryCleared() {
+    if (!RC.Storage) return false;
+    return STORY_LIST.every((l) => Boolean(RC.Storage.getLevelRecord(l.id).cleared));
+  }
+
+  function isSpecialModesUnlocked() {
+    return isAllStoryCleared() || Boolean(RC.Storage && RC.Storage.isDevUnlockAll());
+  }
+
   const ZONE_TUTORIALS = {
     city: {
       title: "Tutorial Zona 1: Ciudad y Techos",
@@ -2642,6 +2717,12 @@
     CUSTOM_COSMETICS,
     ENCYCLOPEDIA,
     ZONE_TUTORIALS,
+    SHOP_UPGRADES,
+    ACHIEVEMENTS,
+    SPECIAL_MODES,
+    getDailyLevelConfig,
+    isAllStoryCleared,
+    isSpecialModesUnlocked,
     isCustomUnlocked,
     getLevelById,
     getNextLevel,
