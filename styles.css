@@ -1711,7 +1711,7 @@ kbd {
 }
 
 .mode-card-shell {
-  max-width: 720px;
+  max-width: 820px;
 }
 
 .mode-grid,
@@ -1720,6 +1720,10 @@ kbd {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
   margin: 8px 0;
+}
+
+.mode-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .mode-choice-card {

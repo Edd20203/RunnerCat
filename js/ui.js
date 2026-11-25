@@ -641,6 +641,7 @@
       if (screenCtrlCustom) screenCtrlCustom.classList.add("hidden");
       if (screenEncyclopedia) screenEncyclopedia.classList.add("hidden");
       if (screenShop) screenShop.classList.add("hidden");
+      if (screenSpecialModes) screenSpecialModes.classList.add("hidden");
       if (screenInsanityConfirm) screenInsanityConfirm.classList.add("hidden");
       screenControls.classList.add("hidden");
       screenHelp.classList.add("hidden");
@@ -663,15 +664,28 @@
       refreshModeBadges();
     }
 
+    const screenSpecialModes = document.getElementById("screen-special-modes");
+    const btnModeSpecial = document.getElementById("btn-mode-special");
+    const specialModeBadge = document.getElementById("special-mode-badge");
+    const specialModeDesc = document.getElementById("special-mode-desc");
+    const btnBackSpecialModes = document.getElementById("btn-back-special-modes");
+
     function renderSpecialModes() {
-      if (!specialModesSection || !specialModesGrid) return;
       const unlocked = RC.Levels.isSpecialModesUnlocked();
-      specialModesSection.classList.toggle("locked", !unlocked);
-      if (specialModesLockMsg) {
-        specialModesLockMsg.textContent = unlocked
-          ? "✓ ¡Modos Especiales desbloqueados!"
-          : "🔒 Termina todos los niveles del Modo Historia para acceder a estos modos.";
+      if (btnModeSpecial) {
+        btnModeSpecial.classList.toggle("locked", !unlocked);
+        btnModeSpecial.disabled = !unlocked;
       }
+      if (specialModeBadge) {
+        specialModeBadge.textContent = unlocked ? "3 MODOS" : "🔒 BLOQUEADO";
+        specialModeBadge.className = unlocked ? "mode-badge badge-gold" : "mode-badge";
+      }
+      if (specialModeDesc) {
+        specialModeDesc.textContent = unlocked
+          ? "Boss Rush (7 jefes), Desafío Diario y Contrarreloj."
+          : "Termina todos los niveles del Modo Historia para acceder a estos modos.";
+      }
+      if (!specialModesGrid) return;
       specialModesGrid.innerHTML = "";
       const modeBadges = { bossRush: "7 JEFES", daily: "DIARIO", timeAttack: "900m" };
       RC.Levels.SPECIAL_MODES.forEach((m) => {
@@ -705,6 +719,22 @@
           else if (m.id === "timeAttack") game.startTimeAttack(selectedCatId);
         });
         specialModesGrid.appendChild(card);
+      });
+    }
+
+    if (btnModeSpecial && screenSpecialModes) {
+      btnModeSpecial.addEventListener("click", () => {
+        if (!RC.Levels.isSpecialModesUnlocked()) return;
+        RC.Audio.uiClick();
+        hideAllOverlays();
+        renderSpecialModes();
+        screenSpecialModes.classList.remove("hidden");
+      });
+    }
+    if (btnBackSpecialModes) {
+      btnBackSpecialModes.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        showModeScreen();
       });
     }
 
@@ -1778,6 +1808,7 @@
         RC.Storage.setSelectedCat(selectedCatId);
       }
       renderMenu();
+      renderSpecialModes();
     });
 
     btnHelp.addEventListener("click", () => {

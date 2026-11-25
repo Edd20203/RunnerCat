@@ -220,16 +220,21 @@
             <button id="btn-back-title" class="pixel-btn btn-ghost btn-sm" type="button">⬅ INICIO</button>
           </div>
 
-          <div class="mode-grid">
+          <div class="mode-grid mode-grid-3">
             <button id="btn-mode-story" class="mode-choice-card" type="button">
-              <span class="mode-badge">25 NIVELES</span>
+              <span class="mode-badge">35 NIVELES</span>
               <h3>📖 MODO HISTORIA</h3>
-              <p>5 zonas de 5 niveles cada una: Techos, Mar, Avión, Transilvania y Espacio.</p>
+              <p>7 zonas de 5 niveles cada una: Techos, Mar, Avión, Transilvania, Espacio, Nieve y Selva.</p>
             </button>
             <button id="btn-mode-arcade" class="mode-choice-card mode-choice-arcade" type="button">
               <span class="mode-badge badge-cyan">8 MODOS ∞</span>
               <h3>∞ MODO ARCADE (INFINITO)</h3>
               <p>Sin meta final: Clásico, Techos, Buceo, Avión, Transilvania, Espacio, Nieve y Selva.</p>
+            </button>
+            <button id="btn-mode-special" class="mode-choice-card locked" type="button" disabled>
+              <span id="special-mode-badge" class="mode-badge">🔒 BLOQUEADO</span>
+              <h3>🏆 MODOS ESPECIALES</h3>
+              <p id="special-mode-desc">Termina todos los niveles del Modo Historia para acceder a estos modos.</p>
             </button>
           </div>
 
@@ -239,15 +244,20 @@
             <button id="btn-insanity-mode" class="pixel-btn btn-secondary btn-sm hidden" type="button">🔥 LOCURA: OFF</button>
             <button id="btn-mode-dev-unlock" class="pixel-btn btn-secondary btn-sm" title="Desbloquear todos los niveles y modos para pruebas" type="button">🔒 DEV: ACTIVAR TODOS</button>
           </div>
+        </div>
+      </section>
 
-          <!-- Post-Story Special Modes Section -->
-          <div id="special-modes-section" class="special-modes-section">
-            <div class="special-modes-header">
-              <span class="section-label" style="margin:0;color:var(--accent-gold);">🏆 MODOS ESPECIALES</span>
-              <small id="special-modes-lock-msg" class="special-lock-msg">🔒 Termina todos los niveles del Modo Historia para acceder a estos modos.</small>
+      <!-- Screen 2B: Special Modes Selection -->
+      <section id="screen-special-modes" class="overlay-screen hidden">
+        <div class="menu-card mode-card-shell">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">DESAFÍOS POST-HISTORIA</p>
+              <h2>🏆 MODOS ESPECIALES</h2>
             </div>
-            <div id="special-modes-grid" class="special-modes-grid"></div>
+            <button id="btn-back-special-modes" class="pixel-btn btn-ghost btn-sm" type="button">⬅ MODOS</button>
           </div>
+          <div id="special-modes-grid" class="special-modes-grid"></div>
         </div>
       </section>
 
@@ -332,7 +342,7 @@
             </div>
             <div class="customizer-options">
               <div class="custom-group">
-                <span class="section-label">RAZA</span>
+                <span class="section-label">COLOR DE OJOS</span>
                 <div id="custom-breeds" class="custom-pills"></div>
               </div>
               <div class="custom-group">

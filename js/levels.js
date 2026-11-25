@@ -2424,10 +2424,15 @@
   }
 
   const CUSTOM_BREEDS = [
-    { id: "classic", name: "Clásico", eye: "#1a202c", collar: "#e84118" },
-    { id: "siamese", name: "Siamés", eye: "#48dbfb", collar: "#ff6b81" },
-    { id: "fluffy", name: "Persa", eye: "#2ed573", collar: "#ffa502" },
-    { id: "ninja", name: "Ninja", eye: "#ffd32a", collar: "#6c5ce7" }
+    { id: "classic", name: "Oscuro", eye: "#1a202c", collar: "#e84118" },
+    { id: "siamese", name: "Azul Cielo", eye: "#48dbfb", collar: "#ff6b81" },
+    { id: "fluffy", name: "Verde Esmeralda", eye: "#2ed573", collar: "#ffa502" },
+    { id: "ninja", name: "Dorado", eye: "#ffd32a", collar: "#6c5ce7" },
+    { id: "ruby", name: "Rojo Rubí", eye: "#ff4757", collar: "#2f3542" },
+    { id: "violet", name: "Violeta", eye: "#9b59b6", collar: "#00d2d3" },
+    { id: "pink", name: "Rosa", eye: "#ff9ff3", collar: "#ff6b81" },
+    { id: "ice", name: "Blanco Hielo", eye: "#ffffff", collar: "#70a1ff" },
+    { id: "ocean", name: "Azul Profundo", eye: "#1e90ff", collar: "#ffd32a" }
   ];
 
   const CUSTOM_COLORS = [
@@ -2472,7 +2477,7 @@
     return {
       id: "custom",
       name: cfg.name || "Mi Michi",
-      desc: `${breed.name} · ${col.name}`,
+      desc: `Ojos ${breed.name} · ${col.name}`,
       pattern: cfg.pattern !== "none" ? cfg.pattern : null,
       cosmetic: cfg.cosmetic !== "none" ? cfg.cosmetic : null,
       bowColor: "#ff4757",
