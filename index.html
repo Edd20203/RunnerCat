@@ -430,28 +430,62 @@
         </div>
       </section>
 
-      <!-- Screen 5B: Control Position & Order Customizer -->
-      <section id="screen-ctrl-custom" class="overlay-screen hidden">
-        <div class="menu-card">
-          <div class="menu-header">
-            <div class="menu-title-group">
-              <p class="eyebrow">AJUSTE DE CONTROLES</p>
-              <h2 id="ctrl-custom-title">⚙ PERSONALIZAR CONTROL</h2>
-            </div>
-            <div class="menu-header-actions">
-              <button id="btn-reset-ctrl-layout" class="pixel-btn btn-ghost btn-sm" type="button">↺ RESTABLECER</button>
-              <button id="btn-close-ctrl-custom" class="pixel-btn btn-primary btn-sm" type="button">✓ LISTO</button>
-            </div>
-          </div>
+      <!-- Screen 5B: Control Position & Order Customizer (1:1 Game Screen Clone) -->
+      <section id="screen-ctrl-custom" class="overlay-screen ctrl-custom-fullscreen hidden">
+        <canvas id="ctrl-preview-canvas" class="ctrl-preview-canvas" width="960" height="360"></canvas>
 
-          <div id="ctrl-order-panel" class="ctrl-order-panel hidden">
-            <p class="modal-subtitle" style="margin-bottom:8px;">Usa las flechas ◀ ▶ para cambiar el orden de los 4 botones inferiores:</p>
-            <div id="ctrl-order-list" class="ctrl-order-list"></div>
+        <!-- Reference HUD Clone -->
+        <div class="hud ctrl-preview-hud" aria-hidden="true">
+          <div class="hud-left">
+            <div class="hud-top-row">
+              <div class="hud-level-pill">NIVEL 1: CALLEJÓN</div>
+              <div class="hud-lives">♥♥♥</div>
+            </div>
+            <div class="meters">
+              <div class="meter-row">
+                <span class="meter-label">⏱ LENTO</span>
+                <div class="meter-track"><div class="meter-fill meter-slow" style="width: 85%"></div></div>
+              </div>
+              <div class="meter-row">
+                <span class="meter-label">🐾 ZARPA</span>
+                <div class="meter-track"><div class="meter-fill meter-claw" style="width: 100%"></div></div>
+              </div>
+              <div class="meter-row">
+                <span class="meter-label">💨 DASH</span>
+                <div class="meter-track"><div class="meter-fill meter-dash" style="width: 100%"></div></div>
+              </div>
+            </div>
           </div>
+          <div class="hud-center">
+            <div class="progress-wrap">
+              <div class="progress-label"><span>META</span><span>240 / 600 m</span></div>
+              <div class="progress-track"><div class="progress-fill" style="width: 40%"></div></div>
+            </div>
+          </div>
+          <div class="hud-right">
+            <div class="score-main"><span class="score-tag">SCORE</span><span>01250</span></div>
+            <div class="score-sub-row">
+              <span>📏 <strong>240</strong>m</span>
+              <span>🐟 <strong>12</strong></span>
+              <span>💥 <strong>4</strong></span>
+            </div>
+          </div>
+        </div>
 
-          <div id="ctrl-drag-stage" class="ctrl-drag-stage hidden">
-            <p class="ctrl-drag-hint">Arrastra los controles a la posición que prefieras:</p>
-          </div>
+        <!-- Compact Floating Toolbar -->
+        <div id="ctrl-custom-toolbar" class="ctrl-custom-toolbar">
+          <span id="ctrl-custom-title" class="ctrl-custom-title">⚙ ARRASTRA LOS CONTROLES SOBRE LA PANTALLA</span>
+          <button id="btn-reset-ctrl-layout" class="pixel-btn btn-ghost btn-sm" type="button">↺ RESTABLECER</button>
+          <button id="btn-close-ctrl-custom" class="pixel-btn btn-primary btn-sm" type="button">✓ LISTO</button>
+        </div>
+
+        <!-- Full-stage 1:1 Drag Overlay (Gestures & Joystick) -->
+        <div id="ctrl-drag-stage" class="ctrl-drag-stage hidden"></div>
+
+        <!-- Button Order Panel (Buttons Mode) -->
+        <div id="ctrl-order-panel" class="menu-card ctrl-order-panel hidden">
+          <p class="modal-subtitle" style="margin-bottom:8px;">Usa las flechas ◀ ▶ para cambiar el orden de los 4 botones inferiores (se ven abajo en vivo):</p>
+          <div id="ctrl-order-list" class="ctrl-order-list"></div>
         </div>
       </section>
 

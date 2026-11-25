@@ -499,39 +499,93 @@ html, body {
   font-weight: 900;
 }
 
-.ctrl-drag-stage {
-  position: relative;
+.ctrl-custom-fullscreen {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.ctrl-preview-canvas {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 200px;
-  background: #101221;
-  border: 2px dashed var(--accent-cyan);
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.ctrl-preview-hud {
+  z-index: 3;
+  opacity: 0.92;
+}
+
+.ctrl-custom-toolbar {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: rgba(14, 16, 28, 0.9);
+  border: 2px solid var(--accent-cyan);
+  padding: 5px 10px;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65);
+  max-width: 94%;
+}
+
+.ctrl-custom-title {
+  font-size: 10px;
+  font-weight: 900;
+  color: var(--accent-gold);
+  letter-spacing: 0.5px;
+}
+
+.ctrl-order-panel {
+  position: relative;
+  z-index: 15;
+  max-width: 560px;
+  margin-top: 48px;
+}
+
+.ctrl-drag-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
   overflow: hidden;
   touch-action: none;
 }
 
-.ctrl-drag-hint {
-  position: absolute;
-  top: 6px;
-  left: 8px;
-  font-size: 10px;
-  color: var(--text-muted);
-  pointer-events: none;
+.ctrl-drag-item {
+  cursor: grab;
+  outline: 2px dashed rgba(255, 211, 42, 0.9);
+  outline-offset: 3px;
+  user-select: none;
 }
 
-.ctrl-drag-handle {
+.ctrl-drag-item:active {
+  cursor: grabbing;
+  outline-color: #ffffff;
+}
+
+.ctrl-joystick-dir {
   position: absolute;
-  transform: translate(-50%, -50%);
-  padding: 8px 10px;
-  background: rgba(255, 159, 67, 0.3);
-  border: 2px solid var(--accent-orange);
-  color: #fff;
-  font-family: var(--font-pixel);
   font-size: 10px;
   font-weight: 900;
-  cursor: grab;
-  touch-action: none;
-  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+  text-shadow: 1px 1px 0 #000;
 }
+
+.ctrl-joystick-dir.up { top: 4px; left: 50%; transform: translateX(-50%); }
+.ctrl-joystick-dir.down { bottom: 4px; left: 50%; transform: translateX(-50%); }
+.ctrl-joystick-dir.left { left: 6px; top: 50%; transform: translateY(-50%); }
+.ctrl-joystick-dir.right { right: 6px; top: 50%; transform: translateY(-50%); }
 
 .ency-tabs {
   display: flex;

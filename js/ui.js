@@ -991,22 +991,152 @@
       });
     }
 
-    // ---- Control Customizer (Button Order & Drag Positions) ----
+    // ---- Control Customizer (1:1 Game Screen Clone) ----
     const ctrlOrderPanel = document.getElementById("ctrl-order-panel");
     const ctrlOrderList = document.getElementById("ctrl-order-list");
     const ctrlDragStage = document.getElementById("ctrl-drag-stage");
+    const ctrlPreviewCanvas = document.getElementById("ctrl-preview-canvas");
+    const ctrlCustomTitle = document.getElementById("ctrl-custom-title");
     const btnResetCtrlLayout = document.getElementById("btn-reset-ctrl-layout");
     const btnCloseCtrlCustom = document.getElementById("btn-close-ctrl-custom");
+
+    function drawControlPreviewScene() {
+      if (!ctrlPreviewCanvas) return;
+      const ctx = ctrlPreviewCanvas.getContext("2d");
+      const W = 960;
+      const H = 360;
+      const groundY = 300;
+      ctx.imageSmoothingEnabled = false;
+
+      // Sky gradient
+      const sky = ctx.createLinearGradient(0, 0, 0, groundY);
+      sky.addColorStop(0, "#4a69bd");
+      sky.addColorStop(1, "#82ccdd");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, groundY);
+
+      // Sun
+      ctx.fillStyle = "#ffd32a";
+      ctx.fillRect(W - 140, 56, 28, 28);
+      ctx.fillRect(W - 144, 60, 36, 20);
+
+      // Clouds
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      [
+        [130, 74, 68],
+        [430, 58, 84],
+        [690, 86, 62]
+      ].forEach(([cx, cy, cw]) => {
+        ctx.fillRect(cx, cy, cw, 16);
+        ctx.fillRect(cx + 12, cy - 10, cw - 24, 12);
+      });
+
+      // Distant city silhouette
+      const buildings = [
+        [20, 120, 62],
+        [92, 165, 58],
+        [164, 95, 72],
+        [250, 140, 54],
+        [330, 180, 70],
+        [420, 110, 64],
+        [510, 155, 68],
+        [600, 125, 58],
+        [680, 175, 76],
+        [775, 130, 64],
+        [855, 160, 85]
+      ];
+      buildings.forEach(([bx, bh, bw], i) => {
+        ctx.fillStyle = i % 2 === 0 ? "#2c3a59" : "#344468";
+        ctx.fillRect(bx, groundY - bh, bw, bh);
+        ctx.fillStyle = "rgba(255, 224, 102, 0.45)";
+        for (let wy = groundY - bh + 12; wy < groundY - 24; wy += 18) {
+          for (let wx = bx + 10; wx < bx + bw - 12; wx += 14) {
+            ctx.fillRect(wx, wy, 6, 8);
+          }
+        }
+      });
+
+      // Ground & grass top
+      ctx.fillStyle = "#576574";
+      ctx.fillRect(0, groundY, W, H - groundY);
+      ctx.fillStyle = "#1dd1a1";
+      ctx.fillRect(0, groundY, W, 8);
+      ctx.fillStyle = "#10ac84";
+      ctx.fillRect(0, groundY + 8, W, 5);
+
+      // Platform
+      ctx.fillStyle = "#8395a7";
+      ctx.fillRect(380, 212, 150, 16);
+      ctx.fillStyle = "#1dd1a1";
+      ctx.fillRect(380, 212, 150, 5);
+
+      // Fish coins & obstacles/enemies using real game sprites
+      const fishSpr = RC.Sprites.getWorldSprite("fish", 3);
+      if (fishSpr) {
+        ctx.drawImage(fishSpr, 412, 174);
+        ctx.drawImage(fishSpr, 464, 174);
+      }
+      const trashSpr = RC.Sprites.getWorldSprite("trash", 3);
+      if (trashSpr) ctx.drawImage(trashSpr, 590, groundY - trashSpr.height);
+      const pigeonSpr = RC.Sprites.getWorldSprite("pigeon1", 3);
+      if (pigeonSpr) ctx.drawImage(pigeonSpr, 740, 172);
+
+      // Selected player cat
+      const catSpr = RC.Sprites.getCatSprite("run1", selectedCatId, 3);
+      if (catSpr) ctx.drawImage(catSpr, 170, groundY - catSpr.height);
+    }
+
+    function attachDragBehavior(el, groupKey, itemKey) {
+      let dragging = false;
+      el.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dragging = true;
+        if (el.setPointerCapture) {
+          try {
+            el.setPointerCapture(e.pointerId);
+          } catch (_err) {}
+        }
+      });
+      el.addEventListener("pointermove", (e) => {
+        if (!dragging) return;
+        const rect = ctrlDragStage.getBoundingClientRect();
+        const px = Math.max(5, Math.min(95, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
+        const py = Math.max(12, Math.min(90, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
+        el.style.left = `${px}%`;
+        el.style.top = `${py}%`;
+        const cur = RC.Storage.getControlLayout();
+        cur[groupKey][itemKey] = { x: px, y: py };
+        RC.Storage.setControlLayout({ [groupKey]: cur[groupKey] });
+      });
+      el.addEventListener("pointerup", () => {
+        dragging = false;
+      });
+      el.addEventListener("pointercancel", () => {
+        dragging = false;
+      });
+    }
 
     function renderControlCustomizer() {
       const mode = RC.Storage.getControlMode();
       const layout = RC.Storage.getControlLayout();
       const labels = { slow: "⏱ LENTO", duck: "⬇ AGACHAR", claw: "🐾 ARAÑAR", jump: "⬆ SALTAR" };
 
+      drawControlPreviewScene();
       ctrlOrderPanel.classList.toggle("hidden", mode !== "buttons");
       ctrlDragStage.classList.toggle("hidden", mode === "buttons");
 
+      if (ctrlCustomTitle) {
+        ctrlCustomTitle.textContent =
+          mode === "buttons"
+            ? "⚙ ORDEN DE BOTONES INFERIORES"
+            : mode === "gestures"
+            ? "⚙ ARRASTRA LOS BOTONES A TU POSICIÓN IDEAL"
+            : "⚙ ARRASTRA EL JOYSTICK Y BOTÓN DE ARAÑAR";
+      }
+
       if (mode === "buttons") {
+        applyControlLayout();
         ctrlOrderList.innerHTML = "";
         layout.buttonOrder.forEach((key, idx) => {
           const item = document.createElement("div");
@@ -1040,53 +1170,54 @@
           }
           ctrlOrderList.appendChild(item);
         });
-      } else {
-        ctrlDragStage.querySelectorAll(".ctrl-drag-handle").forEach((n) => n.remove());
-        const entries =
-          mode === "gestures"
-            ? [
-                { id: "claw", text: "🐾 ARAÑAR", pos: layout.gesturePos.claw, group: "gesturePos" },
-                { id: "duck", text: "⬇ AGACHAR", pos: layout.gesturePos.duck, group: "gesturePos" },
-                { id: "slow", text: "⏱ LENTO", pos: layout.gesturePos.slow, group: "gesturePos" }
-              ]
-            : [
-                { id: "stick", text: "🕹️ JOYSTICK", pos: layout.joystickPos.stick, group: "joystickPos" },
-                { id: "claw", text: "🐾 ARAÑAR", pos: layout.joystickPos.claw, group: "joystickPos" }
-              ];
-
-        entries.forEach((ent) => {
-          const handle = document.createElement("div");
-          handle.className = "ctrl-drag-handle";
-          handle.textContent = ent.text;
-          handle.style.left = `${ent.pos.x}%`;
-          handle.style.top = `${ent.pos.y}%`;
-
-          let dragging = false;
-          handle.addEventListener("pointerdown", (e) => {
-            e.preventDefault();
-            dragging = true;
-            if (handle.setPointerCapture) {
-              try {
-                handle.setPointerCapture(e.pointerId);
-              } catch (_err) {}
-            }
-          });
-          handle.addEventListener("pointermove", (e) => {
-            if (!dragging) return;
-            const rect = ctrlDragStage.getBoundingClientRect();
-            const px = Math.max(8, Math.min(92, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
-            const py = Math.max(15, Math.min(88, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
-            handle.style.left = `${px}%`;
-            handle.style.top = `${py}%`;
-            const cur = RC.Storage.getControlLayout();
-            cur[ent.group][ent.id] = { x: px, y: py };
-            RC.Storage.setControlLayout({ [ent.group]: cur[ent.group] });
-          });
-          handle.addEventListener("pointerup", () => {
-            dragging = false;
-          });
-          ctrlDragStage.appendChild(handle);
+      } else if (mode === "gestures") {
+        ctrlDragStage.innerHTML = `
+          <div class="gesture-left-zone" style="pointer-events:none;">
+            <span class="gesture-hint">👆 TOCA: SALTAR<br/>👆👆 DOBLE TOQUE: DOBLE SALTO</span>
+          </div>
+        `;
+        const btns = [
+          { id: "slow", cls: "gesture-btn gesture-slow-btn gesture-btn-draggable ctrl-drag-item", text: "⏱ LENTO", pos: layout.gesturePos.slow },
+          { id: "duck", cls: "gesture-btn gesture-duck-btn gesture-btn-draggable ctrl-drag-item", text: "⬇ AGACHAR", pos: layout.gesturePos.duck },
+          { id: "claw", cls: "gesture-btn gesture-fire-btn gesture-btn-draggable ctrl-drag-item", text: "🐾 ARAÑAR", pos: layout.gesturePos.claw }
+        ];
+        btns.forEach((b) => {
+          const el = document.createElement("button");
+          el.type = "button";
+          el.className = b.cls;
+          el.textContent = b.text;
+          el.style.left = `${b.pos.x}%`;
+          el.style.top = `${b.pos.y}%`;
+          attachDragBehavior(el, "gesturePos", b.id);
+          ctrlDragStage.appendChild(el);
         });
+      } else {
+        ctrlDragStage.innerHTML = "";
+
+        // Exact clone of joystick
+        const stick = document.createElement("div");
+        stick.className = "joystick-base ctrl-drag-item";
+        stick.style.left = `${layout.joystickPos.stick.x}%`;
+        stick.style.top = `${layout.joystickPos.stick.y}%`;
+        stick.innerHTML = `
+          <span class="ctrl-joystick-dir up">⬆</span>
+          <span class="ctrl-joystick-dir down">⬇</span>
+          <span class="ctrl-joystick-dir left">⬅</span>
+          <span class="ctrl-joystick-dir right">➡</span>
+          <div class="joystick-knob"></div>
+        `;
+        attachDragBehavior(stick, "joystickPos", "stick");
+        ctrlDragStage.appendChild(stick);
+
+        // Exact clone of claw button
+        const clawBtn = document.createElement("button");
+        clawBtn.type = "button";
+        clawBtn.className = "gesture-btn gesture-fire-btn joystick-fire-btn ctrl-drag-item";
+        clawBtn.textContent = "🐾 ARAÑAR";
+        clawBtn.style.left = `${layout.joystickPos.claw.x}%`;
+        clawBtn.style.top = `${layout.joystickPos.claw.y}%`;
+        attachDragBehavior(clawBtn, "joystickPos", "claw");
+        ctrlDragStage.appendChild(clawBtn);
       }
     }
 
