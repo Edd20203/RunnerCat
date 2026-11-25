@@ -1055,6 +1055,21 @@ kbd {
   color: var(--accent-orange);
 }
 
+.control-tip-banner {
+  background: rgba(72, 219, 251, 0.12);
+  border: 1px solid var(--accent-cyan);
+  color: #dff9fb;
+  font-size: 11px;
+  line-height: 1.35;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  border-radius: 3px;
+}
+
+.control-tip-banner strong {
+  color: var(--accent-gold);
+}
+
 .title-actions {
   display: flex;
   flex-direction: column;
