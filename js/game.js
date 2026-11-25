@@ -173,6 +173,16 @@
       return m === "bat" || m === "batBoss";
     }
 
+    isSnowMode(lvlMode) {
+      const m = lvlMode || this.level.mode || "runner";
+      return m === "snow" || m === "snowBoss";
+    }
+
+    isJungleMode(lvlMode) {
+      const m = lvlMode || this.level.mode || "runner";
+      return m === "jungle" || m === "jungleBoss";
+    }
+
     setPreviewConfig(levelId, skinId) {
       this.level = RC.Levels.getLevelById(levelId);
       this.skinId = skinId;
@@ -260,7 +270,13 @@
       this.movingCrateTimer = 7.0 + Math.random() * 4.5;
       this.zoneHazardTimer = 5.5 + Math.random() * 3.5;
       this.pits = [];
+      this.vines = [];
       this.hazardEvent = null;
+      this.snowBoostTimer = 0;
+      this.bossFishAmmo = 0;
+      this.mudAmmo = 0;
+      this.cat.onVine = null;
+      this.secretBossItem = null;
       this.finishGateSpawned = false;
       this.finishGateX = null;
       this.isDemo = false;
@@ -335,6 +351,38 @@
           hurtTimer: 0,
           animTimer: 0
         };
+      } else if (lvlMode === "snowBoss") {
+        const maxHp = lvl.bossMaxHp || 8;
+        this.boss = {
+          kind: "penguin",
+          active: true,
+          hp: maxHp,
+          maxHp,
+          x: WIDTH - 152,
+          y: GROUND_Y - 72,
+          w: 84,
+          h: 66,
+          snowTimer: 1.1,
+          fishTimer: 1.5,
+          hurtTimer: 0,
+          animTimer: 0
+        };
+      } else if (lvlMode === "jungleBoss") {
+        const maxHp = lvl.bossMaxHp || 8;
+        this.boss = {
+          kind: "snake",
+          active: true,
+          hp: maxHp,
+          maxHp,
+          x: WIDTH - 152,
+          y: GROUND_Y - 64,
+          w: 96,
+          h: 60,
+          venomTimer: 1.05,
+          mudTimer: 1.6,
+          hurtTimer: 0,
+          animTimer: 0
+        };
       } else if (lvlMode === "spaceBoss") {
         const maxHp = lvl.bossMaxHp || 24;
         this.boss = {
@@ -395,6 +443,25 @@
       this.mode = "ending";
       this.endingTimer = 0;
       this.endingFromBoss = Boolean(fromBoss);
+      this.particles = [];
+      this.floatingTexts = [];
+      RC.Audio.victory();
+    }
+
+    startSecretEnding(skinId, fromBoss) {
+      const souvenirs = [
+        "un Huevo Dorado 🥚",
+        "un Tentáculo de Calamar 🦑",
+        "chatarra del Avión ⚙",
+        "un Hueso Mágico 🦴",
+        "un Cristal Alien 🛸",
+        "un Salmón Ártico 🐟"
+      ];
+      this.skinId = skinId || this.skinId;
+      this.mode = "secretEnding";
+      this.endingTimer = 0;
+      this.endingFromBoss = Boolean(fromBoss);
+      this.secretBossItem = souvenirs[Math.floor(Math.random() * souvenirs.length)];
       this.particles = [];
       this.floatingTexts = [];
       RC.Audio.victory();
@@ -494,6 +561,34 @@
         return;
       }
 
+      if (lvlMode === "snowBoss" && this.bossFishAmmo > 0) {
+        this.bossFishAmmo -= 1;
+        RC.Audio.shoot();
+        this.projectiles.push({
+          x: cat.x + cat.w + 4,
+          y: cat.y + Math.floor(cat.h * 0.4),
+          w: 32,
+          h: 22,
+          vx: 760,
+          isThrownFish: true
+        });
+        return;
+      }
+
+      if (lvlMode === "jungleBoss" && this.mudAmmo > 0) {
+        this.mudAmmo -= 1;
+        RC.Audio.shoot();
+        this.projectiles.push({
+          x: cat.x + cat.w + 4,
+          y: cat.y + Math.floor(cat.h * 0.4),
+          w: 24,
+          h: 18,
+          vx: 760,
+          isMud: true
+        });
+        return;
+      }
+
       const cat = this.cat;
       if (cat.clawCooldown > 0) return;
 
@@ -578,6 +673,15 @@
       const cat = this.cat;
       const isSpace = this.isSpaceMode();
       const isBat = this.isBatMode();
+      if (cat.onVine) {
+        cat.onVine = null;
+        cat.vy = JUMP_VEL;
+        cat.onGround = false;
+        cat.jumpsUsed = 1;
+        RC.Audio.jump();
+        this.addFloatingText("¡SALTO!", cat.x, cat.y - 10, "#2ed573", 11);
+        return true;
+      }
       const canGroundJump = cat.onGround || cat.coyoteTimer > 0;
 
       if (canGroundJump) {
@@ -633,7 +737,7 @@
         this.updateHazardEvent(rawDt);
       } else if (this.mode === "intro") {
         this.updateIntro(rawDt);
-      } else if (this.mode === "ending") {
+      } else if (this.mode === "ending" || this.mode === "secretEnding") {
         this.updateEnding(rawDt);
       } else if (this.mode === "victory" || this.mode === "gameover") {
         this.updateParticlesOnly(rawDt);
@@ -713,10 +817,12 @@
       this.timeScale += (targetScale - this.timeScale) * Math.min(1, rawDt * 14);
       const worldDt = rawDt * this.timeScale;
 
+      const boostMult = this.snowBoostTimer > 0 ? 1.32 : 1.0;
       this.speed = Math.min(
-        this.level.maxSpeed * this.insaneMult,
+        this.level.maxSpeed * this.insaneMult * boostMult,
         this.speed + this.level.accelPerSec * this.insaneMult * worldDt
       );
+      if (this.snowBoostTimer > 0) this.snowBoostTimer = Math.max(0, this.snowBoostTimer - rawDt);
       const effectiveSpeed = this.speed;
       const movePx = effectiveSpeed * worldDt;
 
@@ -807,7 +913,9 @@
           !this.isDemo &&
           this.level.mode !== "planeBoss" &&
           this.level.mode !== "spaceBoss" &&
-          this.level.mode !== "batBoss"
+          this.level.mode !== "batBoss" &&
+          this.level.mode !== "snowBoss" &&
+          this.level.mode !== "jungleBoss"
         ) {
           this.spawnTimer -= worldDt;
           if (this.spawnTimer <= 0) {
@@ -865,7 +973,7 @@
       this.updateLaunchedMines(rawDt);
       if (this.mode !== "playing") return;
 
-      // ---- Update Boss (Chicken, Squid, Plane, Skeleton, or Space UFO) ----
+      // ---- Update Boss (Chicken, Squid, Plane, Skeleton, Penguin, Snake, or Space UFO) ----
       if (this.boss && this.boss.active) {
         if (this.boss.kind === "squid") {
           this.updateSquidBoss(rawDt, worldDt);
@@ -873,6 +981,10 @@
           this.updatePlaneBoss(rawDt, worldDt);
         } else if (this.boss.kind === "skeleton") {
           this.updateSkeletonBoss(rawDt, worldDt);
+        } else if (this.boss.kind === "penguin") {
+          this.updatePenguinBoss(rawDt, worldDt);
+        } else if (this.boss.kind === "snake") {
+          this.updateSnakeBoss(rawDt, worldDt);
         } else if (this.boss.kind === "ufo") {
           this.updateSpaceBoss(rawDt, worldDt);
         } else {
@@ -888,8 +1000,9 @@
       if (this.mode !== "playing") return;
       if (this.lightningTimer > 0) this.lightningTimer = Math.max(0, this.lightningTimer - rawDt);
 
-      // ---- Update Pits & Obstacles & Collisions ----
+      // ---- Update Pits, Vines & Obstacles & Collisions ----
       this.updatePits(movePx);
+      this.updateVines(movePx);
       if (this.mode !== "playing") return;
       this.updateObstacles(worldDt, movePx);
       if (this.mode !== "playing") return;
@@ -997,42 +1110,50 @@
 
         const physDt = this.slowActive ? rawDt * 0.68 : rawDt;
         const isSpace = this.isSpaceMode(lvlMode);
-        const overPit = this.isOverPit(cat.x + cat.w * 0.5);
-        if (cat.onGround && overPit) {
+        const pitHit = this.isOverPit(cat.x + cat.w * 0.5);
+        const overPit = Boolean(pitHit);
+
+        if (cat.onVine) {
+          cat.vy = 0;
           cat.onGround = false;
-          cat.vy = 90;
-        }
-        if (!cat.onGround) {
-          const g = isSpace
-            ? this.keys.duckHeld
-              ? SPACE_FAST_FALL_GRAVITY
-              : SPACE_GRAVITY
-            : this.keys.duckHeld
-            ? FAST_FALL_GRAVITY
-            : GRAVITY;
-          cat.vy += g * physDt;
-          cat.y += cat.vy * physDt;
-
-          if (cat.y < 14) {
-            cat.y = 14;
-            if (cat.vy < 0) cat.vy = 0;
+          cat.y = cat.onVine.y + cat.onVine.h - cat.h - 8;
+        } else {
+          if (cat.onGround && overPit) {
+            cat.onGround = false;
+            cat.vy = 90;
           }
+          if (!cat.onGround) {
+            const g = isSpace
+              ? this.keys.duckHeld
+                ? SPACE_FAST_FALL_GRAVITY
+                : SPACE_GRAVITY
+              : this.keys.duckHeld
+              ? FAST_FALL_GRAVITY
+              : GRAVITY;
+            cat.vy += g * physDt;
+            cat.y += cat.vy * physDt;
 
-          if (overPit && cat.y > GROUND_Y + 12) {
-            this.triggerHazardEvent("pit");
-            return;
-          }
+            if (cat.y < 14) {
+              cat.y = 14;
+              if (cat.vy < 0) cat.vy = 0;
+            }
 
-          const targetH = this.keys.duckHeld ? 27 : 42;
-          if (!overPit && cat.y + targetH >= GROUND_Y) {
-            cat.ducking = this.keys.duckHeld;
-            cat.h = targetH;
-            cat.w = cat.ducking ? 54 : 48;
-            cat.y = GROUND_Y - cat.h;
-            cat.vy = 0;
-            cat.onGround = true;
-            cat.jumpsUsed = 0;
-            this.spawnDust(cat.x + 20, GROUND_Y - 2, 5, "#d9ccb4");
+            if (overPit && cat.y > GROUND_Y + 12) {
+              this.triggerHazardEvent(pitHit.kind === "swamp" ? "swamp" : "pit");
+              return;
+            }
+
+            const targetH = this.keys.duckHeld ? 27 : 42;
+            if (!overPit && cat.y + targetH >= GROUND_Y) {
+              cat.ducking = this.keys.duckHeld;
+              cat.h = targetH;
+              cat.w = cat.ducking ? 54 : 48;
+              cat.y = GROUND_Y - cat.h;
+              cat.vy = 0;
+              cat.onGround = true;
+              cat.jumpsUsed = 0;
+              this.spawnDust(cat.x + 20, GROUND_Y - 2, 5, "#d9ccb4");
+            }
           }
         }
       }
@@ -1253,6 +1374,116 @@
           h: 30,
           scratchable: false,
           extraSpeed: 0
+        };
+      } else if (type === "iceBlock") {
+        obs = {
+          type,
+          sprite: "iceBlock",
+          x,
+          y: GROUND_Y - 36,
+          w: 36,
+          h: 36,
+          scratchable: true,
+          points: 35,
+          extraSpeed: 0
+        };
+      } else if (type === "polarBear") {
+        obs = {
+          type,
+          sprite: "polarBear1",
+          animFrames: ["polarBear1", "polarBear2"],
+          x,
+          y: GROUND_Y - 30,
+          w: 42,
+          h: 30,
+          scratchable: true,
+          points: 60,
+          extraSpeed: 40
+        };
+      } else if (type === "seal") {
+        obs = {
+          type,
+          sprite: "seal1",
+          animFrames: ["seal1", "seal2"],
+          x,
+          y: GROUND_Y - 22,
+          w: 42,
+          h: 22,
+          scratchable: true,
+          points: 55,
+          extraSpeed: 75
+        };
+      } else if (type === "eagle") {
+        const ey = 66 + Math.random() * 88;
+        obs = {
+          type,
+          sprite: "eagle1",
+          animFrames: ["eagle1", "eagle2"],
+          x,
+          y: ey,
+          baseY: ey,
+          w: 42,
+          h: 20,
+          scratchable: true,
+          points: 60,
+          extraSpeed: 70,
+          bobPhase: Math.random() * Math.PI * 2
+        };
+      } else if (type === "ruins") {
+        obs = {
+          type,
+          sprite: "ruins",
+          x,
+          y: GROUND_Y - 28,
+          w: 42,
+          h: 28,
+          scratchable: false,
+          extraSpeed: 0
+        };
+      } else if (type === "jaguar") {
+        obs = {
+          type,
+          sprite: "jaguar1",
+          animFrames: ["jaguar1", "jaguar2"],
+          x,
+          y: GROUND_Y - 30,
+          w: 48,
+          h: 30,
+          scratchable: true,
+          points: 65,
+          extraSpeed: 90
+        };
+      } else if (type === "toucan") {
+        const ty = 64 + Math.random() * 90;
+        obs = {
+          type,
+          sprite: "toucan1",
+          animFrames: ["toucan1", "toucan2"],
+          x,
+          y: ty,
+          baseY: ty,
+          w: 36,
+          h: 18,
+          scratchable: true,
+          points: 60,
+          extraSpeed: 60,
+          bobPhase: Math.random() * Math.PI * 2
+        };
+      } else if (type === "jungleBug") {
+        const by = GROUND_Y - 58 - Math.random() * 45;
+        obs = {
+          type,
+          sprite: "jungleBug1",
+          animFrames: ["jungleBug1", "jungleBug2"],
+          x,
+          y: by,
+          baseY: by,
+          w: 36,
+          h: 16,
+          scratchable: true,
+          points: 55,
+          extraSpeed: 50,
+          bobPhase: Math.random() * Math.PI * 2
         };
       } else if (type === "tombstone") {
         obs = {
@@ -1522,7 +1753,8 @@
     }
 
     spawnPowerup() {
-      const kinds = ["shield", "magnet", "milk"];
+      const lvlMode = this.level.mode || "runner";
+      const kinds = lvlMode === "snow" ? ["snowBoost", "shield", "magnet", "milk"] : ["shield", "magnet", "milk"];
       const kind = kinds[Math.floor(Math.random() * kinds.length)];
       this.collectibles.push({
         kind,
@@ -1538,9 +1770,37 @@
     isOverPit(cx) {
       for (let i = 0; i < this.pits.length; i++) {
         const p = this.pits[i];
-        if (cx > p.x + 12 && cx < p.x + p.w - 12) return true;
+        if (cx > p.x + 12 && cx < p.x + p.w - 12) return p;
       }
-      return false;
+      return null;
+    }
+
+    updateVines(movePx) {
+      const cat = this.cat;
+      const catBox = this.getCatHitbox();
+      for (let i = this.vines.length - 1; i >= 0; i--) {
+        const v = this.vines[i];
+        v.x -= movePx;
+        if (v.x + v.w < -40) {
+          if (cat.onVine === v) cat.onVine = null;
+          this.vines.splice(i, 1);
+          continue;
+        }
+
+        if (!cat.onGround && !cat.onVine) {
+          const grabBox = { x: v.x - 14, y: v.y + 40, w: v.w + 28, h: v.h - 20 };
+          if (this.rectsOverlap(catBox, grabBox)) {
+            cat.onVine = v;
+            cat.vy = 0;
+            cat.jumpsUsed = 1;
+            RC.Audio.jump();
+            this.addFloatingText("🌿 ¡LIANA!", v.x, v.y + v.h, "#2ed573", 11);
+          }
+        }
+      }
+      if (cat.onVine && cat.onVine.x + cat.onVine.w < cat.x - 10) {
+        cat.onVine = null;
+      }
     }
 
     updatePits(movePx) {
@@ -1576,9 +1836,14 @@
       const lvlMode = this.level.mode || "runner";
       const x = WIDTH + 60;
 
-      if (lvlMode === "runner" || lvlMode === "boss") {
-        // Pit in the ground (Hueco en el suelo)
-        this.pits.push({ x, w: 78 + Math.floor(Math.random() * 18) });
+      if (lvlMode === "runner" || lvlMode === "boss" || this.isSnowMode(lvlMode)) {
+        // Pit in the ground (Hueco en el suelo / nieve)
+        this.pits.push({ x, w: 78 + Math.floor(Math.random() * 18), kind: "pit" });
+      } else if (this.isJungleMode(lvlMode)) {
+        // Swamp + hanging vine above it!
+        const sw = 92 + Math.floor(Math.random() * 18);
+        this.pits.push({ x, w: sw, kind: "swamp" });
+        this.vines.push({ x: x + Math.floor(sw * 0.35), y: 12, w: 22, h: 175 });
       } else if (this.isSwimMode(lvlMode)) {
         // Whirlpool (Remolino marino)
         const wy = 70 + Math.random() * (GROUND_Y - 140);
@@ -1696,6 +1961,7 @@
 
       const texts = {
         pit: "¡CAÍSTE AL HUECO!",
+        swamp: "¡TE AHOGASTE EN EL PANTANO!",
         whirlpool: "¡SUCCIONADO POR EL REMOLINO!",
         tornado: "¡ESTRELLADO EN EL TORNADO!",
         ghost: "¡SECUESTRADO POR EL FANTASMA!",
@@ -1741,7 +2007,7 @@
       const cy = Math.floor(ev.catY);
 
       ctx.save();
-      if (ev.kind === "pit") {
+      if (ev.kind === "pit" || ev.kind === "swamp") {
         const spr = RC.Sprites.getCatSprite("hurt", this.skinId, 3);
         ctx.drawImage(spr, cx, Math.floor(cy + p * 120));
       } else if (ev.kind === "whirlpool") {
@@ -2341,6 +2607,137 @@
       }
     }
 
+    // ---- Penguin Boss Logic (Level 29: Giant Hungry Penguin) ----
+    updatePenguinBoss(rawDt, worldDt) {
+      const boss = this.boss;
+      if (!boss || !boss.active) return;
+
+      boss.animTimer += rawDt * 6;
+      if (boss.hurtTimer > 0) boss.hurtTimer = Math.max(0, boss.hurtTimer - rawDt);
+
+      // Throws snowballs
+      boss.snowTimer -= worldDt;
+      if (boss.snowTimer <= 0) {
+        const fed = boss.maxHp - boss.hp;
+        boss.snowTimer = Math.max(0.65, 1.2 - fed * 0.06) + Math.random() * 0.45;
+        RC.Audio.eggDrop();
+        const high = Math.random() < 0.45;
+        this.spookyShots.push({
+          sprite: "snowball",
+          x: boss.x - 10,
+          y: high ? GROUND_Y - 88 : GROUND_Y - 34,
+          w: 24,
+          h: 18,
+          vx: -(330 + fed * 18),
+          vy: high ? 22 : 0
+        });
+      }
+
+      // Spawns fish collectibles so the player can feed the penguin
+      boss.fishTimer -= worldDt;
+      if (boss.fishTimer <= 0) {
+        boss.fishTimer = 1.4 + Math.random() * 0.9;
+        this.collectibles.push({
+          kind: "fish",
+          x: WIDTH + 30,
+          y: GROUND_Y - 40 - Math.random() * 75,
+          w: 32,
+          h: 22,
+          points: 25,
+          slowBoost: 12,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    feedPenguinBoss() {
+      const boss = this.boss;
+      boss.hp = Math.max(0, boss.hp - 1);
+      boss.hurtTimer = 0.35;
+      this.killCount += 1;
+      this.killScore += 150;
+      this.hitstopTimer = 0.04;
+      this.triggerShake(7, 0.16);
+      RC.Audio.fish();
+      this.spawnBurst(boss.x + boss.w * 0.4, boss.y + boss.h * 0.5, "#ffd32a", 16);
+      this.addFloatingText("🐟 ¡ÑAM!", boss.x - 10, boss.y - 12, "#ffd32a", 15);
+
+      if (boss.hp <= 0) {
+        boss.active = false;
+        this.killScore += 700;
+        this.addFloatingText("¡ESTOY LLENO! 🐟", boss.x - 40, boss.y - 26, "#2ed573", 16);
+        this.triggerVictory();
+      }
+    }
+
+    // ---- Snake Boss Logic (Level 33: Giant Acid Serpent) ----
+    updateSnakeBoss(rawDt, worldDt) {
+      const boss = this.boss;
+      if (!boss || !boss.active) return;
+
+      boss.animTimer += rawDt * 7;
+      if (boss.hurtTimer > 0) boss.hurtTimer = Math.max(0, boss.hurtTimer - rawDt);
+
+      // Spits acid venom
+      boss.venomTimer -= worldDt;
+      if (boss.venomTimer <= 0) {
+        const rage = boss.maxHp - boss.hp;
+        boss.venomTimer = Math.max(0.6, 1.15 - rage * 0.06) + Math.random() * 0.45;
+        RC.Audio.shoot();
+        const high = Math.random() < 0.45;
+        this.spookyShots.push({
+          sprite: "venom",
+          x: boss.x - 12,
+          y: high ? GROUND_Y - 82 : GROUND_Y - 34,
+          w: 24,
+          h: 14,
+          vx: -(360 + rage * 22),
+          vy: high ? 14 : 0
+        });
+      }
+
+      // Spawns mud balls to collect & throw
+      boss.mudTimer -= worldDt;
+      if (boss.mudTimer <= 0) {
+        boss.mudTimer = 1.45 + Math.random() * 0.9;
+        this.collectibles.push({
+          kind: "mudBall",
+          x: WIDTH + 30,
+          y: GROUND_Y - 36 - Math.random() * 82,
+          w: 28,
+          h: 22,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+    }
+
+    damageSnakeBoss() {
+      const boss = this.boss;
+      boss.hp = Math.max(0, boss.hp - 1);
+      boss.hurtTimer = 0.4;
+      this.killCount += 1;
+      this.killScore += 180;
+      this.hitstopTimer = 0.045;
+      this.triggerShake(9, 0.2);
+      RC.Audio.bossHit();
+      this.spawnBurst(boss.x + boss.w * 0.4, boss.y + boss.h * 0.5, "#a3cb38", 20);
+      this.addFloatingText("¡LODO! +180", boss.x - 16, boss.y - 12, "#a3cb38", 15);
+
+      if (boss.hp <= 0) {
+        boss.active = false;
+        this.killScore += 1000;
+        RC.Audio.mineExplode();
+        const dist = Math.floor(this.distanceMeters);
+        const total = dist + this.itemScore + this.killScore;
+        RC.Storage.recordRun(this.level.id, total, dist, true);
+        if (this.callbacks.onSecretEndingStart) {
+          this.callbacks.onSecretEndingStart(this.buildRunSummary(true));
+        } else {
+          this.startSecretEnding(this.skinId, true);
+        }
+      }
+    }
+
     updateAlienShots(worldDt) {
       const catBox = this.getCatHitbox();
       for (let i = this.alienShots.length - 1; i >= 0; i--) {
@@ -2440,6 +2837,23 @@
                 this.addFloatingText("¡USA MISILES!", this.boss.x - 16, this.boss.y - 10, "#ffd32a", 12);
               }
             }
+            continue;
+          }
+        }
+
+        // Check hit on Penguin Boss (fed with fish) or Snake Boss (hit with mud)
+        if (this.boss && this.boss.active) {
+          const bossBox = { x: this.boss.x, y: this.boss.y, w: this.boss.w, h: this.boss.h };
+          if (this.boss.kind === "penguin" && b.isThrownFish && this.rectsOverlap(b, bossBox)) {
+            this.projectiles.splice(i, 1);
+            this.feedPenguinBoss();
+            if (this.mode !== "playing") return;
+            continue;
+          }
+          if (this.boss.kind === "snake" && b.isMud && this.rectsOverlap(b, bossBox)) {
+            this.projectiles.splice(i, 1);
+            this.damageSnakeBoss();
+            if (this.mode !== "playing") return;
             continue;
           }
         }
@@ -2780,6 +3194,12 @@
             return;
           }
 
+          if (obs.type === "iceBlock" && this.snowBoostTimer > 0) {
+            this.destroyObstacleByClaw(obs);
+            this.obstacles.splice(i, 1);
+            continue;
+          }
+
           if (this.cat.milkTimer > 0) {
             this.destroyObstacleByClaw({ ...obs, points: obs.points || 35 });
             this.obstacles.splice(i, 1);
@@ -2862,6 +3282,23 @@
         return;
       }
 
+      if (item.kind === "snowBoost") {
+        RC.Audio.powerup();
+        this.snowBoostTimer = 5.0;
+        this.addFloatingText("❄ ¡ROMPE HIELO!", cx - 32, cy - 12, "#48dbfb", 13);
+        this.spawnBurst(cx, cy, "#48dbfb", 14);
+        return;
+      }
+
+      if (item.kind === "mudBall") {
+        RC.Audio.powerup();
+        this.mudAmmo += 1;
+        this.itemScore += 30;
+        this.addFloatingText("🟤 +1 LODO!", cx - 26, cy - 12, "#a3cb38", 13);
+        this.spawnBurst(cx, cy, "#9e6b43", 10);
+        return;
+      }
+
       if (item.kind === "heart") {
         RC.Audio.powerup();
         this.lives = Math.min(this.maxLives, this.lives + 1);
@@ -2892,6 +3329,10 @@
       this.fishCount += 1;
       this.itemScore += item.points;
       this.slowEnergy = Math.min(100, this.slowEnergy + item.slowBoost);
+      if (this.level.mode === "snowBoss") {
+        this.bossFishAmmo += 1;
+        this.addFloatingText("🐟 +1 PEZ!", cx - 22, cy - 26, "#ffd32a", 13);
+      }
 
       if (item.kind === "goldFish") {
         RC.Audio.goldFish();
@@ -3055,6 +3496,9 @@
         missiles: this.catMissiles,
         laserLevel: this.isSpaceMode() ? this.laserLevel : 0,
         lightningCharge: this.level.mode === "batBoss" ? this.lightningCharge : null,
+        snowBoostSec: Math.ceil(this.snowBoostTimer),
+        bossFishAmmo: this.level.mode === "snowBoss" ? this.bossFishAmmo : 0,
+        mudAmmo: this.level.mode === "jungleBoss" ? this.mudAmmo : 0,
         levelHi: RC.Storage.getLevelRecord(this.level.id).hiScore
       });
     }
@@ -3069,8 +3513,8 @@
         this.renderIntro();
         return;
       }
-      if (this.mode === "ending") {
-        this.renderEnding();
+      if (this.mode === "ending" || this.mode === "secretEnding") {
+        this.renderEnding(this.mode === "secretEnding");
         return;
       }
       const ctx = this.ctx;
@@ -3184,14 +3628,33 @@
         ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.w, p.h);
       });
 
-      // Ground Pits (Huecos en los techos/suelo)
+      // Ground Pits & Swamps
       this.pits.forEach((p) => {
         const px = Math.floor(p.x);
-        ctx.fillStyle = "#080910";
-        ctx.fillRect(px, GROUND_Y, p.w, HEIGHT - GROUND_Y);
-        ctx.fillStyle = "#ff4757";
-        ctx.fillRect(px, GROUND_Y, 4, 6);
-        ctx.fillRect(px + p.w - 4, GROUND_Y, 4, 6);
+        if (p.kind === "swamp") {
+          ctx.fillStyle = "#143d18";
+          ctx.fillRect(px, GROUND_Y, p.w, HEIGHT - GROUND_Y);
+          ctx.fillStyle = "#2ed573";
+          ctx.fillRect(px, GROUND_Y, p.w, 6);
+        } else {
+          ctx.fillStyle = "#080910";
+          ctx.fillRect(px, GROUND_Y, p.w, HEIGHT - GROUND_Y);
+          ctx.fillStyle = "#ff4757";
+          ctx.fillRect(px, GROUND_Y, 4, 6);
+          ctx.fillRect(px + p.w - 4, GROUND_Y, 4, 6);
+        }
+      });
+
+      // Hanging Jungle Vines
+      this.vines.forEach((v) => {
+        const vx = Math.floor(v.x + v.w / 2);
+        ctx.fillStyle = "#168246";
+        ctx.fillRect(vx - 3, v.y, 6, v.h);
+        ctx.fillStyle = "#2ed573";
+        ctx.fillRect(vx - 8, v.y + Math.floor(v.h * 0.35), 16, 6);
+        ctx.fillRect(vx - 8, v.y + Math.floor(v.h * 0.7), 16, 6);
+        ctx.fillStyle = "#a3cb38";
+        ctx.fillRect(vx - 5, v.y + v.h - 6, 10, 8);
       });
 
       // Finish Gate
@@ -3215,9 +3678,15 @@
         if (spr) ctx.drawImage(spr, Math.floor(item.x), bobY);
       });
 
-      // Projectiles (Plane bullets, missiles & space lasers)
+      // Projectiles (Plane bullets, missiles, space lasers, thrown fish & mud)
       this.projectiles.forEach((b) => {
-        if (b.isMissile) {
+        if (b.isThrownFish) {
+          const spr = RC.Sprites.getWorldSprite("fish", 3);
+          if (spr) ctx.drawImage(spr, Math.floor(b.x), Math.floor(b.y));
+        } else if (b.isMud) {
+          const spr = RC.Sprites.getWorldSprite("mudBall", 3);
+          if (spr) ctx.drawImage(spr, Math.floor(b.x), Math.floor(b.y));
+        } else if (b.isMissile) {
           const spr = RC.Sprites.getWorldSprite("missile", 3);
           if (spr) ctx.drawImage(spr, Math.floor(b.x), Math.floor(b.y));
         } else if (b.isLaser) {
@@ -3443,6 +3912,48 @@
         return;
       }
 
+      if (boss.kind === "penguin") {
+        const sprName =
+          boss.hurtTimer > 0
+            ? "penguinHurt"
+            : Math.floor(boss.animTimer) % 2 === 0
+            ? "penguin1"
+            : "penguin2";
+        const spr = RC.Sprites.getWorldSprite(sprName, 6);
+        const fed = boss.maxHp - boss.hp;
+        const extraW = fed * 7;
+        const drawW = (spr ? spr.width : 84) + extraW;
+        const drawH = spr ? spr.height : 66;
+        if (spr) ctx.drawImage(spr, bx - Math.floor(extraW / 2), by, drawW, drawH);
+
+        ctx.save();
+        ctx.globalAlpha = 0.75 + 0.25 * Math.sin(this.time * 8);
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillStyle = "#ffd32a";
+        ctx.fillText(`🐟 ALIMENTA AL PINGÜINO (X)`, bx - 44, by - 8);
+        ctx.restore();
+        return;
+      }
+
+      if (boss.kind === "snake") {
+        const sprName =
+          boss.hurtTimer > 0
+            ? "snakeHurt"
+            : Math.floor(boss.animTimer) % 2 === 0
+            ? "snake1"
+            : "snake2";
+        const spr = RC.Sprites.getWorldSprite(sprName, 6);
+        if (spr) ctx.drawImage(spr, bx, by);
+
+        ctx.save();
+        ctx.globalAlpha = 0.75 + 0.25 * Math.sin(this.time * 8);
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillStyle = "#a3cb38";
+        ctx.fillText("🟤 LANZA LODO (X)", bx - 14, by - 8);
+        ctx.restore();
+        return;
+      }
+
       if (boss.kind === "skeleton") {
         const sprName =
           boss.hurtTimer > 0
@@ -3614,6 +4125,18 @@
       }
       ctx.restore();
 
+      // Husky + Sled in Snow Zone!
+      if (this.isSnowMode()) {
+        const huskySprName = Math.floor(cat.runAnimTimer) % 2 === 0 ? "husky1" : "husky2";
+        const huskySpr = RC.Sprites.getWorldSprite(huskySprName, 3);
+        const sledSpr = RC.Sprites.getWorldSprite("sled", 3);
+        if (sledSpr) ctx.drawImage(sledSpr, cx - 2, cy + cat.h - 16);
+        if (huskySpr) ctx.drawImage(huskySpr, cx + cat.w + 4, cy + cat.h - 28);
+        // Harness rope
+        ctx.fillStyle = "#ffd32a";
+        ctx.fillRect(cx + cat.w - 4, cy + cat.h - 12, 12, 2);
+      }
+
       // Astronaut helmet bubble in Space levels
       if (this.isSpaceMode()) {
         ctx.save();
@@ -3694,7 +4217,7 @@
       this.cat.runAnimTimer += dt * 7;
     }
 
-    renderEnding() {
+    renderEnding(isSecret) {
       const ctx = this.ctx;
       const t = this.endingTimer;
 
@@ -3798,22 +4321,35 @@
 
         if (walkProgress > 0.75) {
           ctx.fillStyle = "rgba(255, 248, 232, 0.92)";
-          ctx.fillRect(grandmaX - 36, grandmaY - 28, 178, 22);
+          const msg = isSecret ? `¡Traje ${this.secretBossItem}! ♥` : "¡Mi gatito volvió! ♥";
+          const bw = isSecret ? 275 : 178;
+          ctx.fillRect(grandmaX - 66, grandmaY - 28, bw, 22);
           ctx.strokeStyle = "#2f1b14";
           ctx.lineWidth = 2;
-          ctx.strokeRect(grandmaX - 36, grandmaY - 28, 178, 22);
+          ctx.strokeRect(grandmaX - 66, grandmaY - 28, bw, 22);
           ctx.fillStyle = "#1e1624";
           ctx.font = '900 12px "Courier New", monospace';
-          ctx.fillText("¡Mi gatito volvió! ♥", grandmaX - 28, grandmaY - 13);
+          ctx.fillText(msg, grandmaX - 58, grandmaY - 13);
         }
       } else if (t < 6.0) {
-        // Phase 2: Abuelita greets and cuddles the cat at the porch
+        // Phase 2: Abuelita greets and cooks/cuddles the cat at the porch
         const catSpr = RC.Sprites.getCatSprite("run1", this.skinId, 3);
         ctx.drawImage(catSpr, hx + 46, GROUND_Y - 42);
-        ctx.fillStyle = "#b81d3a";
-        ctx.font = '900 16px "Courier New", monospace';
-        const heartY = grandmaY - 14 - Math.floor(Math.sin(t * 6) * 5);
-        ctx.fillText("♥  ♥", grandmaX + 4, heartY);
+        if (isSecret) {
+          ctx.fillStyle = "rgba(255, 248, 232, 0.92)";
+          ctx.fillRect(grandmaX - 70, grandmaY - 28, 250, 22);
+          ctx.strokeStyle = "#2f1b14";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(grandmaX - 70, grandmaY - 28, 250, 22);
+          ctx.fillStyle = "#1e1624";
+          ctx.font = '900 11px "Courier New", monospace';
+          ctx.fillText("🍲 ¡Te prepararé algo rico!", grandmaX - 62, grandmaY - 13);
+        } else {
+          ctx.fillStyle = "#b81d3a";
+          ctx.font = '900 16px "Courier New", monospace';
+          const heartY = grandmaY - 14 - Math.floor(Math.sin(t * 6) * 5);
+          ctx.fillText("♥  ♥", grandmaX + 4, heartY);
+        }
       } else {
         // Phase 3: Cat tucked into its cozy bed with food & milk, sleeping peacefully
         const catSpr = RC.Sprites.getCatSprite("duck1", this.skinId, 3);
@@ -3832,17 +4368,27 @@
         ctx.fillText("♥", grandmaX + 22, grandmaY - 10);
 
         // Ending Banner
-        ctx.fillStyle = "rgba(18, 20, 34, 0.78)";
-        ctx.fillRect(WIDTH / 2 - 210, 26, 420, 56);
+        ctx.fillStyle = "rgba(18, 20, 34, 0.82)";
+        ctx.fillRect(WIDTH / 2 - 230, 26, 460, 56);
         ctx.strokeStyle = "#ffd32a";
         ctx.lineWidth = 2;
-        ctx.strokeRect(WIDTH / 2 - 210, 26, 420, 56);
+        ctx.strokeRect(WIDTH / 2 - 230, 26, 460, 56);
         ctx.fillStyle = "#ffd32a";
-        ctx.font = '900 18px "Courier New", monospace';
-        ctx.fillText("🏠 ¡FELIZ DESCANSO EN CASITA!", WIDTH / 2 - 165, 50);
+        ctx.font = '900 17px "Courier New", monospace';
+        ctx.fillText(
+          isSecret ? "👑 ¡FINAL SECRETO COMPLETADO!" : "🏠 ¡FELIZ DESCANSO EN CASITA!",
+          WIDTH / 2 - 175,
+          50
+        );
         ctx.fillStyle = "#ffffff";
         ctx.font = '700 12px "Courier New", monospace';
-        ctx.fillText("Comida, leche y sueños felinos. ¡FIN!", WIDTH / 2 - 145, 70);
+        ctx.fillText(
+          isSecret
+            ? `Cenó guiso con ${this.secretBossItem} y a dormir. ¡FIN!`
+            : "Comida, leche y sueños felinos. ¡FIN!",
+          WIDTH / 2 - 185,
+          70
+        );
       }
     }
 

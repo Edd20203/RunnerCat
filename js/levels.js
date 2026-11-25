@@ -337,6 +337,22 @@
       subtitle: "Gravedad lunar, láseres, OVNIs abductores y la Nave Nodriza",
       bossId: "spaceBoss",
       gradient: "linear-gradient(135deg, #040614 0%, #5352ed 60%, #00d2d3 100%)"
+    },
+    {
+      id: "snow",
+      title: "🔮 ZONA OCULTA 6: ÁRTICO NEVADO",
+      subtitle: "Trineo con husky, hielo rompible, huecos y el Pingüino Gigante",
+      bossId: "snowBoss",
+      isSecret: true,
+      gradient: "linear-gradient(135deg, #74b9ff 0%, #0984e3 55%, #dfe6e9 100%)"
+    },
+    {
+      id: "jungle",
+      title: "🔮 ZONA OCULTA 7: SELVA PERDIDA",
+      subtitle: "Lianas sobre pantanos, ruinas, jaguares y la Serpiente Ácida",
+      bossId: "jungleBoss",
+      isSecret: true,
+      gradient: "linear-gradient(135deg, #0b3b1e 0%, #2ed573 55%, #a3cb38 100%)"
     }
   ];
 
@@ -1473,6 +1489,376 @@
         sunMoon: "#ff6b81"
       },
       obstacles: []
+    },
+    // --- ZONA OCULTA 6: NIEVE (N26-N29) ---
+    {
+      id: "snow1",
+      number: 26,
+      mode: "snow",
+      isSecret: true,
+      thumbSprite: "polarBear1",
+      name: "Sendero Helado",
+      shortName: "N26: NIEVE I",
+      difficulty: "Difícil",
+      targetDistance: 1000,
+      baseSpeed: 375,
+      maxSpeed: 640,
+      accelPerSec: 7.5,
+      spawnScale: 0.9,
+      dayNightCycleDist: 280,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #dff9fb 0%, #74b9ff 55%, #0984e3 100%)",
+      description: "Viaja en trineo con tu husky: recoge impulsos para romper hielo y evita caer en huecos.",
+      day: {
+        skyTop: "#a8d8ff",
+        skyBottom: "#e8f6ff",
+        cloud: "#ffffff",
+        farBg: "#89bce8",
+        nearBg: "#6ca3d4",
+        groundTop: "#ffffff",
+        groundFill: "#cfe9ff",
+        groundDetail: "#8fc2f0",
+        sunMoon: "#fff2a6"
+      },
+      night: {
+        skyTop: "#0a192f",
+        skyBottom: "#173a5e",
+        cloud: "#29527a",
+        farBg: "#112845",
+        nearBg: "#18375c",
+        groundTop: "#81ecec",
+        groundFill: "#1b2e47",
+        groundDetail: "#48dbfb",
+        sunMoon: "#dff9fb"
+      },
+      obstacles: [
+        { type: "iceBlock", weight: 28 },
+        { type: "polarBear", weight: 24 },
+        { type: "seal", weight: 24 },
+        { type: "eagle", weight: 24 }
+      ]
+    },
+    {
+      id: "snow2",
+      number: 27,
+      mode: "snow",
+      isSecret: true,
+      thumbSprite: "seal1",
+      name: "Ventisca Polar",
+      shortName: "N27: NIEVE II",
+      difficulty: "Muy Difícil",
+      targetDistance: 1200,
+      baseSpeed: 410,
+      maxSpeed: 700,
+      accelPerSec: 8.5,
+      spawnScale: 0.78,
+      dayNightCycleDist: 250,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #74b9ff 0%, #0984e3 55%, #1e3799 100%)",
+      description: "Focas deslizantes, osos polares y águilas en medio de la tormenta.",
+      day: {
+        skyTop: "#74b9ff",
+        skyBottom: "#dff9fb",
+        cloud: "#ffffff",
+        farBg: "#5f9fd9",
+        nearBg: "#487eb0",
+        groundTop: "#dff9fb",
+        groundFill: "#b8dcfa",
+        groundDetail: "#70a1ff",
+        sunMoon: "#ffeaa7"
+      },
+      night: {
+        skyTop: "#061021",
+        skyBottom: "#122645",
+        cloud: "#213f6e",
+        farBg: "#0b1a33",
+        nearBg: "#13294d",
+        groundTop: "#48dbfb",
+        groundFill: "#132036",
+        groundDetail: "#70a1ff",
+        sunMoon: "#ffffff"
+      },
+      obstacles: [
+        { type: "iceBlock", weight: 24 },
+        { type: "polarBear", weight: 26 },
+        { type: "seal", weight: 26 },
+        { type: "eagle", weight: 24 }
+      ]
+    },
+    {
+      id: "snow3",
+      number: 28,
+      mode: "snow",
+      isSecret: true,
+      thumbSprite: "eagle1",
+      name: "Glaciar Extremo",
+      shortName: "N28: NIEVE III",
+      difficulty: "Experto",
+      targetDistance: 1400,
+      baseSpeed: 445,
+      maxSpeed: 760,
+      accelPerSec: 9.5,
+      spawnScale: 0.68,
+      dayNightCycleDist: 220,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #00cec9 0%, #0984e3 50%, #192a56 100%)",
+      description: "Velocidad máxima en trineo antes de enfrentar al Pingüino Gigante.",
+      day: {
+        skyTop: "#54a0ff",
+        skyBottom: "#c7ecee",
+        cloud: "#ffffff",
+        farBg: "#3c7dc4",
+        nearBg: "#2e5f99",
+        groundTop: "#ffffff",
+        groundFill: "#a4d4ff",
+        groundDetail: "#48dbfb",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#040814",
+        skyBottom: "#0e1d3d",
+        cloud: "#1b3366",
+        farBg: "#081126",
+        nearBg: "#0f1e40",
+        groundTop: "#00cec9",
+        groundFill: "#0e182b",
+        groundDetail: "#48dbfb",
+        sunMoon: "#81ecec"
+      },
+      obstacles: [
+        { type: "iceBlock", weight: 24 },
+        { type: "polarBear", weight: 26 },
+        { type: "seal", weight: 24 },
+        { type: "eagle", weight: 26 }
+      ]
+    },
+    {
+      id: "snowBoss",
+      number: 29,
+      mode: "snowBoss",
+      isSecret: true,
+      thumbSprite: "penguin1",
+      name: "El Pingüino Gigante",
+      shortName: "N29: JEFE PINGÜINO",
+      difficulty: "Jefe",
+      targetDistance: null,
+      bossMaxHp: 8,
+      baseSpeed: 380,
+      maxSpeed: 520,
+      accelPerSec: 3.5,
+      spawnScale: 1.0,
+      dayNightCycleDist: 280,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #dff9fb 0%, #2f3640 50%, #ff9f43 100%)",
+      description: "Esquiva bolas de nieve, junta peces y lánzaselos (X) hasta llenarlo de comida.",
+      day: {
+        skyTop: "#74b9ff",
+        skyBottom: "#dff9fb",
+        cloud: "#ffffff",
+        farBg: "#5794cf",
+        nearBg: "#3d72a6",
+        groundTop: "#ffffff",
+        groundFill: "#cbe7ff",
+        groundDetail: "#70a1ff",
+        sunMoon: "#ffeaa7"
+      },
+      night: {
+        skyTop: "#071124",
+        skyBottom: "#14294a",
+        cloud: "#234375",
+        farBg: "#0c1b36",
+        nearBg: "#13294d",
+        groundTop: "#81ecec",
+        groundFill: "#132036",
+        groundDetail: "#48dbfb",
+        sunMoon: "#dff9fb"
+      },
+      obstacles: []
+    },
+    // --- ZONA OCULTA 7: SELVA (N30-N33) ---
+    {
+      id: "jungle1",
+      number: 30,
+      mode: "jungle",
+      isSecret: true,
+      thumbSprite: "jaguar1",
+      name: "Selva Esmeralda",
+      shortName: "N30: SELVA I",
+      difficulty: "Difícil",
+      targetDistance: 1050,
+      baseSpeed: 375,
+      maxSpeed: 640,
+      accelPerSec: 7.5,
+      spawnScale: 0.9,
+      dayNightCycleDist: 260,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #2ed573 0%, #168246 55%, #0b3b1e 100%)",
+      description: "Cuélgate de las lianas para cruzar pantanos y esquiva ruinas, jaguares, tucanes e insectos.",
+      day: {
+        skyTop: "#55efc4",
+        skyBottom: "#c7ecee",
+        cloud: "#ffffff",
+        farBg: "#218c48",
+        nearBg: "#14592d",
+        groundTop: "#2ed573",
+        groundFill: "#4b3828",
+        groundDetail: "#708c58",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#061c10",
+        skyBottom: "#103b22",
+        cloud: "#1c5c36",
+        farBg: "#0b2918",
+        nearBg: "#113d24",
+        groundTop: "#7bed9f",
+        groundFill: "#141f18",
+        groundDetail: "#2ed573",
+        sunMoon: "#ffeaa7"
+      },
+      obstacles: [
+        { type: "ruins", weight: 22 },
+        { type: "jaguar", weight: 26 },
+        { type: "toucan", weight: 26 },
+        { type: "jungleBug", weight: 26 }
+      ]
+    },
+    {
+      id: "jungle2",
+      number: 31,
+      mode: "jungle",
+      isSecret: true,
+      thumbSprite: "toucan1",
+      name: "Ruinas Olvidadas",
+      shortName: "N31: SELVA II",
+      difficulty: "Muy Difícil",
+      targetDistance: 1250,
+      baseSpeed: 410,
+      maxSpeed: 700,
+      accelPerSec: 8.5,
+      spawnScale: 0.78,
+      dayNightCycleDist: 240,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #a3cb38 0%, #218c48 55%, #7d5a38 100%)",
+      description: "Pantanos profundos, ruinas antiguas y bandadas de tucanes e insectos.",
+      day: {
+        skyTop: "#81ecec",
+        skyBottom: "#badc58",
+        cloud: "#fffbe6",
+        farBg: "#337538",
+        nearBg: "#1e4d23",
+        groundTop: "#a3cb38",
+        groundFill: "#5c4530",
+        groundDetail: "#8f6b47",
+        sunMoon: "#ff9f43"
+      },
+      night: {
+        skyTop: "#05140c",
+        skyBottom: "#0e2e1d",
+        cloud: "#1b4d32",
+        farBg: "#092114",
+        nearBg: "#103320",
+        groundTop: "#a3cb38",
+        groundFill: "#141c16",
+        groundDetail: "#2ed573",
+        sunMoon: "#dfe6e9"
+      },
+      obstacles: [
+        { type: "ruins", weight: 24 },
+        { type: "jaguar", weight: 26 },
+        { type: "toucan", weight: 25 },
+        { type: "jungleBug", weight: 25 }
+      ]
+    },
+    {
+      id: "jungle3",
+      number: 32,
+      mode: "jungle",
+      isSecret: true,
+      thumbSprite: "ruins",
+      name: "Templo Venenoso",
+      shortName: "N32: SELVA III",
+      difficulty: "Experto",
+      targetDistance: 1450,
+      baseSpeed: 445,
+      maxSpeed: 760,
+      accelPerSec: 9.5,
+      spawnScale: 0.68,
+      dayNightCycleDist: 210,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #168246 0%, #6c5ce7 55%, #ff9f43 100%)",
+      description: "Último tramo de la selva antes de la guarida de la Serpiente Gigante.",
+      day: {
+        skyTop: "#f8c291",
+        skyBottom: "#78e08f",
+        cloud: "#ffffff",
+        farBg: "#218c74",
+        nearBg: "#145949",
+        groundTop: "#38ada9",
+        groundFill: "#4a3728",
+        groundDetail: "#78e08f",
+        sunMoon: "#e55039"
+      },
+      night: {
+        skyTop: "#040f0b",
+        skyBottom: "#0c2920",
+        cloud: "#184739",
+        farBg: "#081c15",
+        nearBg: "#0f2e24",
+        groundTop: "#2ed573",
+        groundFill: "#111a16",
+        groundDetail: "#a3cb38",
+        sunMoon: "#ff6b81"
+      },
+      obstacles: [
+        { type: "ruins", weight: 22 },
+        { type: "jaguar", weight: 28 },
+        { type: "toucan", weight: 25 },
+        { type: "jungleBug", weight: 25 }
+      ]
+    },
+    {
+      id: "jungleBoss",
+      number: 33,
+      mode: "jungleBoss",
+      isSecret: true,
+      thumbSprite: "snake1",
+      name: "La Serpiente Ácida",
+      shortName: "N33: JEFE SERPIENTE",
+      difficulty: "Jefe Secreto",
+      targetDistance: null,
+      bossMaxHp: 8,
+      baseSpeed: 390,
+      maxSpeed: 540,
+      accelPerSec: 3.5,
+      spawnScale: 1.0,
+      dayNightCycleDist: 260,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #2ed573 0%, #a3cb38 50%, #9b59b6 100%)",
+      description: "Evita el veneno ácido, recoge bolas de lodo y lánzalas (X) para derrotar a la Serpiente.",
+      day: {
+        skyTop: "#1e4d2b",
+        skyBottom: "#78e08f",
+        cloud: "#c7ecee",
+        farBg: "#14381e",
+        nearBg: "#0c2413",
+        groundTop: "#a3cb38",
+        groundFill: "#3d2c1e",
+        groundDetail: "#2ed573",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#050f08",
+        skyBottom: "#102b18",
+        cloud: "#1b4528",
+        farBg: "#081a0d",
+        nearBg: "#0e2615",
+        groundTop: "#a3cb38",
+        groundFill: "#121713",
+        groundDetail: "#9b59b6",
+        sunMoon: "#a3cb38"
+      },
+      obstacles: []
     }
   ];
 
@@ -1763,6 +2149,102 @@
         { type: "alienFloater", weight: 37 },
         { type: "spaceRock", weight: 28 }
       ]
+    },
+    {
+      id: "endless_snow",
+      number: 7,
+      category: "endless",
+      mode: "snow",
+      isSecret: true,
+      thumbSprite: "polarBear1",
+      name: "Infinito Nieve",
+      shortName: "∞ NIEVE",
+      difficulty: "Arcade ∞",
+      targetDistance: null,
+      baseSpeed: 400,
+      maxSpeed: 810,
+      accelPerSec: 8.5,
+      spawnScale: 0.74,
+      dayNightCycleDist: 240,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #dff9fb 0%, #74b9ff 55%, #0984e3 100%)",
+      description: "Ártico infinito en trineo con husky: rompe hielo, esquiva huecos, osos, focas y águilas.",
+      day: {
+        skyTop: "#74b9ff",
+        skyBottom: "#dff9fb",
+        cloud: "#ffffff",
+        farBg: "#5f9fd9",
+        nearBg: "#487eb0",
+        groundTop: "#ffffff",
+        groundFill: "#cfe9ff",
+        groundDetail: "#70a1ff",
+        sunMoon: "#ffeaa7"
+      },
+      night: {
+        skyTop: "#061021",
+        skyBottom: "#122645",
+        cloud: "#213f6e",
+        farBg: "#0b1a33",
+        nearBg: "#13294d",
+        groundTop: "#48dbfb",
+        groundFill: "#132036",
+        groundDetail: "#70a1ff",
+        sunMoon: "#dff9fb"
+      },
+      obstacles: [
+        { type: "iceBlock", weight: 25 },
+        { type: "polarBear", weight: 25 },
+        { type: "seal", weight: 25 },
+        { type: "eagle", weight: 25 }
+      ]
+    },
+    {
+      id: "endless_jungle",
+      number: 8,
+      category: "endless",
+      mode: "jungle",
+      isSecret: true,
+      thumbSprite: "jaguar1",
+      name: "Infinito Selva",
+      shortName: "∞ SELVA",
+      difficulty: "Arcade ∞",
+      targetDistance: null,
+      baseSpeed: 400,
+      maxSpeed: 810,
+      accelPerSec: 8.5,
+      spawnScale: 0.74,
+      dayNightCycleDist: 240,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #2ed573 0%, #168246 55%, #0b3b1e 100%)",
+      description: "Selva infinita: lianas sobre pantanos, ruinas, jaguares, tucanes e insectos.",
+      day: {
+        skyTop: "#55efc4",
+        skyBottom: "#c7ecee",
+        cloud: "#ffffff",
+        farBg: "#218c48",
+        nearBg: "#14592d",
+        groundTop: "#2ed573",
+        groundFill: "#4b3828",
+        groundDetail: "#708c58",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#05140c",
+        skyBottom: "#0e2e1d",
+        cloud: "#1b4d32",
+        farBg: "#092114",
+        nearBg: "#103320",
+        groundTop: "#a3cb38",
+        groundFill: "#141c16",
+        groundDetail: "#2ed573",
+        sunMoon: "#ffeaa7"
+      },
+      obstacles: [
+        { type: "ruins", weight: 22 },
+        { type: "jaguar", weight: 26 },
+        { type: "toucan", weight: 26 },
+        { type: "jungleBug", weight: 26 }
+      ]
     }
   ];
 
@@ -1779,6 +2261,10 @@
         ? "spooky"
         : m === "space" || m === "spaceBoss"
         ? "space"
+        : m === "snow" || m === "snowBoss"
+        ? "snow"
+        : m === "jungle" || m === "jungleBoss"
+        ? "jungle"
         : "city";
     if (!lvl.shortName.startsWith(`N${lvl.number}:`)) {
       const colonIdx = lvl.shortName.indexOf(":");
@@ -1800,10 +2286,16 @@
     return STORY_LEVELS[idx + 1];
   }
 
+  function isSecretZoneUnlocked() {
+    if (RC.Storage && RC.Storage.isDevUnlockAll()) return true;
+    return Boolean(RC.Storage && RC.Storage.getLevelRecord("spaceBoss").cleared);
+  }
+
   function isLevelUnlocked(id) {
     if (RC.Storage && RC.Storage.isDevUnlockAll()) return true;
     const lvl = LEVELS.find((l) => l.id === id);
     if (!lvl) return false;
+    if (lvl.isSecret && !isSecretZoneUnlocked()) return false;
     if (lvl.category === "endless") return true;
     const idx = STORY_LEVELS.findIndex((l) => l.id === id);
     if (idx <= 0) return true;
@@ -1843,6 +2335,7 @@
     getLevelById,
     getNextLevel,
     isLevelUnlocked,
+    isSecretZoneUnlocked,
     getCatSkinById,
     isCatUnlocked,
     areAllBossesCleared,

@@ -49,6 +49,7 @@
     const btnDevUnlock = document.getElementById("btn-dev-unlock");
     const btnDevIntro = document.getElementById("btn-dev-intro");
     const btnDevEnding = document.getElementById("btn-dev-ending");
+    const btnDevSecretEnding = document.getElementById("btn-dev-secret-ending");
     const btnInsanityMode = document.getElementById("btn-insanity-mode");
     const btnInsanityLevels = document.getElementById("btn-insanity-levels");
     const btnBackMode = document.getElementById("btn-back-mode");
@@ -156,6 +157,16 @@
         endingBanner.classList.remove("hidden");
         game.startEnding(selectedCatId, true);
       },
+      onSecretEndingStart: (summary) => {
+        pendingEndingSummary = summary;
+        hud.classList.add("hidden");
+        btnPause.classList.add("hidden");
+        btnMenuTop.classList.add("hidden");
+        applyControlModeUI(false);
+        hideAllOverlays();
+        endingBanner.classList.remove("hidden");
+        game.startSecretEnding(selectedCatId, true);
+      },
       onIntroEnd: finishIntro,
       onPauseChange: (paused) => {
         screenPause.classList.toggle("hidden", !paused);
@@ -179,6 +190,7 @@
       btnDevUnlock.classList.toggle("btn-dev-active", active);
       btnDevIntro.classList.toggle("hidden", !active);
       btnDevEnding.classList.toggle("hidden", !active);
+      if (btnDevSecretEnding) btnDevSecretEnding.classList.toggle("hidden", !active);
       refreshInsanityBtns();
     }
 
@@ -247,6 +259,21 @@
         ctx.fillRect(0, h - 8, w, 8);
         const spr = RC.Sprites.getWorldSprite("mothership1", 2);
         if (spr) ctx.drawImage(spr, w - 42, 8, 36, 20);
+      } else if (zoneId === "snow") {
+        ctx.fillStyle = "#74b9ff";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, h - 10, w, 10);
+        const spr = RC.Sprites.getWorldSprite("penguin1", 2);
+        if (spr) ctx.drawImage(spr, w - 34, 6, 28, 26);
+      } else if (zoneId === "jungle") {
+        ctx.fillStyle = "#168246";
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#0b3b1e";
+        ctx.fillRect(14, 0, 4, 28);
+        ctx.fillRect(0, h - 8, w, 8);
+        const spr = RC.Sprites.getWorldSprite("snake1", 2);
+        if (spr) ctx.drawImage(spr, w - 38, 10, 30, 22);
       }
     }
 
@@ -293,7 +320,9 @@
             lvl.mode === "swimBoss" ||
             lvl.mode === "planeBoss" ||
             lvl.mode === "batBoss" ||
-            lvl.mode === "spaceBoss"
+            lvl.mode === "spaceBoss" ||
+            lvl.mode === "snowBoss" ||
+            lvl.mode === "jungleBoss"
           ? `Jefe: ${lvl.bossMaxHp} HP`
           : "Sin meta (∞)";
         const statusTag = !unlocked
@@ -421,12 +450,22 @@
       refreshModeBadges();
 
       const isStory = activeCategory === "story";
-      const list = isStory ? RC.Levels.STORY_LIST : RC.Levels.ENDLESS_LIST;
+      const secretOn = RC.Levels.isSecretZoneUnlocked();
+      const list = isStory
+        ? RC.Levels.STORY_LIST
+        : RC.Levels.ENDLESS_LIST.filter((l) => !l.isSecret || secretOn);
       levelsEyebrow.textContent = isStory ? "MODO HISTORIA" : "MODO ARCADE INFINITO";
-      levelsTitle.textContent = isStory ? "5 ZONAS · 25 NIVELES" : "ELIGE TU ESCENARIO INFINITO";
+      levelsTitle.textContent = isStory
+        ? secretOn
+          ? "7 ZONAS · 33 NIVELES"
+          : "5 ZONAS · 25 NIVELES"
+        : "ELIGE TU ESCENARIO INFINITO";
       btnDevUnlock.classList.toggle("hidden", !isStory);
       btnDevIntro.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
       btnDevEnding.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
+      if (btnDevSecretEnding) {
+        btnDevSecretEnding.classList.toggle("hidden", !isStory || !RC.Storage.isDevUnlockAll());
+      }
 
       if (!list.some((l) => l.id === selectedLevelId)) {
         selectedLevelId = list[0].id;
@@ -438,6 +477,7 @@
       if (isStory) {
         levelGrid.className = "zones-container";
         RC.Levels.STORY_ZONES.forEach((zone) => {
+          if (zone.isSecret && !secretOn) return;
           const zoneGroup = document.createElement("div");
           zoneGroup.className = "zone-group";
 
@@ -609,6 +649,10 @@
             ? "✈ AVIÓN JEFE"
             : data.level.mode === "batBoss"
             ? "💀 ESQUELETO"
+            : data.level.mode === "snowBoss"
+            ? "🐧 PINGÜINO"
+            : data.level.mode === "jungleBoss"
+            ? "🐍 SERPIENTE"
             : data.level.mode === "spaceBoss"
             ? "🛸 NAVE NODRIZA"
             : "🐔 GALLINA";
@@ -629,6 +673,9 @@
 
       // Active power-up pills
       let pills = "";
+      if (data.snowBoostSec > 0) pills += `<span class="powerup-pill shield">❄ ${data.snowBoostSec}s</span>`;
+      if (data.bossFishAmmo > 0) pills += `<span class="powerup-pill milk">🐟 PECES x${data.bossFishAmmo}</span>`;
+      if (data.mudAmmo > 0) pills += `<span class="powerup-pill milk">🟤 LODO x${data.mudAmmo}</span>`;
       if (data.lightningCharge != null) pills += `<span class="powerup-pill shield">⚡ RAYO ${data.lightningCharge}/5</span>`;
       if (data.laserLevel > 1) pills += `<span class="powerup-pill shield">⚡ LÁSER N${data.laserLevel}</span>`;
       if (data.missiles > 0) pills += `<span class="powerup-pill milk">🚀 MISIL x${data.missiles}</span>`;
@@ -809,6 +856,20 @@
       endingBanner.classList.remove("hidden");
       game.startEnding(selectedCatId, false);
     });
+
+    if (btnDevSecretEnding) {
+      btnDevSecretEnding.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        pendingEndingSummary = null;
+        hud.classList.add("hidden");
+        btnPause.classList.add("hidden");
+        btnMenuTop.classList.add("hidden");
+        applyControlModeUI(false);
+        hideAllOverlays();
+        endingBanner.classList.remove("hidden");
+        game.startSecretEnding(selectedCatId, false);
+      });
+    }
 
     btnExitEnding.addEventListener("click", () => {
       RC.Audio.uiClick();

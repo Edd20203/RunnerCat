@@ -1342,6 +1342,348 @@
         "DMMYMMMPPMMMYMMD",
         ".DDDDDDDDDDDDDD."
       ]
+    },
+    husky1: {
+      palette: { D: "#1e272e", G: "#747d8c", W: "#ffffff", C: "#48dbfb", R: "#ff4757" },
+      matrix: [
+        "........DD..DD..",
+        ".......DGGDDGGD.",
+        "..DD...DGGGGGGD.",
+        ".DGGD..DGWCWCGGD",
+        "DGGGDDDDGGGGWWWD",
+        ".DGGGGGGGGGGGGD.",
+        "..DGGGGWWWWWGGD.",
+        "..DGGD.....DGGD.",
+        ".DGGD.......DGGD",
+        ".DDD.........DDD"
+      ]
+    },
+    husky2: {
+      palette: { D: "#1e272e", G: "#747d8c", W: "#ffffff", C: "#48dbfb", R: "#ff4757" },
+      matrix: [
+        "........DD..DD..",
+        ".......DGGDDGGD.",
+        ".......DGGGGGGD.",
+        "..DD...DGWCWCGGD",
+        ".DGGDDDDGGGGWWWD",
+        ".DGGGGGGGGGGGGD.",
+        "..DGGGGWWWWWGGD.",
+        "...DGGD...DGGD..",
+        "....DGGD.DGGD...",
+        "....DDD...DDD..."
+      ]
+    },
+    sled: {
+      palette: { D: "#3d220c", B: "#b87435", L: "#e6a65c", M: "#dfe4ea" },
+      matrix: [
+        "DD..............",
+        "DBDDDDDDDDDDDD..",
+        ".DBBBBBBBBBBBBD.",
+        "..DDDDDDDDDDDDD.",
+        "...DM........DM.",
+        "MMMMMMMMMMMMMMMM"
+      ]
+    },
+    iceBlock: {
+      palette: { D: "#0984e3", C: "#74b9ff", L: "#dff9fb", W: "#ffffff" },
+      matrix: [
+        "DDDDDDDDDDDD",
+        "DWWWWLLLLLLD",
+        "DWCCCCCCCCCD",
+        "DLCCWWCCCCCD",
+        "DLCCCCCCCCCD",
+        "DCCCCLLCCCCD",
+        "DCCCCCCCCCCD",
+        "DDDDDDDDDDDD"
+      ]
+    },
+    snowBoost: {
+      palette: { D: "#0a3d62", C: "#48dbfb", Y: "#ffd32a", W: "#ffffff" },
+      matrix: [
+        "....DDDD....",
+        "..DDYYYYDD..",
+        ".DYWWWWWWYD.",
+        "DYWCCCCCCWYD",
+        "DYWCWWWWCWYD",
+        "DYWCCCCCCWYD",
+        ".DYWWWWWWYD.",
+        "..DDYYYYDD..",
+        "....DDDD...."
+      ]
+    },
+    polarBear1: {
+      palette: { D: "#2f3640", W: "#ffffff", S: "#dfe4ea", E: "#1e272e" },
+      matrix: [
+        "..DD....DD....",
+        ".DWWDDDDWWD...",
+        "DWWWWWWWWWWWD.",
+        "DWWWEWWWWWWWD.",
+        "DWWWWWWWWWWWD.",
+        "DWWWSSSSSSWWD.",
+        ".DWWWWWWWWWD..",
+        ".DWW.DWW.DWW..",
+        ".DDD.DDD.DDD.."
+      ]
+    },
+    polarBear2: {
+      palette: { D: "#2f3640", W: "#ffffff", S: "#dfe4ea", E: "#1e272e" },
+      matrix: [
+        "..DD....DD....",
+        ".DWWDDDDWWD...",
+        "DWWWWWWWWWWWD.",
+        "DWWWEWWWWWWWD.",
+        "DWWWWWWWWWWWD.",
+        "DWWWSSSSSSWWD.",
+        ".DWWWWWWWWWD..",
+        "..DWW.DWW.DW..",
+        "..DDD.DDD.DD.."
+      ]
+    },
+    seal1: {
+      palette: { D: "#1e272e", G: "#a4b0be", L: "#dfe4ea", E: "#1e272e" },
+      matrix: [
+        "....DDDDD.....",
+        "..DDGGGGGD....",
+        ".DGEGGGGGGDD..",
+        "DGGGGGGGGGGGD.",
+        "DGGLLLLLLLLGGD",
+        ".DDDDDDDDDDDD."
+      ]
+    },
+    seal2: {
+      palette: { D: "#1e272e", G: "#a4b0be", L: "#dfe4ea", E: "#1e272e" },
+      matrix: [
+        "....DDDDD.....",
+        "..DDGGGGGD....",
+        ".DGEGGGGGGDD..",
+        "DGGGGGGGGGGGD.",
+        ".DGGLLLLLLLGGD",
+        "..DDDDDDDDDDD."
+      ]
+    },
+    eagle1: {
+      palette: { D: "#2c1d18", B: "#8c5327", W: "#ffffff", Y: "#ffd32a" },
+      matrix: [
+        ".....DDDD.....",
+        "YYDDWWWWWD....",
+        "..DWWBBBBDDD..",
+        "...DDBBBBBLLD.",
+        ".....DBBBBBD..",
+        "......DDDD...."
+      ]
+    },
+    eagle2: {
+      palette: { D: "#2c1d18", B: "#8c5327", W: "#ffffff", Y: "#ffd32a" },
+      matrix: [
+        "..DD..........",
+        "YYDBBWWWWDD...",
+        "..DWWBBBBBBDD.",
+        "....DDBBBBBBD.",
+        "......DDDDDD..",
+        ".............."
+      ]
+    },
+    snowball: {
+      palette: { D: "#74b9ff", W: "#ffffff", S: "#dff9fb" },
+      matrix: [
+        "..DDDD..",
+        ".DWWWWD.",
+        "DWWWWWSD",
+        "DWWSSSSD",
+        ".DSSSSSD",
+        "..DDDD.."
+      ]
+    },
+    penguin1: {
+      palette: { D: "#11141c", B: "#2f3640", W: "#ffffff", Y: "#ffa502", E: "#1e272e" },
+      matrix: [
+        ".....DDDDDD.....",
+        "...DDBBBBBBD....",
+        "..DBBWWWWWWBBD..",
+        ".YYBBWEWWWEWBD..",
+        "..DBBWWWWWWBBD..",
+        "..DBBWWWWWWBBD..",
+        ".DBBBWWWWWWBBBD.",
+        ".DBBBWWWWWWBBBD.",
+        "..DBBWWWWWWBBD..",
+        "...DDBBBBBBDD...",
+        "....YY....YY...."
+      ]
+    },
+    penguin2: {
+      palette: { D: "#11141c", B: "#2f3640", W: "#ffffff", Y: "#ffa502", E: "#1e272e" },
+      matrix: [
+        ".....DDDDDD.....",
+        "...DDBBBBBBD....",
+        "..DBBWWWWWWBBD..",
+        ".YYBBWEWWWEWBD..",
+        "..DBBWWWWWWBBD..",
+        ".DBBBWWWWWWBBBD.",
+        "DBBBBWWWWWWBBBBD",
+        ".DBBBWWWWWWBBBD.",
+        "..DBBWWWWWWBBD..",
+        "...DDBBBBBBDD...",
+        "...YY......YY..."
+      ]
+    },
+    penguinHurt: {
+      palette: { D: "#4a0814", B: "#ff6b81", W: "#ffd32a", Y: "#ffffff", E: "#ff4757" },
+      matrix: [
+        ".....DDDDDD.....",
+        "...DDBBBBBBD....",
+        "..DBBWWWWWWBBD..",
+        ".YYBBWEWWWEWBD..",
+        "..DBBWWWWWWBBD..",
+        "..DBBWWWWWWBBD..",
+        ".DBBBWWWWWWBBBD.",
+        ".DBBBWWWWWWBBBD.",
+        "..DBBWWWWWWBBD..",
+        "...DDBBBBBBDD...",
+        "....YY....YY...."
+      ]
+    },
+    ruins: {
+      palette: { D: "#2f3640", M: "#7f8c8d", L: "#bdc3c7", G: "#2ed573" },
+      matrix: [
+        "..DDDD..DDDD..",
+        ".DMMMMDDGGGGD.",
+        ".DMLMMMMMGGGD.",
+        "DMMMMMMMMMMMMD",
+        "DMMGGMMMMMLMMD",
+        "DMMMMMMMMMMMMD",
+        "DDDDDDDDDDDDDD"
+      ]
+    },
+    jaguar1: {
+      palette: { D: "#2c1d18", Y: "#f39c12", L: "#ffeaa7", E: "#2ed573" },
+      matrix: [
+        ".........DD..DD.",
+        ".DD.....DYYDDYYD",
+        "D..D...DYYYYYYYD",
+        ".D..DDDDYYEYEYYD",
+        "..DDYYYYYYYYYYLD",
+        "..DYYDYYDYYDYYD.",
+        "..DYYDYYDYYDYY..",
+        ".DYY......DYY...",
+        ".DD........DD..."
+      ]
+    },
+    jaguar2: {
+      palette: { D: "#2c1d18", Y: "#f39c12", L: "#ffeaa7", E: "#2ed573" },
+      matrix: [
+        ".........DD..DD.",
+        "........DYYDDYYD",
+        "..DD....DYYYYYYD",
+        ".D..DDDDYYEYEYYD",
+        "..DDYYYYYYYYYYLD",
+        "..DYYDYYDYYDYYD.",
+        "...DYYDYYDYYDY..",
+        "...DYY....DYY...",
+        "...DD......DD..."
+      ]
+    },
+    toucan1: {
+      palette: { D: "#11141c", B: "#2f3640", Y: "#ffd32a", O: "#ff7f50", W: "#ffffff" },
+      matrix: [
+        ".....DDDD...",
+        "OOOYYBBBBBD.",
+        "YYYWWBBBBBD.",
+        "...DDBBBBBBD",
+        ".....DDDDDD."
+      ]
+    },
+    toucan2: {
+      palette: { D: "#11141c", B: "#2f3640", Y: "#ffd32a", O: "#ff7f50", W: "#ffffff" },
+      matrix: [
+        "..DD........",
+        "OOOYYBBBBDD.",
+        "YYYWWBBBBBD.",
+        "....DDBBBBD.",
+        "......DDDD.."
+      ]
+    },
+    jungleBug1: {
+      palette: { D: "#140c1c", P: "#9b59b6", G: "#2ed573", W: "#dff9fb" },
+      matrix: [
+        "..WW....WW..",
+        ".DWWDDDDWWD.",
+        "DGGGGPPGGGGD",
+        ".DDDDDDDDDD."
+      ]
+    },
+    jungleBug2: {
+      palette: { D: "#140c1c", P: "#9b59b6", G: "#2ed573", W: "#dff9fb" },
+      matrix: [
+        ".WW......WW.",
+        "..DWDDDDWD..",
+        "DGGGGPPGGGGD",
+        ".DDDDDDDDDD."
+      ]
+    },
+    mudBall: {
+      palette: { D: "#2d1a0b", B: "#6e472b", L: "#9e6b43" },
+      matrix: [
+        "..DDDD..",
+        ".DBLLBD.",
+        "DBBBBBBD",
+        "DBBBLBBD",
+        ".DBBBBD.",
+        "..DDDD.."
+      ]
+    },
+    venom: {
+      palette: { D: "#143d18", G: "#2ed573", L: "#a3cb38", P: "#9b59b6" },
+      matrix: [
+        "..DDDD..",
+        ".DGPPGD.",
+        "DGLLLLGD",
+        ".DDDDDD."
+      ]
+    },
+    snake1: {
+      palette: { D: "#0b2e16", G: "#2ed573", L: "#a3cb38", E: "#ff4757", Y: "#ffd32a", R: "#ff4757" },
+      matrix: [
+        "....DDDDDD......",
+        "..DDGGGGGGDD....",
+        ".DGEEGGGGGGGD...",
+        "RRDGGGGGGGGGD...",
+        "..DDDGGGGGGDD...",
+        "....DGGGGGGGD...",
+        "...DGGLLLLGGGD..",
+        "..DGGGDDDDGGGGD.",
+        "..DGGGD..DGGGGGD",
+        "...DDDDDDDDDDDD."
+      ]
+    },
+    snake2: {
+      palette: { D: "#0b2e16", G: "#2ed573", L: "#a3cb38", E: "#ff4757", Y: "#ffd32a", R: "#ff4757" },
+      matrix: [
+        "....DDDDDD......",
+        "..DDGGGGGGDD....",
+        ".DGEEGGGGGGGD...",
+        ".RDGGGGGGGGGD...",
+        "..DDDGGGGGGDD...",
+        "...DGGGGGGGGD...",
+        "..DGGGLLLLGGGD..",
+        ".DGGGGDDDDGGGGD.",
+        ".DGGGGD..DGGGGGD",
+        "..DDDDDDDDDDDDD."
+      ]
+    },
+    snakeHurt: {
+      palette: { D: "#4a0814", G: "#ff4757", L: "#ffd32a", E: "#ffffff", Y: "#ffd32a", R: "#ffffff" },
+      matrix: [
+        "....DDDDDD......",
+        "..DDGGGGGGDD....",
+        ".DGEEGGGGGGGD...",
+        "RRDGGGGGGGGGD...",
+        "..DDDGGGGGGDD...",
+        "....DGGGGGGGD...",
+        "...DGGLLLLGGGD..",
+        "..DGGGDDDDGGGGD.",
+        "..DGGGD..DGGGGGD",
+        "...DDDDDDDDDDDD."
+      ]
     }
   };
 
