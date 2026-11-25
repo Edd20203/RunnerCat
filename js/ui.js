@@ -671,10 +671,12 @@
     const btnBackSpecialModes = document.getElementById("btn-back-special-modes");
 
     function renderSpecialModes() {
-      const unlocked = RC.Levels.isSpecialModesUnlocked();
+      const unlocked = RC.Levels.isSpecialModesUnlocked() || RC.Storage.isDevUnlockAll();
       if (btnModeSpecial) {
         btnModeSpecial.classList.toggle("locked", !unlocked);
         btnModeSpecial.disabled = !unlocked;
+        if (unlocked) btnModeSpecial.removeAttribute("disabled");
+        else btnModeSpecial.setAttribute("disabled", "disabled");
       }
       if (specialModeBadge) {
         specialModeBadge.textContent = unlocked ? "3 MODOS" : "🔒 BLOQUEADO";
@@ -724,7 +726,7 @@
 
     if (btnModeSpecial && screenSpecialModes) {
       btnModeSpecial.addEventListener("click", () => {
-        if (!RC.Levels.isSpecialModesUnlocked()) return;
+        if (!RC.Levels.isSpecialModesUnlocked() && !RC.Storage.isDevUnlockAll()) return;
         RC.Audio.uiClick();
         hideAllOverlays();
         renderSpecialModes();

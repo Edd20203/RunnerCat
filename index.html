@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#13131d" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -11,6 +13,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <!-- Mobile Portrait Rotate Prompt -->
   <div id="rotate-overlay" class="rotate-overlay">
@@ -31,7 +34,8 @@
         <div class="global-hi" title="Mejor puntaje global">
           HI <span id="global-hi-score">00000</span>
         </div>
-        <button id="btn-install-pwa" class="icon-btn btn-install-pwa hidden" title="Instalar app para jugar sin conexión" type="button">
+        <button id="btn-install-pwa" class="icon-btn btn-install-pwa hidden"
+          title="Instalar app para jugar sin conexión" type="button">
           📲 INSTALAR
         </button>
         <button id="btn-sound" class="icon-btn" title="Activar/Desactivar sonido" aria-label="Sonido">
@@ -114,12 +118,15 @@
       <!-- Gesture Controls Overlay (active during gameplay/demo when controlMode === 'gestures') -->
       <div id="gesture-controls" class="gesture-controls hidden">
         <div id="gesture-left-zone" class="gesture-left-zone">
-          <span class="gesture-hint">👆 TOCA: SALTAR<br/>👆👆 DOBLE TOQUE: DOBLE SALTO</span>
+          <span class="gesture-hint">👆 TOCA: SALTAR<br />👆👆 DOBLE TOQUE: DOBLE SALTO</span>
         </div>
         <div class="gesture-right-zone">
-          <button id="gesture-slow-btn" class="gesture-btn gesture-slow-btn gesture-btn-draggable" type="button">⏱ LENTO</button>
-          <button id="gesture-duck-btn" class="gesture-btn gesture-duck-btn gesture-btn-draggable" type="button">⬇ AGACHAR</button>
-          <button id="gesture-fire-btn" class="gesture-btn gesture-fire-btn gesture-btn-draggable" type="button">🐾 ARAÑAR</button>
+          <button id="gesture-slow-btn" class="gesture-btn gesture-slow-btn gesture-btn-draggable" type="button">⏱
+            LENTO</button>
+          <button id="gesture-duck-btn" class="gesture-btn gesture-duck-btn gesture-btn-draggable" type="button">⬇
+            AGACHAR</button>
+          <button id="gesture-fire-btn" class="gesture-btn gesture-fire-btn gesture-btn-draggable" type="button">🐾
+            ARAÑAR</button>
         </div>
       </div>
 
@@ -128,7 +135,8 @@
         <div id="joystick-base" class="joystick-base">
           <div id="joystick-knob" class="joystick-knob"></div>
         </div>
-        <button id="joystick-fire-btn" class="gesture-btn gesture-fire-btn joystick-fire-btn" type="button">🐾 ARAÑAR</button>
+        <button id="joystick-fire-btn" class="gesture-btn gesture-fire-btn joystick-fire-btn" type="button">🐾
+          ARAÑAR</button>
       </div>
 
       <!-- Zone Tutorial Banner -->
@@ -203,7 +211,8 @@
               </button>
             </div>
             <p class="title-credits-footer">
-              <strong>Creador:</strong> Edgar Torres / Eddge · <strong>Colaboradores:</strong> Fernando Padilla, Yael Zuñiga, Wini · <strong>Testing:</strong> Fernando Padilla, Yael Zuñiga
+              <strong>Creador:</strong> Edgar Torres / Eddge · <strong>Colaboradores:</strong> Fernando Padilla, Yael
+              Zuñiga, Wini · <strong>Testing:</strong> Fernando Padilla, Yael Zuñiga
             </p>
           </div>
         </div>
@@ -239,10 +248,14 @@
           </div>
 
           <div class="mode-footer-bar">
-            <button id="btn-mode-cats" class="pixel-btn btn-secondary btn-sm" type="button">🐱 GATO: <span id="lbl-cur-cat">Tigre</span></button>
-            <button id="btn-mode-controls" class="pixel-btn btn-secondary btn-sm" type="button">🎮 CONTROL: <span id="lbl-cur-ctrl">Botones</span></button>
-            <button id="btn-insanity-mode" class="pixel-btn btn-secondary btn-sm hidden" type="button">🔥 LOCURA: OFF</button>
-            <button id="btn-mode-dev-unlock" class="pixel-btn btn-secondary btn-sm" title="Desbloquear todos los niveles y modos para pruebas" type="button">🔒 DEV: ACTIVAR TODOS</button>
+            <button id="btn-mode-cats" class="pixel-btn btn-secondary btn-sm" type="button">🐱 GATO: <span
+                id="lbl-cur-cat">Tigre</span></button>
+            <button id="btn-mode-controls" class="pixel-btn btn-secondary btn-sm" type="button">🎮 CONTROL: <span
+                id="lbl-cur-ctrl">Botones</span></button>
+            <button id="btn-insanity-mode" class="pixel-btn btn-secondary btn-sm hidden" type="button">🔥 LOCURA:
+              OFF</button>
+            <button id="btn-mode-dev-unlock" class="pixel-btn btn-secondary btn-sm"
+              title="Desbloquear todos los niveles y modos para pruebas" type="button">🔒 DEV: ACTIVAR TODOS</button>
           </div>
         </div>
       </section>
@@ -270,19 +283,24 @@
               <h2 id="levels-title">SELECCIONA TU NIVEL</h2>
             </div>
             <div class="menu-header-actions">
-              <button id="btn-insanity-levels" class="pixel-btn btn-secondary btn-sm hidden" title="Aumenta velocidad, spawns y vida de jefes" type="button">
+              <button id="btn-insanity-levels" class="pixel-btn btn-secondary btn-sm hidden"
+                title="Aumenta velocidad, spawns y vida de jefes" type="button">
                 🔥 LOCURA: OFF
               </button>
-              <button id="btn-dev-intro" class="pixel-btn btn-accent btn-sm hidden" title="Probar animación de inicio" type="button">
+              <button id="btn-dev-intro" class="pixel-btn btn-accent btn-sm hidden" title="Probar animación de inicio"
+                type="button">
                 🎬 DEV: VER INTRO
               </button>
-              <button id="btn-dev-ending" class="pixel-btn btn-accent btn-sm hidden" title="Probar animación del final" type="button">
+              <button id="btn-dev-ending" class="pixel-btn btn-accent btn-sm hidden" title="Probar animación del final"
+                type="button">
                 🎬 DEV: VER FINAL
               </button>
-              <button id="btn-dev-secret-ending" class="pixel-btn btn-accent btn-sm hidden" title="Probar final secreto" type="button">
+              <button id="btn-dev-secret-ending" class="pixel-btn btn-accent btn-sm hidden" title="Probar final secreto"
+                type="button">
                 👑 DEV: FINAL SECRETO
               </button>
-              <button id="btn-dev-unlock" class="pixel-btn btn-secondary btn-sm" title="Desbloquear todos los niveles para pruebas" type="button">
+              <button id="btn-dev-unlock" class="pixel-btn btn-secondary btn-sm"
+                title="Desbloquear todos los niveles para pruebas" type="button">
                 🔒 DEV: ACTIVAR TODOS
               </button>
               <button id="btn-back-mode" class="pixel-btn btn-ghost btn-sm" type="button">⬅ MODOS</button>
@@ -330,7 +348,8 @@
               <h2>🎨 PERSONALIZAR GATO</h2>
             </div>
             <div class="menu-header-actions">
-              <button id="btn-use-custom-cat" class="pixel-btn btn-primary btn-sm" type="button">✓ USAR ESTE GATO</button>
+              <button id="btn-use-custom-cat" class="pixel-btn btn-primary btn-sm" type="button">✓ USAR ESTE
+                GATO</button>
               <button id="btn-close-customizer" class="pixel-btn btn-ghost btn-sm" type="button">⬅ VOLVER</button>
             </div>
           </div>
@@ -338,7 +357,8 @@
           <div class="customizer-layout">
             <div class="customizer-preview-box">
               <canvas id="custom-preview-canvas" width="64" height="56"></canvas>
-              <input id="custom-cat-name" class="pixel-input" type="text" maxlength="14" placeholder="Nombre del gato" />
+              <input id="custom-cat-name" class="pixel-input" type="text" maxlength="14"
+                placeholder="Nombre del gato" />
             </div>
             <div class="customizer-options">
               <div class="custom-group">
@@ -378,8 +398,10 @@
               <div class="profile-identity">
                 <canvas id="profile-avatar-canvas" width="48" height="42"></canvas>
                 <div class="profile-name-wrap">
-                  <input id="profile-username-input" class="pixel-input" type="text" maxlength="16" placeholder="Tu nombre" />
-                  <button id="btn-save-username" class="pixel-btn btn-secondary btn-sm" type="button">💾 GUARDAR</button>
+                  <input id="profile-username-input" class="pixel-input" type="text" maxlength="16"
+                    placeholder="Tu nombre" />
+                  <button id="btn-save-username" class="pixel-btn btn-secondary btn-sm" type="button">💾
+                    GUARDAR</button>
                 </div>
               </div>
               <div id="profile-stats-grid" class="profile-stats-grid"></div>
@@ -422,7 +444,8 @@
           </div>
 
           <p class="control-tip-banner" style="margin-bottom: 8px;">
-            💡 <strong>Recomendado:</strong> <strong>Botones</strong> en PC · <strong>Toque + Botones</strong> o <strong>Joystick</strong> en móvil.
+            💡 <strong>Recomendado:</strong> <strong>Botones</strong> en PC · <strong>Toque + Botones</strong> o
+            <strong>Joystick</strong> en móvil.
           </p>
 
           <div class="control-modes-grid control-modes-3">
@@ -441,7 +464,8 @@
           </div>
 
           <div class="modal-actions" style="margin-top: 10px;">
-            <button id="btn-open-ctrl-custom" class="pixel-btn btn-secondary" type="button">⚙ PERSONALIZAR POSICIÓN / ORDEN</button>
+            <button id="btn-open-ctrl-custom" class="pixel-btn btn-secondary" type="button">⚙ PERSONALIZAR POSICIÓN /
+              ORDEN</button>
             <button id="btn-start-demo" class="pixel-btn btn-accent" type="button">▶ PROBAR EN DEMO</button>
             <button id="btn-save-controls" class="pixel-btn btn-primary" type="button">✓ GUARDAR</button>
           </div>
@@ -462,22 +486,30 @@
             <div class="meters">
               <div class="meter-row">
                 <span class="meter-label">⏱ LENTO</span>
-                <div class="meter-track"><div class="meter-fill meter-slow" style="width: 85%"></div></div>
+                <div class="meter-track">
+                  <div class="meter-fill meter-slow" style="width: 85%"></div>
+                </div>
               </div>
               <div class="meter-row">
                 <span class="meter-label">🐾 ZARPA</span>
-                <div class="meter-track"><div class="meter-fill meter-claw" style="width: 100%"></div></div>
+                <div class="meter-track">
+                  <div class="meter-fill meter-claw" style="width: 100%"></div>
+                </div>
               </div>
               <div class="meter-row">
                 <span class="meter-label">💨 DASH</span>
-                <div class="meter-track"><div class="meter-fill meter-dash" style="width: 100%"></div></div>
+                <div class="meter-track">
+                  <div class="meter-fill meter-dash" style="width: 100%"></div>
+                </div>
               </div>
             </div>
           </div>
           <div class="hud-center">
             <div class="progress-wrap">
               <div class="progress-label"><span>META</span><span>240 / 600 m</span></div>
-              <div class="progress-track"><div class="progress-fill" style="width: 40%"></div></div>
+              <div class="progress-track">
+                <div class="progress-fill" style="width: 40%"></div>
+              </div>
             </div>
           </div>
           <div class="hud-right">
@@ -502,7 +534,8 @@
 
         <!-- Button Order Panel (Buttons Mode) -->
         <div id="ctrl-order-panel" class="menu-card ctrl-order-panel hidden">
-          <p class="modal-subtitle" style="margin-bottom:8px;">Usa las flechas ◀ ▶ para cambiar el orden de los 4 botones inferiores (se ven abajo en vivo):</p>
+          <p class="modal-subtitle" style="margin-bottom:8px;">Usa las flechas ◀ ▶ para cambiar el orden de los 4
+            botones inferiores (se ven abajo en vivo):</p>
           <div id="ctrl-order-list" class="ctrl-order-list"></div>
         </div>
       </section>
@@ -535,15 +568,18 @@
           <div class="controls-grid">
             <div class="control-item">
               <kbd>ESPACIO</kbd> / <kbd>↑</kbd> / <kbd>W</kbd>
-              <span>Saltar (x2) en N1-N4, <strong>Nadar arriba</strong> (N5-N8) o <strong>Subir / Disparar</strong> (N9-N12)</span>
+              <span>Saltar (x2) en N1-N4, <strong>Nadar arriba</strong> (N5-N8) o <strong>Subir / Disparar</strong>
+                (N9-N12)</span>
             </div>
             <div class="control-item">
               <kbd>↓</kbd> / <kbd>S</kbd>
-              <span><strong>Agacharse</strong> (N1-N4), <strong>Sumergirse</strong> (N5-N8) o <strong>Bajar avión</strong> (N9-N12)</span>
+              <span><strong>Agacharse</strong> (N1-N4), <strong>Sumergirse</strong> (N5-N8) o <strong>Bajar
+                  avión</strong> (N9-N12)</span>
             </div>
             <div class="control-item">
               <kbd>X</kbd> / <kbd>J</kbd> / <kbd>→</kbd> / <kbd>D</kbd>
-              <span><strong>Zarpazo / Lanzar Minas (N5-N8) / Disparar y Misiles (N9-N12) / Golpear Jefe (N4)</strong></span>
+              <span><strong>Zarpazo / Lanzar Minas (N5-N8) / Disparar y Misiles (N9-N12) / Golpear Jefe
+                  (N4)</strong></span>
             </div>
             <div class="control-item">
               <kbd>SHIFT</kbd> / <kbd>←</kbd> / <kbd>A</kbd>
@@ -605,49 +641,18 @@
         </div>
       </section>
 
-      <!-- Credits Modal -->
-      <section id="screen-credits" class="overlay-screen hidden">
-        <div class="modal-card modal-compact">
-          <p class="eyebrow">EQUIPO DE DESARROLLO</p>
-          <h2>📜 CRÉDITOS</h2>
-          <div class="credits-list">
-            <div class="credits-block">
-              <span class="credits-role">👑 CREADOR · DIRECCIÓN Y DISEÑO</span>
-              <strong>Edgar Torres / Eddge</strong>
-            </div>
-            <div class="credits-block">
-              <span class="credits-role">🤝 COLABORADORES · GAMEPLAY E IDEAS</span>
-              <strong>Fernando Padilla · Yael Zuñiga · Wini</strong>
-            </div>
-            <div class="credits-block">
-              <span class="credits-role">🧪 TESTING Y BALANCE</span>
-              <strong>Fernando Padilla · Yael Zuñiga</strong>
-            </div>
-            <div class="credits-block">
-              <span class="credits-role">🎨 ARTE PIXEL 8-BIT Y MÚSICA CHIPTUNE</span>
-              <strong>Motor RunnerCat (HTML5 Canvas &amp; Web Audio API)</strong>
-            </div>
-            <div class="credits-block">
-              <span class="credits-role">🐾 AGRADECIMIENTO ESPECIAL</span>
-              <strong>A todos los michis y jugadores de RunnerCat</strong>
-            </div>
-          </div>
-          <div class="modal-actions" style="margin-top: 12px;">
-            <button id="btn-close-credits" class="pixel-btn btn-primary btn-sm" type="button">✓ CERRAR</button>
-          </div>
-        </div>
-      </section>
-
       <!-- Insanity Mode Confirmation Modal -->
       <section id="screen-insanity-confirm" class="overlay-screen hidden">
         <div class="modal-card modal-compact">
           <p class="eyebrow" style="color: #ff4757;">⚠ ADVERTENCIA EXTREMA</p>
           <h2>🔥 ¿ACTIVAR MODO LOCURA?</h2>
-          <p class="modal-subtitle" id="insanity-confirm-scope">Mejoras de dificultad para todos tus niveles desbloqueados:</p>
+          <p class="modal-subtitle" id="insanity-confirm-scope">Mejoras de dificultad para todos tus niveles
+            desbloqueados:</p>
           <div class="powerups-legend" style="text-align: left;">
             <div class="legend-row">
               <span>⚡ <strong>Velocidad +35%:</strong> carrera, aceleración y tope máximo mucho más rápidos.</span>
-              <span>👾 <strong>Oleadas +28%:</strong> mayor frecuencia de enemigos, obstáculos y peligros letales.</span>
+              <span>👾 <strong>Oleadas +28%:</strong> mayor frecuencia de enemigos, obstáculos y peligros
+                letales.</span>
               <span>👑 <strong>Jefes +50% HP:</strong> todos los jefes resisten más golpes.</span>
             </div>
           </div>
@@ -745,4 +750,5 @@
   <script defer src="js/game.js"></script>
   <script defer src="js/ui.js"></script>
 </body>
+
 </html>
