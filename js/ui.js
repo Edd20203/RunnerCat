@@ -223,8 +223,14 @@
 
     function refreshDevUnlockBtn() {
       const active = RC.Storage.isDevUnlockAll();
-      btnDevUnlock.textContent = active ? "🔓 DEV: TODO ACTIVO" : "🔒 DEV: ACTIVAR TODOS";
+      const label = active ? "🔓 DEV: TODO ACTIVO" : "🔒 DEV: ACTIVAR TODOS";
+      btnDevUnlock.textContent = label;
       btnDevUnlock.classList.toggle("btn-dev-active", active);
+      const btnModeDevUnlock = document.getElementById("btn-mode-dev-unlock");
+      if (btnModeDevUnlock) {
+        btnModeDevUnlock.textContent = label;
+        btnModeDevUnlock.classList.toggle("btn-dev-active", active);
+      }
       btnDevIntro.classList.toggle("hidden", !active);
       btnDevEnding.classList.toggle("hidden", !active);
       if (btnDevSecretEnding) btnDevSecretEnding.classList.toggle("hidden", !active);
@@ -667,16 +673,23 @@
           : "🔒 Termina todos los niveles del Modo Historia para acceder a estos modos.";
       }
       specialModesGrid.innerHTML = "";
+      const modeBadges = { bossRush: "7 JEFES", daily: "DIARIO", timeAttack: "900m" };
       RC.Levels.SPECIAL_MODES.forEach((m) => {
         const card = document.createElement("button");
         card.type = "button";
-        card.className = "special-mode-card";
+        card.className = `mode-choice-card${!unlocked ? " locked" : ""}`;
         card.disabled = !unlocked;
         let extraNote = "";
         if (m.id === "bossRush" && RC.Storage.getBossRushBest() != null) {
           extraNote = ` (Récord: ${RC.Storage.getBossRushBest().toFixed(1)}s)`;
         }
-        card.innerHTML = `<h4>${unlocked ? m.icon : "🔒"} ${m.name}${extraNote}</h4><p>${m.desc}</p>`;
+        const badgeText = unlocked ? (modeBadges[m.id] || "ESPECIAL") : "🔒 BLOQUEADO";
+        const badgeCls = unlocked ? "mode-badge badge-gold" : "mode-badge";
+        card.innerHTML = `
+          <span class="${badgeCls}">${badgeText}</span>
+          <h3>${unlocked ? m.icon : "🔒"} ${m.name}</h3>
+          <p>${m.desc}${extraNote}</p>
+        `;
         card.addEventListener("click", () => {
           if (!unlocked) return;
           RC.Audio.uiClick();
@@ -1740,6 +1753,17 @@
       });
     }
 
+    const btnModeDevUnlockEl = document.getElementById("btn-mode-dev-unlock");
+    if (btnModeDevUnlockEl) {
+      btnModeDevUnlockEl.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        const nextState = !RC.Storage.isDevUnlockAll();
+        RC.Storage.setDevUnlockAll(nextState);
+        refreshDevUnlockBtn();
+        renderSpecialModes();
+      });
+    }
+
     btnDevUnlock.addEventListener("click", () => {
       RC.Audio.uiClick();
       const nextState = !RC.Storage.isDevUnlockAll();
@@ -1760,6 +1784,22 @@
       RC.Audio.uiClick();
       screenHelp.classList.remove("hidden");
     });
+
+    const screenCredits = document.getElementById("screen-credits");
+    const btnOpenCredits = document.getElementById("btn-open-credits");
+    const btnCloseCredits = document.getElementById("btn-close-credits");
+    if (btnOpenCredits && screenCredits) {
+      btnOpenCredits.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        screenCredits.classList.remove("hidden");
+      });
+    }
+    if (btnCloseCredits && screenCredits) {
+      btnCloseCredits.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        screenCredits.classList.add("hidden");
+      });
+    }
 
     btnCloseHelp.addEventListener("click", () => {
       RC.Audio.uiClick();

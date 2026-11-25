@@ -617,6 +617,42 @@ html, body {
   border-style: dashed;
 }
 
+.title-credits-footer {
+  margin-top: 8px;
+  font-size: 9px;
+  color: var(--text-muted);
+  line-height: 1.35;
+  text-align: center;
+}
+
+.credits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.credits-block {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-pixel);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.credits-role {
+  font-size: 9px;
+  color: var(--accent-gold);
+  font-weight: 900;
+  letter-spacing: 0.6px;
+}
+
+.credits-block strong {
+  font-size: 12px;
+  color: #fff;
+}
+
 .special-modes-section {
   margin-top: 10px;
   padding: 8px;
@@ -648,7 +684,12 @@ html, body {
 .special-modes-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 10px;
+}
+
+.mode-badge.badge-gold {
+  background: var(--accent-gold);
+  color: #111;
 }
 
 .special-mode-card {
@@ -1695,10 +1736,18 @@ kbd {
   transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
 }
 
-.mode-choice-card:hover {
+.mode-choice-card:hover:not(:disabled) {
   background: var(--bg-panel-hover);
   border-color: var(--accent-orange);
   transform: translateY(-2px);
+}
+
+.mode-choice-card.locked,
+.mode-choice-card:disabled {
+  opacity: 0.52;
+  filter: grayscale(0.55);
+  cursor: not-allowed;
+  border-style: dashed;
 }
 
 .mode-choice-card.selected {

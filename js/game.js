@@ -4883,6 +4883,53 @@
           WIDTH / 2 - 185,
           70
         );
+
+        // Credits panel on left side of the ending scene
+        const credAlpha = Math.min(1, Math.max(0, (t - 6.0) / 0.8));
+        ctx.save();
+        ctx.globalAlpha = credAlpha;
+        ctx.fillStyle = "rgba(18, 20, 34, 0.88)";
+        ctx.fillRect(28, 94, 492, 182);
+        ctx.strokeStyle = "#48dbfb";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(28, 94, 492, 182);
+
+        ctx.fillStyle = "#48dbfb";
+        ctx.font = '900 13px "Courier New", monospace';
+        ctx.fillText("📜 CRÉDITOS · RUNNERCAT", 44, 116);
+
+        ctx.fillStyle = "#ffd32a";
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillText("Creador / Dirección:", 44, 140);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = '700 12px "Courier New", monospace';
+        ctx.fillText("Edgar Torres / Eddge", 196, 140);
+
+        ctx.fillStyle = "#ffd32a";
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillText("Colaboradores:", 44, 166);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = '700 12px "Courier New", monospace';
+        ctx.fillText("Fernando Padilla · Yael Zuñiga · Wini", 158, 166);
+
+        ctx.fillStyle = "#ffd32a";
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillText("Testing & Balance:", 44, 192);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = '700 12px "Courier New", monospace';
+        ctx.fillText("Fernando Padilla · Yael Zuñiga", 180, 192);
+
+        ctx.fillStyle = "#ffd32a";
+        ctx.font = '900 11px "Courier New", monospace';
+        ctx.fillText("Arte 8-Bit & Audio:", 44, 218);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = '700 11px "Courier New", monospace';
+        ctx.fillText("Motor RunnerCat (Canvas & Web Audio)", 184, 218);
+
+        ctx.fillStyle = "#2ed573";
+        ctx.font = '700 11px "Courier New", monospace';
+        ctx.fillText("🐾 ¡Gracias por jugar y cuidar a tu michi!", 44, 250);
+        ctx.restore();
       }
     }
 
