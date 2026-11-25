@@ -27,6 +27,10 @@
     const screenCtrlCustom = document.getElementById("screen-ctrl-custom");
     const screenEncyclopedia = document.getElementById("screen-encyclopedia");
     const screenHelp = document.getElementById("screen-help");
+    const screenInsanityConfirm = document.getElementById("screen-insanity-confirm");
+    const insanityConfirmScope = document.getElementById("insanity-confirm-scope");
+    const btnConfirmInsanity = document.getElementById("btn-confirm-insanity");
+    const btnCancelInsanity = document.getElementById("btn-cancel-insanity");
     const screenPause = document.getElementById("screen-pause");
     const screenResult = document.getElementById("screen-result");
 
@@ -615,6 +619,7 @@
       if (screenProfile) screenProfile.classList.add("hidden");
       if (screenCtrlCustom) screenCtrlCustom.classList.add("hidden");
       if (screenEncyclopedia) screenEncyclopedia.classList.add("hidden");
+      if (screenInsanityConfirm) screenInsanityConfirm.classList.add("hidden");
       screenControls.classList.add("hidden");
       screenHelp.classList.add("hidden");
       screenPause.classList.add("hidden");
@@ -1400,11 +1405,38 @@
     const toggleInsanity = () => {
       if (!RC.Levels.isInsanityUnlocked()) return;
       RC.Audio.uiClick();
-      RC.Storage.setInsanityMode(!RC.Storage.isInsanityMode());
-      refreshInsanityBtns();
+      if (RC.Storage.isInsanityMode()) {
+        RC.Storage.setInsanityMode(false);
+        refreshInsanityBtns();
+        return;
+      }
+      if (screenInsanityConfirm) {
+        const unlockedCount = RC.Levels.LIST.filter((l) => RC.Levels.isLevelUnlocked(l.id)).length;
+        if (insanityConfirmScope) {
+          insanityConfirmScope.textContent = `Se aplicará a tus ${unlockedCount} niveles desbloqueados hasta el momento:`;
+        }
+        screenInsanityConfirm.classList.remove("hidden");
+      } else {
+        RC.Storage.setInsanityMode(true);
+        refreshInsanityBtns();
+      }
     };
     if (btnInsanityMode) btnInsanityMode.addEventListener("click", toggleInsanity);
     if (btnInsanityLevels) btnInsanityLevels.addEventListener("click", toggleInsanity);
+    if (btnConfirmInsanity) {
+      btnConfirmInsanity.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        RC.Storage.setInsanityMode(true);
+        refreshInsanityBtns();
+        screenInsanityConfirm.classList.add("hidden");
+      });
+    }
+    if (btnCancelInsanity) {
+      btnCancelInsanity.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        screenInsanityConfirm.classList.add("hidden");
+      });
+    }
 
     btnDevUnlock.addEventListener("click", () => {
       RC.Audio.uiClick();
