@@ -24,6 +24,8 @@
     const screenCustomizer = document.getElementById("screen-customizer");
     const screenProfile = document.getElementById("screen-profile");
     const screenControls = document.getElementById("screen-controls");
+    const screenCtrlCustom = document.getElementById("screen-ctrl-custom");
+    const screenEncyclopedia = document.getElementById("screen-encyclopedia");
     const screenHelp = document.getElementById("screen-help");
     const screenPause = document.getElementById("screen-pause");
     const screenResult = document.getElementById("screen-result");
@@ -34,6 +36,7 @@
     const btnOpenCustomizer = document.getElementById("btn-open-customizer");
     const btnOpenControls = document.getElementById("btn-open-controls");
     const btnOpenProfile = document.getElementById("btn-open-profile");
+    const btnOpenEncyclopedia = document.getElementById("btn-open-encyclopedia");
     const lblTitleCat = document.getElementById("lbl-title-cat");
     const lblTitleCtrl = document.getElementById("lbl-title-ctrl");
     const lblTitleUser = document.getElementById("lbl-title-user");
@@ -64,8 +67,13 @@
     const btnCloseControls = document.getElementById("btn-close-controls");
     const btnCtrlButtons = document.getElementById("btn-ctrl-buttons");
     const btnCtrlGestures = document.getElementById("btn-ctrl-gestures");
+    const btnCtrlJoystick = document.getElementById("btn-ctrl-joystick");
+    const btnOpenCtrlCustom = document.getElementById("btn-open-ctrl-custom");
     const btnStartDemo = document.getElementById("btn-start-demo");
     const btnSaveControls = document.getElementById("btn-save-controls");
+    const zoneDemoBanner = document.getElementById("zone-demo-banner");
+    const btnZoneDemoNext = document.getElementById("btn-zone-demo-next");
+    const btnZoneDemoSkip = document.getElementById("btn-zone-demo-skip");
     const demoBanner = document.getElementById("demo-banner");
     const btnExitDemo = document.getElementById("btn-exit-demo");
     const endingBanner = document.getElementById("ending-banner");
@@ -124,6 +132,10 @@
     const gestureSlowBtn = document.getElementById("gesture-slow-btn");
     const gestureDuckBtn = document.getElementById("gesture-duck-btn");
     const gestureFireBtn = document.getElementById("gesture-fire-btn");
+    const joystickControls = document.getElementById("joystick-controls");
+    const joystickBase = document.getElementById("joystick-base");
+    const joystickKnob = document.getElementById("joystick-knob");
+    const joystickFireBtn = document.getElementById("joystick-fire-btn");
 
     let activeCategory = "story"; // "story" | "endless"
     let returnScreen = "title"; // "title" | "mode"
@@ -384,24 +396,70 @@
       });
     }
 
+    function applyControlLayout() {
+      const layout = RC.Storage.getControlLayout();
+      if (touchControlsBar && Array.isArray(layout.buttonOrder)) {
+        const btnMap = { slow: touchSlow, duck: touchDuck, claw: touchClaw, jump: touchJump };
+        layout.buttonOrder.forEach((k) => {
+          if (btnMap[k]) touchControlsBar.appendChild(btnMap[k]);
+        });
+      }
+      if (layout.gesturePos) {
+        const gp = layout.gesturePos;
+        if (gp.claw && gestureFireBtn) {
+          gestureFireBtn.style.left = `${gp.claw.x}%`;
+          gestureFireBtn.style.top = `${gp.claw.y}%`;
+        }
+        if (gp.duck && gestureDuckBtn) {
+          gestureDuckBtn.style.left = `${gp.duck.x}%`;
+          gestureDuckBtn.style.top = `${gp.duck.y}%`;
+        }
+        if (gp.slow && gestureSlowBtn) {
+          gestureSlowBtn.style.left = `${gp.slow.x}%`;
+          gestureSlowBtn.style.top = `${gp.slow.y}%`;
+        }
+      }
+      if (layout.joystickPos) {
+        const jp = layout.joystickPos;
+        if (jp.stick && joystickBase) {
+          joystickBase.style.left = `${jp.stick.x}%`;
+          joystickBase.style.top = `${jp.stick.y}%`;
+        }
+        if (jp.claw && joystickFireBtn) {
+          joystickFireBtn.style.left = `${jp.claw.x}%`;
+          joystickFireBtn.style.top = `${jp.claw.y}%`;
+        }
+      }
+    }
+
     function applyControlModeUI(playing) {
+      applyControlLayout();
       const mode = RC.Storage.getControlMode();
-      const useGestures = playing && mode === "gestures";
-      gestureControls.classList.toggle("hidden", !useGestures);
-      touchControlsBar.classList.toggle("hidden", mode === "gestures" && playing);
+      gestureControls.classList.toggle("hidden", !(playing && mode === "gestures"));
+      if (joystickControls) {
+        joystickControls.classList.toggle("hidden", !(playing && mode === "joystick"));
+      }
+      touchControlsBar.classList.toggle("hidden", playing && mode !== "buttons");
     }
 
     function refreshModeBadges() {
       const skin = RC.Levels.getCatSkinById(selectedCatId);
       const ctrl = RC.Storage.getControlMode();
       const prof = RC.Storage.getProfile();
+      const ctrlLabel =
+        ctrl === "gestures"
+          ? "Toque+Botones"
+          : ctrl === "joystick"
+          ? "Joystick"
+          : "Botones";
       lblCurCat.textContent = skin.name;
-      lblCurCtrl.textContent = ctrl === "gestures" ? "Toque+Botones" : "Botones";
+      lblCurCtrl.textContent = ctrlLabel;
       if (lblTitleCat) lblTitleCat.textContent = skin.name;
-      if (lblTitleCtrl) lblTitleCtrl.textContent = ctrl === "gestures" ? "Toque + Botones" : "Botones";
+      if (lblTitleCtrl) lblTitleCtrl.textContent = ctrlLabel;
       if (lblTitleUser) lblTitleUser.textContent = prof.username;
       btnCtrlButtons.classList.toggle("selected", ctrl === "buttons");
       btnCtrlGestures.classList.toggle("selected", ctrl === "gestures");
+      if (btnCtrlJoystick) btnCtrlJoystick.classList.toggle("selected", ctrl === "joystick");
     }
 
     function renderCatsModal() {
@@ -507,8 +565,23 @@
           textWrap.className = "zone-banner-text";
           textWrap.innerHTML = `<h3>${zone.title}</h3><p>${zone.subtitle}</p>`;
 
+          const tutBtn = document.createElement("button");
+          tutBtn.type = "button";
+          tutBtn.className = "pixel-btn btn-secondary btn-sm btn-zone-tut";
+          tutBtn.textContent = "🎓 TUTORIAL";
+          tutBtn.addEventListener("click", () => {
+            RC.Audio.uiClick();
+            hideAllOverlays();
+            hud.classList.remove("hidden");
+            hud.classList.add("hidden");
+            applyControlModeUI(false);
+            if (zoneDemoBanner) zoneDemoBanner.classList.remove("hidden");
+            game.startZoneDemo(zone.id, selectedCatId);
+          });
+
           banner.appendChild(cover);
           banner.appendChild(textWrap);
+          banner.appendChild(tutBtn);
           zoneGroup.appendChild(banner);
 
           const zGrid = document.createElement("div");
@@ -540,6 +613,8 @@
       screenCats.classList.add("hidden");
       if (screenCustomizer) screenCustomizer.classList.add("hidden");
       if (screenProfile) screenProfile.classList.add("hidden");
+      if (screenCtrlCustom) screenCtrlCustom.classList.add("hidden");
+      if (screenEncyclopedia) screenEncyclopedia.classList.add("hidden");
       screenControls.classList.add("hidden");
       screenHelp.classList.add("hidden");
       screenPause.classList.add("hidden");
@@ -826,6 +901,224 @@
       RC.Storage.setControlMode("gestures");
       refreshModeBadges();
     });
+
+    if (btnCtrlJoystick) {
+      btnCtrlJoystick.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        RC.Storage.setControlMode("joystick");
+        refreshModeBadges();
+      });
+    }
+
+    // ---- Control Customizer (Button Order & Drag Positions) ----
+    const ctrlOrderPanel = document.getElementById("ctrl-order-panel");
+    const ctrlOrderList = document.getElementById("ctrl-order-list");
+    const ctrlDragStage = document.getElementById("ctrl-drag-stage");
+    const btnResetCtrlLayout = document.getElementById("btn-reset-ctrl-layout");
+    const btnCloseCtrlCustom = document.getElementById("btn-close-ctrl-custom");
+
+    function renderControlCustomizer() {
+      const mode = RC.Storage.getControlMode();
+      const layout = RC.Storage.getControlLayout();
+      const labels = { slow: "⏱ LENTO", duck: "⬇ AGACHAR", claw: "🐾 ARAÑAR", jump: "⬆ SALTAR" };
+
+      ctrlOrderPanel.classList.toggle("hidden", mode !== "buttons");
+      ctrlDragStage.classList.toggle("hidden", mode === "buttons");
+
+      if (mode === "buttons") {
+        ctrlOrderList.innerHTML = "";
+        layout.buttonOrder.forEach((key, idx) => {
+          const item = document.createElement("div");
+          item.className = "ctrl-order-item";
+          item.innerHTML = `<span>${labels[key] || key}</span>`;
+          if (idx > 0) {
+            const leftBtn = document.createElement("button");
+            leftBtn.type = "button";
+            leftBtn.className = "pixel-btn btn-secondary btn-sm";
+            leftBtn.textContent = "◀";
+            leftBtn.onclick = () => {
+              const arr = [...layout.buttonOrder];
+              [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
+              RC.Storage.setControlLayout({ buttonOrder: arr });
+              renderControlCustomizer();
+            };
+            item.prepend(leftBtn);
+          }
+          if (idx < layout.buttonOrder.length - 1) {
+            const rightBtn = document.createElement("button");
+            rightBtn.type = "button";
+            rightBtn.className = "pixel-btn btn-secondary btn-sm";
+            rightBtn.textContent = "▶";
+            rightBtn.onclick = () => {
+              const arr = [...layout.buttonOrder];
+              [arr[idx + 1], arr[idx]] = [arr[idx], arr[idx + 1]];
+              RC.Storage.setControlLayout({ buttonOrder: arr });
+              renderControlCustomizer();
+            };
+            item.appendChild(rightBtn);
+          }
+          ctrlOrderList.appendChild(item);
+        });
+      } else {
+        ctrlDragStage.querySelectorAll(".ctrl-drag-handle").forEach((n) => n.remove());
+        const entries =
+          mode === "gestures"
+            ? [
+                { id: "claw", text: "🐾 ARAÑAR", pos: layout.gesturePos.claw, group: "gesturePos" },
+                { id: "duck", text: "⬇ AGACHAR", pos: layout.gesturePos.duck, group: "gesturePos" },
+                { id: "slow", text: "⏱ LENTO", pos: layout.gesturePos.slow, group: "gesturePos" }
+              ]
+            : [
+                { id: "stick", text: "🕹️ JOYSTICK", pos: layout.joystickPos.stick, group: "joystickPos" },
+                { id: "claw", text: "🐾 ARAÑAR", pos: layout.joystickPos.claw, group: "joystickPos" }
+              ];
+
+        entries.forEach((ent) => {
+          const handle = document.createElement("div");
+          handle.className = "ctrl-drag-handle";
+          handle.textContent = ent.text;
+          handle.style.left = `${ent.pos.x}%`;
+          handle.style.top = `${ent.pos.y}%`;
+
+          let dragging = false;
+          handle.addEventListener("pointerdown", (e) => {
+            e.preventDefault();
+            dragging = true;
+            if (handle.setPointerCapture) {
+              try {
+                handle.setPointerCapture(e.pointerId);
+              } catch (_err) {}
+            }
+          });
+          handle.addEventListener("pointermove", (e) => {
+            if (!dragging) return;
+            const rect = ctrlDragStage.getBoundingClientRect();
+            const px = Math.max(8, Math.min(92, Math.round(((e.clientX - rect.left) / rect.width) * 100)));
+            const py = Math.max(15, Math.min(88, Math.round(((e.clientY - rect.top) / rect.height) * 100)));
+            handle.style.left = `${px}%`;
+            handle.style.top = `${py}%`;
+            const cur = RC.Storage.getControlLayout();
+            cur[ent.group][ent.id] = { x: px, y: py };
+            RC.Storage.setControlLayout({ [ent.group]: cur[ent.group] });
+          });
+          handle.addEventListener("pointerup", () => {
+            dragging = false;
+          });
+          ctrlDragStage.appendChild(handle);
+        });
+      }
+    }
+
+    if (btnOpenCtrlCustom) {
+      btnOpenCtrlCustom.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        hideAllOverlays();
+        renderControlCustomizer();
+        screenCtrlCustom.classList.remove("hidden");
+      });
+    }
+    if (btnResetCtrlLayout) {
+      btnResetCtrlLayout.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        RC.Storage.resetControlLayout();
+        renderControlCustomizer();
+      });
+    }
+    if (btnCloseCtrlCustom) {
+      btnCloseCtrlCustom.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        applyControlLayout();
+        openControlsModal(returnScreen);
+      });
+    }
+
+    // ---- Encyclopedia Logic ----
+    const encyTabs = document.getElementById("ency-tabs");
+    const encyGrid = document.getElementById("ency-grid");
+    const btnCloseEncyclopedia = document.getElementById("btn-close-encyclopedia");
+    let activeEncyCat = "all";
+
+    function renderEncyclopedia() {
+      if (!encyGrid) return;
+      encyGrid.innerHTML = "";
+      const items = RC.Levels.ENCYCLOPEDIA.filter(
+        (it) => activeEncyCat === "all" || it.category === activeEncyCat
+      );
+      items.forEach((it) => {
+        const card = document.createElement("div");
+        card.className = "ency-card";
+        const c = document.createElement("canvas");
+        c.width = 32;
+        c.height = 32;
+        const cctx = c.getContext("2d");
+        cctx.imageSmoothingEnabled = false;
+        const spr = RC.Sprites.getWorldSprite(it.sprite, 2);
+        if (spr) {
+          const sc = Math.min(32 / spr.width, 32 / spr.height);
+          const dw = Math.floor(spr.width * sc);
+          const dh = Math.floor(spr.height * sc);
+          cctx.drawImage(spr, Math.floor((32 - dw) / 2), Math.floor((32 - dh) / 2), dw, dh);
+        }
+        const tag =
+          it.category === "bonus"
+            ? "Bonus"
+            : it.destructible
+            ? "Destructible"
+            : "Esquivar";
+        const info = document.createElement("div");
+        info.className = "ency-info";
+        info.innerHTML = `<h4>${it.name}</h4><small>${it.zone} · ${tag}</small><p>${it.desc}</p>`;
+        card.appendChild(c);
+        card.appendChild(info);
+        encyGrid.appendChild(card);
+      });
+    }
+
+    if (btnOpenEncyclopedia) {
+      btnOpenEncyclopedia.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        hideAllOverlays();
+        renderEncyclopedia();
+        screenEncyclopedia.classList.remove("hidden");
+      });
+    }
+    if (btnCloseEncyclopedia) {
+      btnCloseEncyclopedia.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        showTitleScreen();
+      });
+    }
+    if (encyTabs) {
+      encyTabs.querySelectorAll("button").forEach((b) => {
+        b.addEventListener("click", () => {
+          RC.Audio.uiClick();
+          activeEncyCat = b.dataset.cat;
+          encyTabs.querySelectorAll("button").forEach((other) => {
+            other.classList.toggle("btn-primary", other === b);
+            other.classList.toggle("btn-secondary", other !== b);
+          });
+          renderEncyclopedia();
+        });
+      });
+    }
+
+    if (btnZoneDemoNext) {
+      btnZoneDemoNext.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        const done = game.advanceZoneDemo();
+        if (done) {
+          if (zoneDemoBanner) zoneDemoBanner.classList.add("hidden");
+          showMenu("story");
+        }
+      });
+    }
+    if (btnZoneDemoSkip) {
+      btnZoneDemoSkip.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        if (zoneDemoBanner) zoneDemoBanner.classList.add("hidden");
+        showMenu("story");
+      });
+    }
 
     btnStartDemo.addEventListener("click", startControlDemo);
 
@@ -1355,6 +1648,95 @@
       },
       () => game.setFire(false)
     );
+
+    // ---- Virtual Joystick Controls (Up=Jump, Down=Duck, Left=Slow, Right=Dash + Claw Btn) ----
+    if (joystickBase && joystickKnob && joystickFireBtn) {
+      let stickActive = false;
+      let stickJumpTriggered = false;
+      let stickDashTriggered = false;
+      const updateStick = (clientX, clientY) => {
+        const rect = joystickBase.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const maxR = 28;
+        let dx = clientX - cx;
+        let dy = clientY - cy;
+        const dist = Math.hypot(dx, dy);
+        if (dist > maxR) {
+          dx = (dx / dist) * maxR;
+          dy = (dy / dist) * maxR;
+        }
+        joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+
+        // Up = Jump, Down = Duck
+        if (dy < -14) {
+          game.setDuck(false);
+          game.setUp(true);
+          if (!stickJumpTriggered) {
+            stickJumpTriggered = true;
+            game.pressJump();
+          }
+        } else if (dy > 14) {
+          stickJumpTriggered = false;
+          game.setUp(false);
+          game.setDuck(true);
+        } else {
+          if (stickJumpTriggered) game.releaseJump();
+          stickJumpTriggered = false;
+          game.setUp(false);
+          game.setDuck(false);
+        }
+
+        // Back (left) = Slow, Forward (right) = Dash
+        game.setSlow(dx < -14);
+        if (dx > 16) {
+          if (!stickDashTriggered) {
+            stickDashTriggered = true;
+            game.pressDash();
+          }
+        } else {
+          stickDashTriggered = false;
+        }
+      };
+
+      const resetStick = () => {
+        stickActive = false;
+        stickJumpTriggered = false;
+        stickDashTriggered = false;
+        joystickKnob.style.transform = "translate(0px, 0px)";
+        game.setUp(false);
+        game.setDuck(false);
+        game.setSlow(false);
+        game.releaseJump();
+      };
+
+      joystickBase.addEventListener("pointerdown", (e) => {
+        if (game.mode !== "playing") return;
+        e.preventDefault();
+        stickActive = true;
+        if (joystickBase.setPointerCapture) {
+          try {
+            joystickBase.setPointerCapture(e.pointerId);
+          } catch (_err) {}
+        }
+        updateStick(e.clientX, e.clientY);
+      });
+      joystickBase.addEventListener("pointermove", (e) => {
+        if (!stickActive) return;
+        updateStick(e.clientX, e.clientY);
+      });
+      joystickBase.addEventListener("pointerup", resetStick);
+      joystickBase.addEventListener("pointercancel", resetStick);
+
+      bindHoldButton(
+        joystickFireBtn,
+        () => {
+          game.setFire(true);
+          game.pressClaw();
+        },
+        () => game.setFire(false)
+      );
+    }
 
     // Canvas quick click/tap to jump during play (disabled when using gesture overlay)
     canvas.addEventListener("pointerdown", (e) => {

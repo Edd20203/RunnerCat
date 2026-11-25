@@ -1440,25 +1440,27 @@
       ]
     },
     seal1: {
-      palette: { D: "#1e272e", G: "#a4b0be", L: "#dfe4ea", E: "#1e272e" },
+      palette: { D: "#1e272e", G: "#74b9ff", L: "#dff9fb", E: "#1e272e", W: "#ffffff" },
       matrix: [
-        "....DDDDD.....",
-        "..DDGGGGGD....",
-        ".DGEGGGGGGDD..",
-        "DGGGGGGGGGGGD.",
-        "DGGLLLLLLLLGGD",
-        ".DDDDDDDDDDDD."
+        "...DDDDDD.......",
+        "..DGGGGGGD......",
+        ".DGEGGGGGDDD....",
+        "WGGGGGGGGGGGD...",
+        ".DGGLLLLLLLLGDD.",
+        "..DDDDDDGGGGGGGD",
+        ".......DDDDDDDD."
       ]
     },
     seal2: {
-      palette: { D: "#1e272e", G: "#a4b0be", L: "#dfe4ea", E: "#1e272e" },
+      palette: { D: "#1e272e", G: "#74b9ff", L: "#dff9fb", E: "#1e272e", W: "#ffffff" },
       matrix: [
-        "....DDDDD.....",
-        "..DDGGGGGD....",
-        ".DGEGGGGGGDD..",
-        "DGGGGGGGGGGGD.",
-        ".DGGLLLLLLLGGD",
-        "..DDDDDDDDDDD."
+        "...DDDDDD.......",
+        "..DGGGGGGD......",
+        ".DGEGGGGGDDD....",
+        "WGGGGGGGGGGGD...",
+        ".DGGLLLLLLLLGD..",
+        "..DDDDDDGGGGGGGD",
+        "........DDDDDDD."
       ]
     },
     eagle1: {
@@ -1603,21 +1605,23 @@
       ]
     },
     jungleBug1: {
-      palette: { D: "#140c1c", P: "#9b59b6", G: "#2ed573", W: "#dff9fb" },
+      palette: { D: "#140c1c", P: "#a55eea", G: "#2ed573", W: "#dff9fb", R: "#ff4757" },
       matrix: [
-        "..WW....WW..",
-        ".DWWDDDDWWD.",
-        "DGGGGPPGGGGD",
-        ".DDDDDDDDDD."
+        "...WW....WW...",
+        "..DWWDDDDWWD..",
+        ".DRGGGGPPGGGD.",
+        "DDGGGGGPPGGGGD",
+        ".DDDDDDDDDDDD."
       ]
     },
     jungleBug2: {
-      palette: { D: "#140c1c", P: "#9b59b6", G: "#2ed573", W: "#dff9fb" },
+      palette: { D: "#140c1c", P: "#a55eea", G: "#2ed573", W: "#dff9fb", R: "#ff4757" },
       matrix: [
-        ".WW......WW.",
-        "..DWDDDDWD..",
-        "DGGGGPPGGGGD",
-        ".DDDDDDDDDD."
+        "..WW......WW..",
+        "...DWDDDDWD...",
+        ".DRGGGGPPGGGD.",
+        "DDGGGGGPPGGGGD",
+        ".DDDDDDDDDDDD."
       ]
     },
     mudBall: {
@@ -1683,6 +1687,141 @@
         "..DGGGDDDDGGGGD.",
         "..DGGGD..DGGGGGD",
         "...DDDDDDDDDDDD."
+      ]
+    },
+    whale1: {
+      palette: { D: "#0a2442", B: "#3c6382", L: "#82ccdd", W: "#ffffff", C: "#48dbfb" },
+      matrix: [
+        "......CC......",
+        "....DDDDDD....",
+        "..DDBBBBBBD...",
+        ".DBWBBBBBBBBD.",
+        "DBBBBBBBBBBBBD",
+        "DLLLLLLLLLLLLD",
+        "DDDDDDDDDDDDDD"
+      ]
+    },
+    whale2: {
+      palette: { D: "#0a2442", B: "#3c6382", L: "#82ccdd", W: "#ffffff", C: "#48dbfb" },
+      matrix: [
+        ".....CCCC.....",
+        "....DDDDDD....",
+        "..DDBBBBBBD...",
+        ".DBWBBBBBBBBD.",
+        "DBBBBBBBBBBBBD",
+        "DLLLLLLLLLLLLD",
+        "DDDDDDDDDDDDDD"
+      ]
+    },
+    waterJet: {
+      palette: { C: "#48dbfb", W: "#ffffff", B: "#0984e3" },
+      matrix: [
+        ".WW.",
+        "CWWC",
+        "BWWB",
+        "CWWC",
+        "BWWB",
+        "CWWC"
+      ]
+    },
+    jungleSnake1: {
+      palette: { D: "#143d18", G: "#2ed573", Y: "#ffd32a", R: "#ff4757", E: "#1e272e" },
+      matrix: [
+        "..DDDD...........",
+        ".DGEEGD..........",
+        "RRGGGGDD...DDD...",
+        "..DDDGGGDDDGGGDDD",
+        ".....DDDDDDDDDDDD"
+      ]
+    },
+    jungleSnake2: {
+      palette: { D: "#143d18", G: "#2ed573", Y: "#ffd32a", R: "#ff4757", E: "#1e272e" },
+      matrix: [
+        "..DDDD...........",
+        ".DGEEGD..........",
+        ".RGGGGDD..DDDD...",
+        "..DDDGGGDDGGGGDDD",
+        ".....DDDDDDDDDDDD"
+      ]
+    },
+    monkey1: {
+      palette: { D: "#2c1d18", B: "#8c5327", L: "#f3d2b3", E: "#1e272e" },
+      matrix: [
+        "...DDDDDD...",
+        ".DDBBBBBBD..",
+        "DLDBELLLBDLD",
+        ".DDBBBBBBD..",
+        "...DBBBBD.DD",
+        "..DBLLLLBD.D",
+        "..DBBBBBBD..",
+        "..DB....BD..",
+        "..DD....DD.."
+      ]
+    },
+    monkey2: {
+      palette: { D: "#2c1d18", B: "#8c5327", L: "#f3d2b3", E: "#1e272e" },
+      matrix: [
+        "...DDDDDD...",
+        ".DDBBBBBBD..",
+        "DLDBELLLBDLD",
+        ".DDBBBBBBD..",
+        "..DDBBBBD.DD",
+        ".DBBLLLLBD.D",
+        "..DBBBBBBD..",
+        "...DB..BD...",
+        "...DD..DD..."
+      ]
+    },
+    coconut: {
+      palette: { D: "#2c1d18", B: "#6e472b", L: "#9e6b43" },
+      matrix: [
+        "..DDDD..",
+        ".DBLLBD.",
+        "DBBBBBBD",
+        ".DBBBBD.",
+        "..DDDD.."
+      ]
+    },
+    bee1: {
+      palette: { D: "#1e272e", Y: "#ffd32a", W: "#ffffff", R: "#ff4757" },
+      matrix: [
+        "....WW..WW..",
+        "...DWWDDWWD.",
+        "..DYYDYYDYYD",
+        "RRDYYDYYDYYD",
+        "..DDDDDDDDDD"
+      ]
+    },
+    bee2: {
+      palette: { D: "#1e272e", Y: "#ffd32a", W: "#ffffff", R: "#ff4757" },
+      matrix: [
+        "...WW....WW.",
+        "....DWDDWD..",
+        "..DYYDYYDYYD",
+        "RRDYYDYYDYYD",
+        "..DDDDDDDDDD"
+      ]
+    },
+    croc1: {
+      palette: { D: "#0b2e16", G: "#218c48", L: "#78e08f", W: "#ffffff", E: "#ff4757" },
+      matrix: [
+        "..DDD....DDD..",
+        ".DGGGD..DGGGD.",
+        "DGGGDDDDDGGGGD",
+        "DWWDGGGGGGGEGD",
+        "DGGGGGGGGGGGGD",
+        "DDDDDDDDDDDDDD"
+      ]
+    },
+    croc2: {
+      palette: { D: "#0b2e16", G: "#218c48", L: "#78e08f", W: "#ffffff", E: "#ff4757" },
+      matrix: [
+        "..DDD....DDD..",
+        ".DGGGD..DGGGD.",
+        "DGGGDDDDDGGGGD",
+        "DWWGGGGGGGGEGD",
+        "DWWDGGGGGGGGGD",
+        "DDDDDDDDDDDDDD"
       ]
     }
   };

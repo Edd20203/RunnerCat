@@ -11,6 +11,18 @@
     insanityMode: false,
     controlMode: "buttons",
     controlChosen: false,
+    controlLayout: {
+      buttonOrder: ["slow", "duck", "claw", "jump"],
+      gesturePos: {
+        claw: { x: 86, y: 72 },
+        duck: { x: 72, y: 52 },
+        slow: { x: 86, y: 42 }
+      },
+      joystickPos: {
+        stick: { x: 14, y: 68 },
+        claw: { x: 86, y: 68 }
+      }
+    },
     selectedCat: "ginger",
     selectedLevel: "alley",
     levels: {},
@@ -54,6 +66,24 @@
             parsed && parsed.profile && Array.isArray(parsed.profile.history)
               ? parsed.profile.history
               : []
+        },
+        controlLayout: {
+          buttonOrder:
+            parsed && parsed.controlLayout && Array.isArray(parsed.controlLayout.buttonOrder)
+              ? parsed.controlLayout.buttonOrder
+              : [...DEFAULT_DATA.controlLayout.buttonOrder],
+          gesturePos: {
+            ...DEFAULT_DATA.controlLayout.gesturePos,
+            ...(parsed && parsed.controlLayout && parsed.controlLayout.gesturePos
+              ? parsed.controlLayout.gesturePos
+              : {})
+          },
+          joystickPos: {
+            ...DEFAULT_DATA.controlLayout.joystickPos,
+            ...(parsed && parsed.controlLayout && parsed.controlLayout.joystickPos
+              ? parsed.controlLayout.joystickPos
+              : {})
+          }
         }
       };
     } catch (_err) {
@@ -69,6 +99,7 @@
       insanityMode: DEFAULT_DATA.insanityMode,
       controlMode: DEFAULT_DATA.controlMode,
       controlChosen: DEFAULT_DATA.controlChosen,
+      controlLayout: JSON.parse(JSON.stringify(DEFAULT_DATA.controlLayout)),
       selectedCat: DEFAULT_DATA.selectedCat,
       selectedLevel: DEFAULT_DATA.selectedLevel,
       levels: {},
@@ -156,14 +187,29 @@
       save();
     },
     getControlMode() {
-      return state.controlMode === "gestures" ? "gestures" : "buttons";
+      if (state.controlMode === "gestures" || state.controlMode === "joystick") {
+        return state.controlMode;
+      }
+      return "buttons";
     },
     hasChosenControl() {
       return Boolean(state.controlChosen);
     },
     setControlMode(mode) {
-      state.controlMode = mode === "gestures" ? "gestures" : "buttons";
+      state.controlMode =
+        mode === "gestures" || mode === "joystick" ? mode : "buttons";
       state.controlChosen = true;
+      save();
+    },
+    getControlLayout() {
+      return state.controlLayout;
+    },
+    setControlLayout(partial) {
+      state.controlLayout = { ...state.controlLayout, ...partial };
+      save();
+    },
+    resetControlLayout() {
+      state.controlLayout = JSON.parse(JSON.stringify(DEFAULT_DATA.controlLayout));
       save();
     },
     setSelectedCat(catId) {

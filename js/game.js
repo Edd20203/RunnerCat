@@ -238,6 +238,8 @@
         clawTimer: 0,
         clawCooldown: 0,
         fireCooldown: 0,
+        dashTimer: 0,
+        dashCooldown: 0,
         invulnTimer: 0,
         shield: false,
         magnetTimer: 0,
@@ -271,13 +273,18 @@
       this.zoneHazardTimer = 5.5 + Math.random() * 3.5;
       this.pits = [];
       this.vines = [];
+      this.branches = [];
       this.hazardEvent = null;
       this.snowBoostTimer = 0;
+      this.blizzardTimer = 0;
+      this.blizzardCooldown = 7.5;
       this.bossFishAmmo = 0;
       this.mudAmmo = 0;
       this.cat.onVine = null;
       this.secretBossItem = null;
       this.playSecondsAccum = 0;
+      this.zoneDemoData = null;
+      this.zoneDemoStep = 0;
       this.finishGateSpawned = false;
       this.finishGateX = null;
       this.isDemo = false;
@@ -474,6 +481,34 @@
       this.introTimer = 0;
       this.particles = [];
       this.floatingTexts = [];
+    }
+
+    startZoneDemo(zoneId, skinId) {
+      this.skinId = skinId || this.skinId;
+      this.zoneDemoData = RC.Levels.ZONE_TUTORIALS[zoneId] || RC.Levels.ZONE_TUTORIALS.city;
+      this.zoneDemoZoneId = zoneId;
+      this.zoneDemoStep = 0;
+      this.mode = "zoneDemo";
+    }
+
+    advanceZoneDemo() {
+      if (this.mode !== "zoneDemo" || !this.zoneDemoData) return true;
+      this.zoneDemoStep += 1;
+      return this.zoneDemoStep >= this.zoneDemoData.steps.length;
+    }
+
+    pressDash() {
+      if (this.mode !== "playing") return;
+      const m = this.level.mode || "runner";
+      if (this.isPlaneMode(m) || this.isSwimMode(m)) return;
+      const cat = this.cat;
+      if (cat.dashCooldown > 0) return;
+      cat.dashTimer = 0.24;
+      cat.dashCooldown = 1.1;
+      cat.invulnTimer = Math.max(cat.invulnTimer, 0.22);
+      RC.Audio.doubleJump();
+      this.spawnDust(cat.x, cat.y + cat.h, 8, "#48dbfb");
+      this.addFloatingText("💨 DASH!", cat.x, cat.y - 10, "#48dbfb", 11);
     }
 
     flushPlayTime() {
@@ -747,6 +782,8 @@
         this.updateHazardEvent(rawDt);
       } else if (this.mode === "intro") {
         this.updateIntro(rawDt);
+      } else if (this.mode === "zoneDemo") {
+        this.time += rawDt;
       } else if (this.mode === "ending" || this.mode === "secretEnding") {
         this.updateEnding(rawDt);
       } else if (this.mode === "victory" || this.mode === "gameover") {
@@ -832,12 +869,27 @@
       const worldDt = rawDt * this.timeScale;
 
       const boostMult = this.snowBoostTimer > 0 ? 1.32 : 1.0;
+      const blizzardMult = this.blizzardTimer > 0 ? 0.72 : 1.0;
       this.speed = Math.min(
         this.level.maxSpeed * this.insaneMult * boostMult,
         this.speed + this.level.accelPerSec * this.insaneMult * worldDt
       );
       if (this.snowBoostTimer > 0) this.snowBoostTimer = Math.max(0, this.snowBoostTimer - rawDt);
-      const effectiveSpeed = this.speed;
+
+      // Blizzards in Snow Zone
+      if (this.isSnowMode() && !this.isDemo) {
+        if (this.blizzardTimer > 0) {
+          this.blizzardTimer = Math.max(0, this.blizzardTimer - rawDt);
+        } else {
+          this.blizzardCooldown -= worldDt;
+          if (this.blizzardCooldown <= 0) {
+            this.blizzardTimer = 3.6;
+            this.blizzardCooldown = 9.0 + Math.random() * 4.5;
+            this.addFloatingText("❄ ¡VENTISCA!", WIDTH / 2 - 40, 88, "#dff9fb", 15);
+          }
+        }
+      }
+      const effectiveSpeed = this.speed * blizzardMult;
       const movePx = effectiveSpeed * worldDt;
 
       this.distanceMeters += movePx / 22;
@@ -1014,9 +1066,10 @@
       if (this.mode !== "playing") return;
       if (this.lightningTimer > 0) this.lightningTimer = Math.max(0, this.lightningTimer - rawDt);
 
-      // ---- Update Pits, Vines & Obstacles & Collisions ----
+      // ---- Update Pits, Vines, Branches & Obstacles & Collisions ----
       this.updatePits(movePx);
       this.updateVines(movePx);
+      this.updateBranches(movePx);
       if (this.mode !== "playing") return;
       this.updateObstacles(worldDt, movePx);
       if (this.mode !== "playing") return;
@@ -1045,6 +1098,17 @@
       if (cat.clawTimer > 0) cat.clawTimer = Math.max(0, cat.clawTimer - rawDt);
       if (cat.clawCooldown > 0) cat.clawCooldown = Math.max(0, cat.clawCooldown - rawDt);
       if (cat.fireCooldown > 0) cat.fireCooldown = Math.max(0, cat.fireCooldown - rawDt);
+      if (cat.dashCooldown > 0) cat.dashCooldown = Math.max(0, cat.dashCooldown - rawDt);
+      if (cat.dashTimer > 0) {
+        cat.dashTimer = Math.max(0, cat.dashTimer - rawDt);
+        cat.x = Math.min(CAT_X + 85, cat.x + 360 * rawDt);
+      } else if (this.blizzardTimer > 0 && !cat.onGround) {
+        // Blizzard pushes jumping cat backward!
+        cat.x = Math.max(36, cat.x - 115 * rawDt);
+      } else {
+        // Smoothly return cat.x to CAT_X
+        cat.x += (CAT_X - cat.x) * Math.min(1, rawDt * 5);
+      }
       if (cat.invulnTimer > 0) cat.invulnTimer = Math.max(0, cat.invulnTimer - rawDt);
       if (cat.magnetTimer > 0) cat.magnetTimer = Math.max(0, cat.magnetTimer - rawDt);
       if (cat.milkTimer > 0) cat.milkTimer = Math.max(0, cat.milkTimer - rawDt);
@@ -1132,9 +1196,14 @@
           cat.onGround = false;
           cat.y = cat.onVine.y + cat.onVine.h - cat.h - 8;
         } else {
-          if (cat.onGround && overPit) {
+          // Check if cat is standing on an elevated branch
+          const onBranch = this.findBranchUnderCat(cat);
+          if (cat.onGround && overPit && !onBranch) {
             cat.onGround = false;
             cat.vy = 90;
+          }
+          if (cat.onGround && !onBranch && cat.y + cat.h < GROUND_Y - 4) {
+            cat.onGround = false;
           }
           if (!cat.onGround) {
             const g = isSpace
@@ -1144,6 +1213,7 @@
               : this.keys.duckHeld
               ? FAST_FALL_GRAVITY
               : GRAVITY;
+            const prevBottom = cat.y + cat.h;
             cat.vy += g * physDt;
             cat.y += cat.vy * physDt;
 
@@ -1157,8 +1227,18 @@
               return;
             }
 
+            // Land on elevated jungle branch
             const targetH = this.keys.duckHeld ? 27 : 42;
-            if (!overPit && cat.y + targetH >= GROUND_Y) {
+            const landingBranch = this.findLandingBranch(cat, prevBottom, targetH);
+            if (landingBranch && !this.keys.duckHeld) {
+              cat.ducking = false;
+              cat.h = 42;
+              cat.w = 48;
+              cat.y = landingBranch.y - cat.h;
+              cat.vy = 0;
+              cat.onGround = true;
+              cat.jumpsUsed = 0;
+            } else if (!overPit && cat.y + targetH >= GROUND_Y) {
               cat.ducking = this.keys.duckHeld;
               cat.h = targetH;
               cat.w = cat.ducking ? 54 : 48;
@@ -1453,6 +1533,91 @@
           points: 60,
           extraSpeed: 80,
           bobPhase: Math.random() * Math.PI * 2
+        };
+      } else if (type === "whale") {
+        obs = {
+          type,
+          sprite: "whale1",
+          animFrames: ["whale1", "whale2"],
+          x,
+          y: GROUND_Y - 21,
+          w: 42,
+          h: 21,
+          scratchable: false,
+          canWaterJet: true,
+          shootTimer: 0.75 + Math.random() * 0.6,
+          extraSpeed: 0
+        };
+      } else if (type === "jungleSnake") {
+        obs = {
+          type,
+          sprite: "jungleSnake1",
+          animFrames: ["jungleSnake1", "jungleSnake2"],
+          x,
+          y: GROUND_Y - 15,
+          w: 51,
+          h: 15,
+          scratchable: true,
+          canVomit: true,
+          shootTimer: 0.85 + Math.random() * 0.8,
+          points: 60,
+          extraSpeed: 55
+        };
+      } else if (type === "monkey") {
+        const my = 34 + Math.random() * 28;
+        obs = {
+          type,
+          sprite: "monkey1",
+          animFrames: ["monkey1", "monkey2"],
+          x,
+          y: my,
+          baseY: my,
+          bobAmp: 12,
+          w: 36,
+          h: 27,
+          scratchable: true,
+          canCoconut: true,
+          shootTimer: 0.7 + Math.random() * 0.7,
+          points: 65,
+          extraSpeed: 20,
+          bobPhase: Math.random() * Math.PI * 2
+        };
+      } else if (type === "bee") {
+        const by = 42 + Math.random() * (GROUND_Y - 95);
+        const dx = this.cat.x - x;
+        const dy = this.cat.y - by;
+        const dist = Math.max(1, Math.hypot(dx, dy));
+        const spd = 460;
+        obs = {
+          type,
+          sprite: "bee1",
+          animFrames: ["bee1", "bee2"],
+          x,
+          y: by,
+          w: 36,
+          h: 15,
+          scratchable: true,
+          lockedTrajectory: true,
+          vx: (dx / dist) * spd,
+          vy: (dy / dist) * spd,
+          points: 70,
+          extraSpeed: 0
+        };
+      } else if (type === "croc") {
+        obs = {
+          type,
+          sprite: "croc1",
+          animFrames: ["croc1", "croc2"],
+          x,
+          y: GROUND_Y - 18,
+          w: 42,
+          h: 18,
+          scratchable: false,
+          canHop: true,
+          hopVel: -520,
+          hopDone: false,
+          vy: 0,
+          extraSpeed: 10
         };
       } else if (type === "ruins") {
         obs = {
@@ -1809,6 +1974,39 @@
       return null;
     }
 
+    findBranchUnderCat(cat) {
+      const cx = cat.x + cat.w * 0.5;
+      for (let i = 0; i < this.branches.length; i++) {
+        const b = this.branches[i];
+        if (cx >= b.x - 8 && cx <= b.x + b.w + 8 && Math.abs(cat.y + cat.h - b.y) <= 8) {
+          return b;
+        }
+      }
+      return null;
+    }
+
+    findLandingBranch(cat, prevBottom, targetH) {
+      if (cat.vy < 0) return null;
+      const cx = cat.x + cat.w * 0.5;
+      const newBottom = cat.y + targetH;
+      for (let i = 0; i < this.branches.length; i++) {
+        const b = this.branches[i];
+        if (cx >= b.x - 8 && cx <= b.x + b.w + 8 && prevBottom <= b.y + 8 && newBottom >= b.y) {
+          return b;
+        }
+      }
+      return null;
+    }
+
+    updateBranches(movePx) {
+      for (let i = this.branches.length - 1; i >= 0; i--) {
+        this.branches[i].x -= movePx;
+        if (this.branches[i].x + this.branches[i].w < -60) {
+          this.branches.splice(i, 1);
+        }
+      }
+    }
+
     updateVines(movePx) {
       const cat = this.cat;
       const catBox = this.getCatHitbox();
@@ -1874,10 +2072,12 @@
         // Pit in the ground (Hueco en el suelo / nieve)
         this.pits.push({ x, w: 78 + Math.floor(Math.random() * 18), kind: "pit" });
       } else if (this.isJungleMode(lvlMode)) {
-        // Swamp + hanging vine above it!
+        // Swamp + hanging vine + elevated branching platform!
         const sw = 92 + Math.floor(Math.random() * 18);
         this.pits.push({ x, w: sw, kind: "swamp" });
         this.vines.push({ x: x + Math.floor(sw * 0.35), y: 12, w: 22, h: 175 });
+        const by = Math.random() < 0.5 ? GROUND_Y - 96 : GROUND_Y - 144;
+        this.branches.push({ x: x + sw + 30, y: by, w: 155 + Math.floor(Math.random() * 45) });
       } else if (this.isSwimMode(lvlMode)) {
         // Whirlpool (Remolino marino)
         const wy = 70 + Math.random() * (GROUND_Y - 140);
@@ -2083,6 +2283,23 @@
       ctx.fillStyle = "#ffd32a";
       ctx.font = '900 12px "Courier New", monospace';
       ctx.fillText("💔 PERDISTE TODAS TUS VIDAS — REGRESANDO AL INICIO", WIDTH / 2 - 195, 78);
+      // Blizzard Frost & Wind Overlay (Snow Zone)
+      if (this.blizzardTimer > 0) {
+        ctx.save();
+        ctx.fillStyle = "rgba(223, 249, 251, 0.18)";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+        for (let i = 0; i < 24; i++) {
+          const sx = (WIDTH - ((this.time * 520 + i * 97) % (WIDTH + 60)));
+          const sy = (i * 31 + Math.sin(this.time * 4 + i) * 14) % GROUND_Y;
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), 18, 3);
+        }
+        ctx.fillStyle = "#dff9fb";
+        ctx.font = '900 13px "Courier New", monospace';
+        ctx.fillText("❄ ¡VENTISCA! (EMPUJA AL SALTAR)", 16, 86);
+        ctx.restore();
+      }
+
       ctx.restore();
     }
 
@@ -2523,7 +2740,7 @@
         s.x += s.vx * worldDt;
         s.y += s.vy * worldDt;
 
-        if (s.x + s.w < -40 || s.y > GROUND_Y + 20) {
+        if (s.x + s.w < -40 || s.y > GROUND_Y + 20 || s.y + s.h < -30) {
           this.spookyShots.splice(i, 1);
           continue;
         }
@@ -3038,7 +3255,12 @@
 
       for (let i = this.obstacles.length - 1; i >= 0; i--) {
         const obs = this.obstacles[i];
-        obs.x -= movePx + (obs.extraSpeed || 0) * worldDt;
+        if (obs.lockedTrajectory) {
+          obs.x += obs.vx * worldDt;
+          obs.y += obs.vy * worldDt;
+        } else {
+          obs.x -= movePx + (obs.extraSpeed || 0) * worldDt;
+        }
         if (obs.canHop) {
           if (!obs.hopDone && obs.x < this.cat.x + 300 && obs.x > this.cat.x + 60) {
             obs.hopDone = true;
@@ -3052,7 +3274,7 @@
               obs.vy = 0;
             }
           }
-        } else if (obs.vy) {
+        } else if (!obs.lockedTrajectory && obs.vy) {
           obs.y += obs.vy * worldDt;
         }
 
@@ -3065,7 +3287,7 @@
           obs.sprite = obs.animFrames[Math.floor(obs.animTimer) % obs.animFrames.length];
         }
         if (obs.baseY != null) {
-          const amp = obs.isMovingCrate ? 28 : 6;
+          const amp = obs.isMovingCrate ? 28 : obs.bobAmp || 14;
           obs.y = obs.baseY + Math.sin(this.time * 5 + obs.bobPhase) * amp;
         }
 
@@ -3112,11 +3334,31 @@
           }
         }
 
-        if ((obs.canDrop || obs.canVomit || obs.canEgg || obs.canSnowball) && obs.x < WIDTH - 30 && obs.x > this.cat.x + 40) {
+        if ((obs.canDrop || obs.canVomit || obs.canEgg || obs.canSnowball || obs.canWaterJet || obs.canCoconut) && obs.x < WIDTH - 30 && obs.x > this.cat.x + 30) {
           obs.shootTimer -= worldDt;
           if (obs.shootTimer <= 0) {
-            obs.shootTimer = 1.15 + Math.random() * 0.85;
-            if (obs.canVomit) {
+            obs.shootTimer = 1.1 + Math.random() * 0.85;
+            if (obs.canWaterJet) {
+              this.spookyShots.push({
+                sprite: "waterJet",
+                x: obs.x + 14,
+                y: obs.y - 16,
+                w: 12,
+                h: 18,
+                vx: -this.speed * 0.15,
+                vy: -360
+              });
+            } else if (obs.canCoconut) {
+              this.spookyShots.push({
+                sprite: "coconut",
+                x: obs.x + 4,
+                y: obs.y + obs.h,
+                w: 24,
+                h: 15,
+                vx: -this.speed * 0.45,
+                vy: 230
+              });
+            } else if (obs.canVomit) {
               this.spookyShots.push({
                 sprite: "vomitGlob",
                 x: obs.x - 12,
@@ -3261,7 +3503,7 @@
             continue;
           }
 
-          if (this.cat.milkTimer > 0) {
+          if (this.cat.milkTimer > 0 || (this.cat.dashTimer > 0 && obs.scratchable)) {
             this.destroyObstacleByClaw({ ...obs, points: obs.points || 35 });
             this.obstacles.splice(i, 1);
             continue;
@@ -3579,6 +3821,10 @@
         this.renderIntro();
         return;
       }
+      if (this.mode === "zoneDemo") {
+        this.renderZoneDemo();
+        return;
+      }
       if (this.mode === "ending" || this.mode === "secretEnding") {
         this.renderEnding(this.mode === "secretEnding");
         return;
@@ -3721,6 +3967,18 @@
         ctx.fillRect(vx - 8, v.y + Math.floor(v.h * 0.7), 16, 6);
         ctx.fillStyle = "#a3cb38";
         ctx.fillRect(vx - 5, v.y + v.h - 6, 10, 8);
+      });
+
+      // Elevated Jungle Branches (Branching Upper Paths)
+      this.branches.forEach((b) => {
+        const bx = Math.floor(b.x);
+        ctx.fillStyle = "#6e472b";
+        ctx.fillRect(bx, b.y, b.w, 12);
+        ctx.fillStyle = "#2ed573";
+        ctx.fillRect(bx, b.y - 4, b.w, 5);
+        ctx.fillStyle = "#168246";
+        ctx.fillRect(bx + 12, b.y + 10, 24, 6);
+        ctx.fillRect(bx + b.w - 36, b.y + 10, 24, 6);
       });
 
       // Finish Gate
@@ -3947,6 +4205,23 @@
         ctx.fillStyle = `rgba(72, 219, 251, ${0.9 * intensity})`;
         ctx.font = '900 13px "Courier New", monospace';
         ctx.fillText("⏱ CÁMARA LENTA", 16, HEIGHT - 16);
+        ctx.restore();
+      }
+
+      // Blizzard Frost & Wind Overlay (Snow Zone)
+      if (this.blizzardTimer > 0) {
+        ctx.save();
+        ctx.fillStyle = "rgba(223, 249, 251, 0.18)";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+        for (let i = 0; i < 24; i++) {
+          const sx = (WIDTH - ((this.time * 520 + i * 97) % (WIDTH + 60)));
+          const sy = (i * 31 + Math.sin(this.time * 4 + i) * 14) % GROUND_Y;
+          ctx.fillRect(Math.floor(sx), Math.floor(sy), 18, 3);
+        }
+        ctx.fillStyle = "#dff9fb";
+        ctx.font = '900 13px "Courier New", monospace';
+        ctx.fillText("❄ ¡VENTISCA! (EMPUJA AL SALTAR)", 16, 86);
         ctx.restore();
       }
 
@@ -4592,6 +4867,61 @@
         ctx.font = '900 12px "Courier New", monospace';
         ctx.fillText("¡A INVESTIGAR!", catX - 14, GROUND_Y - 59);
       }
+    }
+
+    // ---- Optional Zone Tutorial Mini-Demo ----
+    renderZoneDemo() {
+      const ctx = this.ctx;
+      const data = this.zoneDemoData || RC.Levels.ZONE_TUTORIALS.city;
+      const step = data.steps[Math.min(this.zoneDemoStep, data.steps.length - 1)];
+
+      const bg = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+      bg.addColorStop(0, "#171a2e");
+      bg.addColorStop(1, "#293052");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Ground strip
+      ctx.fillStyle = "#2f3640";
+      ctx.fillRect(0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y);
+      ctx.fillStyle = "#48dbfb";
+      ctx.fillRect(0, GROUND_Y, WIDTH, 4);
+
+      // Title & Step Badge
+      ctx.fillStyle = "#ffd32a";
+      ctx.font = '900 18px "Courier New", monospace';
+      ctx.fillText(`🎓 ${data.title.toUpperCase()}`, 32, 42);
+
+      ctx.fillStyle = "#48dbfb";
+      ctx.font = '900 13px "Courier New", monospace';
+      ctx.fillText(step.label, 32, 72);
+
+      // Step Description Box
+      ctx.fillStyle = "rgba(14, 16, 28, 0.86)";
+      ctx.fillRect(32, 86, WIDTH - 64, 52);
+      ctx.strokeStyle = "#48dbfb";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(32, 86, WIDTH - 64, 52);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = '700 13px "Courier New", monospace';
+      ctx.fillText(step.text, 48, 117);
+
+      // Showcase Cat on left
+      const pose = Math.floor(this.time * 6) % 2 === 0 ? "run1" : "run2";
+      const catSpr = RC.Sprites.getCatSprite(pose, this.skinId, 3);
+      ctx.drawImage(catSpr, 90, GROUND_Y - 42);
+
+      // Showcase Step Sprites animated in the center-right
+      const count = step.sprites.length;
+      const spacing = Math.min(165, Math.floor(560 / Math.max(1, count)));
+      step.sprites.forEach((sprKey, idx) => {
+        const spr = RC.Sprites.getWorldSprite(sprKey, 4);
+        if (!spr) return;
+        const sx = 290 + idx * spacing;
+        const bob = Math.floor(Math.sin(this.time * 4 + idx) * 8);
+        const sy = GROUND_Y - spr.height - 26 + bob;
+        ctx.drawImage(spr, sx, sy);
+      });
     }
   }
 

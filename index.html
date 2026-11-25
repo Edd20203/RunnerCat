@@ -108,11 +108,26 @@
           <span class="gesture-hint">👆 TOCA: SALTAR<br/>👆👆 DOBLE TOQUE: DOBLE SALTO</span>
         </div>
         <div class="gesture-right-zone">
-          <div class="gesture-right-top">
-            <button id="gesture-slow-btn" class="gesture-btn gesture-slow-btn" type="button">⏱ LENTO</button>
-            <button id="gesture-duck-btn" class="gesture-btn gesture-duck-btn" type="button">⬇ AGACHAR</button>
-          </div>
-          <button id="gesture-fire-btn" class="gesture-btn gesture-fire-btn" type="button">🐾 ARAÑAR</button>
+          <button id="gesture-slow-btn" class="gesture-btn gesture-slow-btn gesture-btn-draggable" type="button">⏱ LENTO</button>
+          <button id="gesture-duck-btn" class="gesture-btn gesture-duck-btn gesture-btn-draggable" type="button">⬇ AGACHAR</button>
+          <button id="gesture-fire-btn" class="gesture-btn gesture-fire-btn gesture-btn-draggable" type="button">🐾 ARAÑAR</button>
+        </div>
+      </div>
+
+      <!-- Joystick Controls Overlay (active during gameplay/demo when controlMode === 'joystick') -->
+      <div id="joystick-controls" class="joystick-controls hidden">
+        <div id="joystick-base" class="joystick-base">
+          <div id="joystick-knob" class="joystick-knob"></div>
+        </div>
+        <button id="joystick-fire-btn" class="gesture-btn gesture-fire-btn joystick-fire-btn" type="button">🐾 ARAÑAR</button>
+      </div>
+
+      <!-- Zone Tutorial Banner -->
+      <div id="zone-demo-banner" class="demo-banner hidden">
+        <span id="zone-demo-label">🎓 TUTORIAL DE ZONA</span>
+        <div style="display:flex;gap:6px;">
+          <button id="btn-zone-demo-next" class="pixel-btn btn-primary btn-sm" type="button">⏭ SIGUIENTE</button>
+          <button id="btn-zone-demo-skip" class="pixel-btn btn-secondary btn-sm" type="button">✕ SALIR</button>
         </div>
       </div>
 
@@ -161,8 +176,15 @@
                 <span>👤 PERFIL E HISTORIAL</span>
                 <small id="lbl-title-user">MichiPlayer</small>
               </button>
+              <button id="btn-open-encyclopedia" class="menu-list-item" type="button">
+                <span>📖 ENCICLOPEDIA</span>
+                <small>Enemigos y Bonus</small>
+              </button>
+              <button id="btn-help" class="menu-list-item" type="button">
+                <span>❓ AYUDA</span>
+                <small>Teclas y Reglas</small>
+              </button>
             </div>
-            <button id="btn-help" class="pixel-btn btn-ghost btn-sm" type="button">❓ CONTROLES Y AYUDA</button>
           </div>
         </div>
       </section>
@@ -344,24 +366,74 @@
           </div>
 
           <p class="control-tip-banner" style="margin-bottom: 8px;">
-            💡 <strong>Recomendado:</strong> <strong>Botones</strong> (clásico) en PC y <strong>Toque + Botones</strong> en móvil.
+            💡 <strong>Recomendado:</strong> <strong>Botones</strong> en PC · <strong>Toque + Botones</strong> o <strong>Joystick</strong> en móvil.
           </p>
 
-          <div class="control-modes-grid">
+          <div class="control-modes-grid control-modes-3">
             <button id="btn-ctrl-buttons" class="mode-choice-card ctrl-choice" type="button">
               <h3>🕹️ BOTONES</h3>
-              <p>Barra inferior con botones táctiles dedicados: Saltar, Agachar, Atacar y Lento.</p>
+              <p>Barra inferior con botones táctiles reordenables.</p>
             </button>
             <button id="btn-ctrl-gestures" class="mode-choice-card ctrl-choice" type="button">
               <h3>👆 TOQUE + BOTONES</h3>
-              <p>Izquierda: toca para saltar (doble toque = doble salto). Derecha: botones de Arañar, Agachar y Lento.</p>
+              <p>Izquierda: toca para saltar. Derecha: botones movibles.</p>
+            </button>
+            <button id="btn-ctrl-joystick" class="mode-choice-card ctrl-choice" type="button">
+              <h3>🕹️ JOYSTICK + ARAÑAR</h3>
+              <p>Stick: arriba salta, abajo agacha, atrás alenta, adelante dash. Derecha: arañar.</p>
             </button>
           </div>
 
-          <div class="modal-actions" style="margin-top: 12px;">
-            <button id="btn-start-demo" class="pixel-btn btn-accent" type="button">▶ PROBAR EN DEMO (SIN PELIGRO)</button>
+          <div class="modal-actions" style="margin-top: 10px;">
+            <button id="btn-open-ctrl-custom" class="pixel-btn btn-secondary" type="button">⚙ PERSONALIZAR POSICIÓN / ORDEN</button>
+            <button id="btn-start-demo" class="pixel-btn btn-accent" type="button">▶ PROBAR EN DEMO</button>
             <button id="btn-save-controls" class="pixel-btn btn-primary" type="button">✓ GUARDAR</button>
           </div>
+        </div>
+      </section>
+
+      <!-- Screen 5B: Control Position & Order Customizer -->
+      <section id="screen-ctrl-custom" class="overlay-screen hidden">
+        <div class="menu-card">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">AJUSTE DE CONTROLES</p>
+              <h2 id="ctrl-custom-title">⚙ PERSONALIZAR CONTROL</h2>
+            </div>
+            <div class="menu-header-actions">
+              <button id="btn-reset-ctrl-layout" class="pixel-btn btn-ghost btn-sm" type="button">↺ RESTABLECER</button>
+              <button id="btn-close-ctrl-custom" class="pixel-btn btn-primary btn-sm" type="button">✓ LISTO</button>
+            </div>
+          </div>
+
+          <div id="ctrl-order-panel" class="ctrl-order-panel hidden">
+            <p class="modal-subtitle" style="margin-bottom:8px;">Usa las flechas ◀ ▶ para cambiar el orden de los 4 botones inferiores:</p>
+            <div id="ctrl-order-list" class="ctrl-order-list"></div>
+          </div>
+
+          <div id="ctrl-drag-stage" class="ctrl-drag-stage hidden">
+            <p class="ctrl-drag-hint">Arrastra los controles a la posición que prefieras:</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 6: Encyclopedia -->
+      <section id="screen-encyclopedia" class="overlay-screen hidden">
+        <div class="menu-card">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">GUÍA DE SUPERVIVENCIA</p>
+              <h2>📖 ENCICLOPEDIA DE ENEMIGOS Y OBJETOS</h2>
+            </div>
+            <button id="btn-close-encyclopedia" class="pixel-btn btn-primary btn-sm" type="button">✓ VOLVER</button>
+          </div>
+          <div class="ency-tabs" id="ency-tabs">
+            <button class="pixel-btn btn-sm btn-primary" data-cat="all" type="button">TODOS</button>
+            <button class="pixel-btn btn-sm btn-secondary" data-cat="enemy" type="button">👾 ENEMIGOS</button>
+            <button class="pixel-btn btn-sm btn-secondary" data-cat="obstacle" type="button">🧱 OBSTÁCULOS</button>
+            <button class="pixel-btn btn-sm btn-secondary" data-cat="bonus" type="button">✨ BONUS</button>
+          </div>
+          <div id="ency-grid" class="ency-grid"></div>
         </div>
       </section>
 

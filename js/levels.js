@@ -1532,10 +1532,11 @@
         sunMoon: "#dff9fb"
       },
       obstacles: [
-        { type: "iceBlock", weight: 28 },
-        { type: "polarBear", weight: 24 },
-        { type: "seal", weight: 24 },
-        { type: "eagle", weight: 24 }
+        { type: "iceBlock", weight: 24 },
+        { type: "polarBear", weight: 22 },
+        { type: "seal", weight: 20 },
+        { type: "eagle", weight: 20 },
+        { type: "whale", weight: 14 }
       ]
     },
     {
@@ -1579,10 +1580,11 @@
         sunMoon: "#ffffff"
       },
       obstacles: [
-        { type: "iceBlock", weight: 24 },
-        { type: "polarBear", weight: 26 },
-        { type: "seal", weight: 26 },
-        { type: "eagle", weight: 24 }
+        { type: "iceBlock", weight: 20 },
+        { type: "polarBear", weight: 22 },
+        { type: "seal", weight: 22 },
+        { type: "eagle", weight: 20 },
+        { type: "whale", weight: 16 }
       ]
     },
     {
@@ -1626,10 +1628,11 @@
         sunMoon: "#81ecec"
       },
       obstacles: [
-        { type: "iceBlock", weight: 24 },
-        { type: "polarBear", weight: 26 },
-        { type: "seal", weight: 24 },
-        { type: "eagle", weight: 26 }
+        { type: "iceBlock", weight: 20 },
+        { type: "polarBear", weight: 22 },
+        { type: "seal", weight: 20 },
+        { type: "eagle", weight: 20 },
+        { type: "whale", weight: 18 }
       ]
     },
     {
@@ -1673,10 +1676,11 @@
         sunMoon: "#ffffff"
       },
       obstacles: [
-        { type: "iceBlock", weight: 24 },
-        { type: "polarBear", weight: 28 },
-        { type: "seal", weight: 24 },
-        { type: "eagle", weight: 24 }
+        { type: "iceBlock", weight: 20 },
+        { type: "polarBear", weight: 22 },
+        { type: "seal", weight: 20 },
+        { type: "eagle", weight: 20 },
+        { type: "whale", weight: 18 }
       ]
     },
     {
@@ -1764,10 +1768,14 @@
         sunMoon: "#ffeaa7"
       },
       obstacles: [
-        { type: "ruins", weight: 22 },
-        { type: "jaguar", weight: 26 },
-        { type: "toucan", weight: 26 },
-        { type: "jungleBug", weight: 26 }
+        { type: "ruins", weight: 14 },
+        { type: "jaguar", weight: 16 },
+        { type: "toucan", weight: 14 },
+        { type: "jungleBug", weight: 14 },
+        { type: "jungleSnake", weight: 14 },
+        { type: "monkey", weight: 10 },
+        { type: "bee", weight: 10 },
+        { type: "croc", weight: 8 }
       ]
     },
     {
@@ -1811,10 +1819,14 @@
         sunMoon: "#dfe6e9"
       },
       obstacles: [
-        { type: "ruins", weight: 24 },
-        { type: "jaguar", weight: 26 },
-        { type: "toucan", weight: 25 },
-        { type: "jungleBug", weight: 25 }
+        { type: "ruins", weight: 14 },
+        { type: "jaguar", weight: 14 },
+        { type: "toucan", weight: 14 },
+        { type: "jungleBug", weight: 14 },
+        { type: "jungleSnake", weight: 14 },
+        { type: "monkey", weight: 10 },
+        { type: "bee", weight: 10 },
+        { type: "croc", weight: 10 }
       ]
     },
     {
@@ -1858,10 +1870,14 @@
         sunMoon: "#ff6b81"
       },
       obstacles: [
-        { type: "ruins", weight: 22 },
-        { type: "jaguar", weight: 28 },
-        { type: "toucan", weight: 25 },
-        { type: "jungleBug", weight: 25 }
+        { type: "ruins", weight: 12 },
+        { type: "jaguar", weight: 14 },
+        { type: "toucan", weight: 14 },
+        { type: "jungleBug", weight: 14 },
+        { type: "jungleSnake", weight: 14 },
+        { type: "monkey", weight: 10 },
+        { type: "bee", weight: 12 },
+        { type: "croc", weight: 10 }
       ]
     },
     {
@@ -1905,10 +1921,14 @@
         sunMoon: "#ff6b81"
       },
       obstacles: [
-        { type: "ruins", weight: 22 },
-        { type: "jaguar", weight: 30 },
-        { type: "toucan", weight: 24 },
-        { type: "jungleBug", weight: 24 }
+        { type: "ruins", weight: 12 },
+        { type: "jaguar", weight: 14 },
+        { type: "toucan", weight: 14 },
+        { type: "jungleBug", weight: 14 },
+        { type: "jungleSnake", weight: 14 },
+        { type: "monkey", weight: 10 },
+        { type: "bee", weight: 12 },
+        { type: "croc", weight: 10 }
       ]
     },
     {
@@ -2286,10 +2306,11 @@
         sunMoon: "#dff9fb"
       },
       obstacles: [
-        { type: "iceBlock", weight: 25 },
-        { type: "polarBear", weight: 25 },
-        { type: "seal", weight: 25 },
-        { type: "eagle", weight: 25 }
+        { type: "iceBlock", weight: 20 },
+        { type: "polarBear", weight: 22 },
+        { type: "seal", weight: 20 },
+        { type: "eagle", weight: 20 },
+        { type: "whale", weight: 18 }
       ]
     },
     {
@@ -2334,10 +2355,14 @@
         sunMoon: "#ffeaa7"
       },
       obstacles: [
-        { type: "ruins", weight: 22 },
-        { type: "jaguar", weight: 26 },
-        { type: "toucan", weight: 26 },
-        { type: "jungleBug", weight: 26 }
+        { type: "ruins", weight: 12 },
+        { type: "jaguar", weight: 14 },
+        { type: "toucan", weight: 14 },
+        { type: "jungleBug", weight: 14 },
+        { type: "jungleSnake", weight: 14 },
+        { type: "monkey", weight: 10 },
+        { type: "bee", weight: 12 },
+        { type: "croc", weight: 10 }
       ]
     }
   ];
@@ -2491,6 +2516,112 @@
     return areAllBossesCleared() || Boolean(RC.Storage && RC.Storage.isDevUnlockAll());
   }
 
+  const ENCYCLOPEDIA = [
+    // Enemies
+    { id: "mouse", name: "Ratón Callejero", sprite: "mouse1", category: "enemy", destructible: true, zone: "Ciudad", desc: "Corre rápido por el suelo. Destrúyelo con zarpazo." },
+    { id: "bird", name: "Ave Urbana", sprite: "bird1", category: "enemy", destructible: true, zone: "Ciudad / Avión", desc: "Vuela en oleadas a distintas alturas." },
+    { id: "drone", name: "Dron Vigilante", sprite: "drone1", category: "enemy", destructible: true, zone: "Ciudad / Avión", desc: "Vuela veloz haciendo zigzag suave." },
+    { id: "jellyfish", name: "Medusa Eléctrica", sprite: "jellyfish1", category: "enemy", destructible: true, zone: "Mar", desc: "Flota ondulando en el agua." },
+    { id: "miniSkeleton", name: "Mini Esqueleto", sprite: "miniSkeleton1", category: "enemy", destructible: true, zone: "Transilvania", desc: "Patrulla los cementerios de noche." },
+    { id: "spider", name: "Araña Colgante", sprite: "spider1", category: "enemy", destructible: true, zone: "Transilvania", desc: "Baja del techo y deja caer gotas." },
+    { id: "zombie", name: "Zombi", sprite: "zombie1", category: "enemy", destructible: true, zone: "Transilvania", desc: "Camina lento pero escupe ácido verde." },
+    { id: "crow", name: "Cuervo", sprite: "crow1", category: "enemy", destructible: true, zone: "Transilvania", desc: "Vuela y suelta huevos desde arriba." },
+    { id: "alienWalker", name: "Alien Caminante", sprite: "alienWalker1", category: "enemy", destructible: true, zone: "Espacio", desc: "Camina en la luna y dispara láser." },
+    { id: "alienFloater", name: "Alien Flotador", sprite: "alienFloater1", category: "enemy", destructible: true, zone: "Espacio", desc: "Flota en el espacio y dispara plasma." },
+    { id: "polarBear", name: "Oso Polar", sprite: "polarBear1", category: "enemy", destructible: true, zone: "Nieve", desc: "Salta al acercarse y lanza bolas de nieve." },
+    { id: "seal", name: "Foca Polar", sprite: "seal1", category: "enemy", destructible: true, zone: "Nieve", desc: "Se desliza rápido y brinca en el hielo." },
+    { id: "eagle", name: "Águila Ártica", sprite: "eagle1", category: "enemy", destructible: true, zone: "Nieve", desc: "Desciende en picada y lanza nieve." },
+    { id: "whale", name: "Ballena Geiser", sprite: "whale1", category: "enemy", destructible: false, zone: "Nieve", desc: "Sale del piso helado y dispara chorros de agua hacia arriba." },
+    { id: "jaguar", name: "Jaguar", sprite: "jaguar1", category: "enemy", destructible: true, zone: "Selva", desc: "Salta alto intentando atrapar al gatito." },
+    { id: "toucan", name: "Tucán", sprite: "toucan1", category: "enemy", destructible: true, zone: "Selva", desc: "Vuela en picada y suelta huevos." },
+    { id: "jungleBug", name: "Insecto Selvático", sprite: "jungleBug1", category: "enemy", destructible: true, zone: "Selva", desc: "Flota erráticamente y escupe veneno." },
+    { id: "jungleSnake", name: "Serpiente Rastreadora", sprite: "jungleSnake1", category: "enemy", destructible: true, zone: "Selva", desc: "Se arrastra por el suelo y lanza veneno." },
+    { id: "monkey", name: "Mono de Árbol", sprite: "monkey1", category: "enemy", destructible: true, zone: "Selva", desc: "Está en lo alto de los árboles lanzando cocos." },
+    { id: "bee", name: "Abeja Veloz", sprite: "bee1", category: "enemy", destructible: true, zone: "Selva", desc: "Se lanza en línea recta a gran velocidad hacia donde estabas." },
+    { id: "croc", name: "Cocodrilo", sprite: "croc1", category: "enemy", destructible: false, zone: "Selva", desc: "Sale de los charcos hacia arriba intentando morder." },
+    // Obstacles & Hazards
+    { id: "crate", name: "Caja de Madera", sprite: "crate", category: "obstacle", destructible: true, zone: "Ciudad", desc: "Rómpela con tu zarpazo para ganar puntos." },
+    { id: "movingCrate", name: "Caja Voladora", sprite: "movingCrate", category: "obstacle", destructible: true, zone: "Todas", desc: "Se mueve por la pantalla; puede soltar +1 Vida ♥." },
+    { id: "hydrant", name: "Hidrante / Basura", sprite: "hydrant", category: "obstacle", destructible: false, zone: "Ciudad", desc: "Obstáculo sólido: sáltalo." },
+    { id: "seaWall", name: "Muro Submarino", sprite: "seaWall", category: "obstacle", destructible: true, zone: "Mar", desc: "Destrúyelo con X para abrir paso." },
+    { id: "seaweed", name: "Algas Densas", sprite: "seaweed", category: "obstacle", destructible: true, zone: "Mar", desc: "Bloquean toda la pantalla: córtalas con X." },
+    { id: "proxMine", name: "Bomba Proximidad", sprite: "proxMine", category: "obstacle", destructible: true, zone: "Mar", desc: "Explota si nadas cerca; araña con X para lanzarla." },
+    { id: "skyBlock", name: "Bloque Aéreo", sprite: "skyBlock", category: "obstacle", destructible: false, zone: "Avión", desc: "Indestructible: esquívalo subiendo o bajando." },
+    { id: "tombstone", name: "Lápida", sprite: "tombstone", category: "obstacle", destructible: false, zone: "Transilvania", desc: "Piedra sólida del cementerio." },
+    { id: "spaceRock", name: "Roca Lunar", sprite: "spaceRock", category: "obstacle", destructible: false, zone: "Espacio", desc: "Cristal espacial indestructible." },
+    { id: "iceBlock", name: "Bloque de Hielo", sprite: "iceBlock", category: "obstacle", destructible: true, zone: "Nieve", desc: "Rómpelo con X o con el Impulso de Nieve." },
+    { id: "ruins", name: "Restos de Ruinas", sprite: "ruins", category: "obstacle", destructible: false, zone: "Selva", desc: "Ruinas antiguas indestructibles." },
+    { id: "whirlpool", name: "Remolino / Tornado / Fantasma / OVNI", sprite: "whirlpool1", category: "obstacle", destructible: false, zone: "Peligro Letal", desc: "Peligros de zona: quitan todas tus vidas al instante." },
+    // Bonuses & Power-ups
+    { id: "fish", name: "Pescadito", sprite: "fish", category: "bonus", destructible: false, zone: "Todas", desc: "+25 pts y recarga energía de cámara lenta." },
+    { id: "goldFish", name: "Pez Dorado", sprite: "goldFish", category: "bonus", destructible: false, zone: "Todas", desc: "+75 pts y gran recarga de energía." },
+    { id: "heart", name: "Corazón (+1 Vida)", sprite: "heart", category: "bonus", destructible: false, zone: "Todas", desc: "Sale de cajas voladoras; suma 1 vida." },
+    { id: "shield", name: "Ovillo Escudo", sprite: "shield", category: "bonus", destructible: false, zone: "Todas", desc: "Absorbe 1 golpe enemigo sin perder vida." },
+    { id: "magnet", name: "Imán", sprite: "magnet", category: "bonus", destructible: false, zone: "Todas", desc: "Atrae pescaditos automáticamente." },
+    { id: "milk", name: "Leche Felina", sprite: "milk", category: "bonus", destructible: false, zone: "Todas", desc: "Brillo dorado: inmunidad temporal y destruye enemigos." },
+    { id: "snowBoost", name: "Impulso Helado", sprite: "snowBoost", category: "bonus", destructible: false, zone: "Nieve", desc: "Aumenta velocidad y rompe bloques de hielo al tocarlos." },
+    { id: "weaponPickup", name: "Mejora Láser", sprite: "weaponPickup", category: "bonus", destructible: false, zone: "Espacio", desc: "Potencia tu láser espacial hasta Nivel 3." }
+  ];
+
+  const ZONE_TUTORIALS = {
+    city: {
+      title: "Tutorial Zona 1: Ciudad y Techos",
+      steps: [
+        { label: "1/3 ENEMIGOS", text: "Ratones, aves y drones patrullan el camino. ¡Destrúyelos con X o sáltalos!", sprites: ["mouse1", "bird1", "drone1"] },
+        { label: "2/3 OBSTÁCULOS", text: "Las cajas (izquierda) se rompen con X. Hidrantes y huecos en el suelo NO: ¡sáltalos!", sprites: ["crate", "hydrant"] },
+        { label: "3/3 BONUS", text: "Recoge peces, escudos, imanes, leche y cajas voladoras (dan vidas).", sprites: ["fish", "shield", "milk", "heart"] }
+      ]
+    },
+    ocean: {
+      title: "Tutorial Zona 2: Abismo Marino",
+      steps: [
+        { label: "1/3 ENEMIGOS", text: "Medusas y minas flotan bajo el agua. Esquiva los remolinos letales.", sprites: ["jellyfish1", "seaMine", "whirlpool1"] },
+        { label: "2/3 DESTRUIR vs ESQUIVAR", text: "Corta las algas y muros con X. Araña bombas de proximidad para lanzarlas.", sprites: ["seaweed", "seaWall", "proxMine"] },
+        { label: "3/3 BONUS", text: "Nada por peces dorados y power-ups para recargar cámara lenta.", sprites: ["goldFish", "magnet", "shield"] }
+      ]
+    },
+    sky: {
+      title: "Tutorial Zona 3: Mini-Avión",
+      steps: [
+        { label: "1/3 ENEMIGOS", text: "Aves y drones atacan en el cielo. ¡Dispara con X o ESPACIO!", sprites: ["bird1", "drone1"] },
+        { label: "2/3 INDESTRUCTIBLES", text: "Los bloques aéreos y los tornados NO se destruyen: esquívalos.", sprites: ["skyBlock", "tornado1"] },
+        { label: "3/3 BONUS", text: "Recoge peces y misiles en la batalla contra el Avión Basurero.", sprites: ["fish", "missilePickup", "milk"] }
+      ]
+    },
+    spooky: {
+      title: "Tutorial Zona 4: Transilvania",
+      steps: [
+        { label: "1/3 ENEMIGOS", text: "Esqueletos, arañas, zombis y cuervos atacan. ¡Doble salto para volar como murciélago!", sprites: ["miniSkeleton1", "spider1", "zombie1", "crow1"] },
+        { label: "2/3 PELIGROS", text: "Las lápidas y los fantasmas NO se destruyen. ¡Evita que te secuestren!", sprites: ["tombstone", "ghost1"] },
+        { label: "3/3 BONUS", text: "Ante el Esqueleto Gigante, cada 5 enemigos/huesos destruidos cae un rayo.", sprites: ["bone", "shield", "heart"] }
+      ]
+    },
+    space: {
+      title: "Tutorial Zona 5: Espacio",
+      steps: [
+        { label: "1/3 ENEMIGOS", text: "Aliens caminantes y flotantes disparan láseres. ¡Usa tu láser con X!", sprites: ["alienWalker1", "alienFloater1"] },
+        { label: "2/3 PELIGROS", text: "Rocas lunares y el rayo de OVNIs abductores NO se destruyen: ¡esquívalos!", sprites: ["spaceRock", "abductorUfo1"] },
+        { label: "3/3 BONUS", text: "Destruye mini-naves para recoger mejoras de láser hasta Nivel 3.", sprites: ["weaponPickup", "miniUfo1", "milk"] }
+      ]
+    },
+    snow: {
+      title: "Tutorial Zona 6: Ártico Nevado",
+      steps: [
+        { label: "1/3 ENEMIGOS", text: "Osos polares, focas, águilas y ballenas con chorros de agua. ¡Cuidado con las ventiscas!", sprites: ["polarBear1", "seal1", "eagle1", "whale1"] },
+        { label: "2/3 HIELO Y HUECOS", text: "Rompe bloques de hielo con X o Impulso. Salta los huecos en la nieve.", sprites: ["iceBlock", "snowBoost"] },
+        { label: "3/3 BONUS", text: "Recoge el Impulso Helado y peces para alimentar al Pingüino Gigante.", sprites: ["snowBoost", "fish", "heart"] }
+      ]
+    },
+    jungle: {
+      title: "Tutorial Zona 7: Selva Perdida",
+      steps: [
+        { label: "1/3 ENEMIGOS", text: "Jaguares, serpientes, monos en árboles, abejas veloces y cocodrilos en charcos.", sprites: ["jaguar1", "jungleSnake1", "monkey1", "bee1", "croc1"] },
+        { label: "2/3 RUTAS Y PANTANOS", text: "Sube por ramas elevadas o agárrate de lianas para no caer al pantano. Ruinas son sólidas.", sprites: ["ruins", "toucan1", "jungleBug1"] },
+        { label: "3/3 BONUS", text: "Recoge bolas de lodo contra la Serpiente y corazones de cajas móviles.", sprites: ["mudBall", "heart", "shield"] }
+      ]
+    }
+  };
+
   RC.Levels = {
     LIST: LEVELS,
     STORY_LIST: STORY_LEVELS,
@@ -2501,6 +2632,8 @@
     CUSTOM_COLORS,
     CUSTOM_PATTERNS,
     CUSTOM_COSMETICS,
+    ENCYCLOPEDIA,
+    ZONE_TUTORIALS,
     isCustomUnlocked,
     getLevelById,
     getNextLevel,
