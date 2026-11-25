@@ -1716,7 +1716,9 @@
   function getCatSprite(pose, skinId, scale, hatColor) {
     const s = scale || 3;
     const hc = hatColor || "";
-    const key = `cat_${pose}_${skinId}_${s}_${hc}`;
+    const customSig =
+      skinId === "custom" && RC.Storage ? JSON.stringify(RC.Storage.getCustomCat()) : "";
+    const key = `cat_${pose}_${skinId}_${s}_${hc}_${customSig}`;
     if (cache.has(key)) return cache.get(key);
 
     const skin = RC.Levels.getCatSkinById(skinId);
@@ -1736,24 +1738,17 @@
     const matrix = CAT_MATRICES[pose] || CAT_MATRICES.run1;
     const canvas = buildCanvas(matrix, palette, s);
 
-    // Apply special coat patterns & accessories for new cat skins
-    if (skin.pattern) {
+    // Apply special coat patterns & accessories for cat skins & customizer
+    const pat = skin.pattern;
+    const cos = skin.cosmetic || (["bow", "hat", "crown"].includes(pat) ? pat : null);
+    if (pat || cos) {
       const cctx = canvas.getContext("2d");
       const isDuck = pose === "duck1" || pose === "duck2";
       const isSwim = pose === "swim1" || pose === "swim2";
       const isPlane = pose === "plane1" || pose === "plane2";
 
-      if (skin.pattern === "bow" && !isPlane) {
-        const bowCol = skin.bowColor || "#ff4757";
-        const bowHi = "#ff9ff3";
-        const bx = isDuck ? 10 * s : isSwim ? 9 * s : 8 * s;
-        const by = isDuck ? 0 : isSwim ? 2 * s : 0;
-        cctx.fillStyle = bowCol;
-        cctx.fillRect(bx, by, 2 * s, 2 * s);
-        cctx.fillRect(bx + 3 * s, by, 2 * s, 2 * s);
-        cctx.fillStyle = bowHi;
-        cctx.fillRect(bx + 2 * s, by + Math.floor(s * 0.5), s, s);
-      } else if (skin.pattern === "spots" && !isPlane) {
+      // Coat patterns
+      if (pat === "spots" && !isPlane) {
         cctx.fillStyle = p.dark;
         if (isDuck) {
           cctx.fillRect(4 * s, 4 * s, 2 * s, 2 * s);
@@ -1763,7 +1758,7 @@
           cctx.fillRect(7 * s, 8 * s, 2 * s, 2 * s);
           cctx.fillRect(10 * s, 2 * s, 2 * s, 1 * s);
         }
-      } else if (skin.pattern === "tortie" && !isPlane) {
+      } else if (pat === "tortie" && !isPlane) {
         cctx.fillStyle = "#e67e22";
         if (isDuck) {
           cctx.fillRect(4 * s, 4 * s, 2 * s, 2 * s);
@@ -1775,7 +1770,7 @@
         }
         cctx.fillStyle = "#f39c12";
         cctx.fillRect(6 * s, isDuck ? 5 * s : 9 * s, 2 * s, s);
-      } else if (skin.pattern === "tabby" && !isPlane) {
+      } else if (pat === "tabby" && !isPlane) {
         cctx.fillStyle = p.dark;
         if (isDuck) {
           cctx.fillRect(5 * s, 4 * s, s, 2 * s);
@@ -1784,10 +1779,28 @@
           cctx.fillRect(5 * s, 7 * s, s, 2 * s);
           cctx.fillRect(8 * s, 7 * s, s, 2 * s);
         }
-      } else if (skin.pattern === "hat" && !isPlane) {
+      } else if (pat === "tuxedo" && !isPlane) {
+        cctx.fillStyle = "#ffffff";
+        if (isDuck) {
+          cctx.fillRect(5 * s, 5 * s, 6 * s, 2 * s);
+        } else {
+          cctx.fillRect(4 * s, 8 * s, 6 * s, 3 * s);
+        }
+      }
+
+      // Headgear cosmetics
+      const hx = isDuck ? 10 * s : 9 * s;
+      const hy = isDuck ? 0 : isSwim ? 1 * s : 0;
+      if (cos === "bow" && !isPlane) {
+        const bowCol = skin.bowColor || "#ff4757";
+        const bx = isDuck ? 10 * s : isSwim ? 9 * s : 8 * s;
+        cctx.fillStyle = bowCol;
+        cctx.fillRect(bx, hy, 2 * s, 2 * s);
+        cctx.fillRect(bx + 3 * s, hy, 2 * s, 2 * s);
+        cctx.fillStyle = "#ff9ff3";
+        cctx.fillRect(bx + 2 * s, hy + Math.floor(s * 0.5), s, s);
+      } else if (cos === "hat" && !isPlane) {
         const hatCol = hatColor || "#ff4757";
-        const hx = isDuck ? 10 * s : isSwim ? 9 * s : 9 * s;
-        const hy = isDuck ? 0 : isSwim ? 1 * s : 0;
         cctx.fillStyle = "#1e272e";
         cctx.fillRect(hx, hy, 5 * s, 2 * s);
         cctx.fillStyle = hatCol;
@@ -1795,16 +1808,39 @@
         cctx.fillRect(hx + s, hy - s, 3 * s, s);
         cctx.fillStyle = "#ffffff";
         cctx.fillRect(hx, hy + s, 6 * s, s);
-      } else if (skin.pattern === "crown" && !isPlane) {
-        const kx = isDuck ? 10 * s : 9 * s;
-        const ky = isDuck ? 0 : 0;
-        cctx.fillStyle = "#ffd32a";
-        cctx.fillRect(kx, ky + s, 5 * s, s);
-        cctx.fillRect(kx, ky, s, s);
-        cctx.fillRect(kx + 2 * s, ky, s, s);
-        cctx.fillRect(kx + 4 * s, ky, s, s);
+      } else if (cos === "cap" && !isPlane) {
+        cctx.fillStyle = "#0984e3";
+        cctx.fillRect(hx, hy, 5 * s, 2 * s);
+        cctx.fillStyle = "#74b9ff";
+        cctx.fillRect(hx + s, hy + s, 6 * s, s);
+      } else if (cos === "beanie" && !isPlane) {
+        cctx.fillStyle = "#ff6b81";
+        cctx.fillRect(hx, hy, 5 * s, 2 * s);
+        cctx.fillStyle = "#ffffff";
+        cctx.fillRect(hx + 2 * s, hy - s, 2 * s, s);
+      } else if (cos === "tophat" && !isPlane) {
+        cctx.fillStyle = "#1e272e";
+        cctx.fillRect(hx - s, hy + s, 7 * s, s);
+        cctx.fillRect(hx + s, hy - s, 3 * s, 2 * s);
         cctx.fillStyle = "#ff4757";
-        cctx.fillRect(kx + 2 * s, ky + s, s, s);
+        cctx.fillRect(hx + s, hy + Math.floor(s * 0.5), 3 * s, Math.max(1, Math.floor(s * 0.5)));
+      } else if (cos === "wizard" && !isPlane) {
+        cctx.fillStyle = "#5f27cd";
+        cctx.fillRect(hx - s, hy + s, 7 * s, s);
+        cctx.fillRect(hx + s, hy - s, 3 * s, 2 * s);
+        cctx.fillStyle = "#ffd32a";
+        cctx.fillRect(hx + 2 * s, hy, s, s);
+      } else if (cos === "halo" && !isPlane) {
+        cctx.fillStyle = "#ffd32a";
+        cctx.fillRect(hx, hy, 5 * s, s);
+      } else if (cos === "crown" && !isPlane) {
+        cctx.fillStyle = "#ffd32a";
+        cctx.fillRect(hx, hy + s, 5 * s, s);
+        cctx.fillRect(hx, hy, s, s);
+        cctx.fillRect(hx + 2 * s, hy, s, s);
+        cctx.fillRect(hx + 4 * s, hy, s, s);
+        cctx.fillStyle = "#ff4757";
+        cctx.fillRect(hx + 2 * s, hy + s, s, s);
       }
     }
 

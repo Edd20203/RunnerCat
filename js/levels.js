@@ -2398,7 +2398,78 @@
     return Boolean(RC.Storage.getLevelRecord(prevLvl.id).cleared);
   }
 
+  const CUSTOM_BREEDS = [
+    { id: "classic", name: "Clásico", eye: "#1a202c", collar: "#e84118" },
+    { id: "siamese", name: "Siamés", eye: "#48dbfb", collar: "#ff6b81" },
+    { id: "fluffy", name: "Persa", eye: "#2ed573", collar: "#ffa502" },
+    { id: "ninja", name: "Ninja", eye: "#ffd32a", collar: "#6c5ce7" }
+  ];
+
+  const CUSTOM_COLORS = [
+    { id: "orange", name: "Naranja", body: "#f39c3d", dark: "#b85d19", light: "#ffe3b8", req: 0 },
+    { id: "white", name: "Blanco", body: "#f5f6fa", dark: "#a4b0be", light: "#ffffff", req: 0 },
+    { id: "black", name: "Negro", body: "#2f3640", dark: "#14171c", light: "#747d8c", req: 0 },
+    { id: "gray", name: "Gris", body: "#95a5a6", dark: "#3d4849", light: "#dfe6e9", req: 0 },
+    { id: "beige", name: "Beige", body: "#e6ccb2", dark: "#9c7a5b", light: "#fdf0d5", req: 0 },
+    { id: "brown", name: "Café", body: "#8c5327", dark: "#4a2c14", light: "#d4a373", req: 0 },
+    { id: "cyan", name: "Neón Cian", body: "#00d2d3", dark: "#0a3d62", light: "#c7ecee", req: 1 },
+    { id: "pink", name: "Rosa Chicle", body: "#ff6b81", dark: "#831630", light: "#ffd3dc", req: 3 },
+    { id: "purple", name: "Cósmico", body: "#9b59b6", dark: "#3b174d", light: "#e2b8ff", req: 5 },
+    { id: "alien", name: "Verde Alien", body: "#2ed573", dark: "#0e4d26", light: "#b8ffd4", req: 8 },
+    { id: "gold", name: "Oro Puro", body: "#ffd32a", dark: "#b37700", light: "#fff8c7", req: 12 },
+    { id: "galaxy", name: "Galaxia", body: "#5352ed", dark: "#191547", light: "#a29bfe", req: 16 }
+  ];
+
+  const CUSTOM_PATTERNS = [
+    { id: "none", name: "Liso", req: 0 },
+    { id: "tabby", name: "Rayas", req: 0 },
+    { id: "spots", name: "Manchas", req: 0 },
+    { id: "tortie", name: "Carey", req: 2 },
+    { id: "tuxedo", name: "Esmoquin", req: 4 }
+  ];
+
+  const CUSTOM_COSMETICS = [
+    { id: "none", name: "Ninguno", req: 0 },
+    { id: "bow", name: "Moño", req: 1 },
+    { id: "cap", name: "Gorra", req: 2 },
+    { id: "beanie", name: "Gorrito", req: 4 },
+    { id: "tophat", name: "Copa", req: 6 },
+    { id: "wizard", name: "Mágico", req: 10 },
+    { id: "halo", name: "Aureola", req: 14 },
+    { id: "crown", name: "Corona", req: 18 },
+    { id: "hat", name: "Arcoíris", req: 22 }
+  ];
+
+  function getCustomCatSkin() {
+    const cfg = RC.Storage ? RC.Storage.getCustomCat() : { name: "Mi Michi", breed: "classic", color: "orange", pattern: "none", cosmetic: "none" };
+    const breed = CUSTOM_BREEDS.find((b) => b.id === cfg.breed) || CUSTOM_BREEDS[0];
+    const col = CUSTOM_COLORS.find((c) => c.id === cfg.color) || CUSTOM_COLORS[0];
+    return {
+      id: "custom",
+      name: cfg.name || "Mi Michi",
+      desc: `${breed.name} · ${col.name}`,
+      pattern: cfg.pattern !== "none" ? cfg.pattern : null,
+      cosmetic: cfg.cosmetic !== "none" ? cfg.cosmetic : null,
+      bowColor: "#ff4757",
+      palette: {
+        body: col.body,
+        dark: col.dark,
+        light: col.light,
+        eye: breed.eye,
+        nose: "#ff7675",
+        collar: breed.collar
+      }
+    };
+  }
+
+  function isCustomUnlocked(req) {
+    if (!req || req <= 0) return true;
+    if (RC.Storage && RC.Storage.isDevUnlockAll()) return true;
+    return RC.Storage ? RC.Storage.getClearedCount() >= req : false;
+  }
+
   function getCatSkinById(id) {
+    if (id === "custom") return getCustomCatSkin();
     return CAT_SKINS.find((c) => c.id === id) || CAT_SKINS[0];
   }
 
@@ -2426,6 +2497,11 @@
     ENDLESS_LIST: ENDLESS_LEVELS,
     STORY_ZONES,
     CAT_SKINS,
+    CUSTOM_BREEDS,
+    CUSTOM_COLORS,
+    CUSTOM_PATTERNS,
+    CUSTOM_COSMETICS,
+    isCustomUnlocked,
     getLevelById,
     getNextLevel,
     isLevelUnlocked,

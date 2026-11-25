@@ -21,6 +21,8 @@
     const screenMode = document.getElementById("screen-mode");
     const screenMenu = document.getElementById("screen-menu");
     const screenCats = document.getElementById("screen-cats");
+    const screenCustomizer = document.getElementById("screen-customizer");
+    const screenProfile = document.getElementById("screen-profile");
     const screenControls = document.getElementById("screen-controls");
     const screenHelp = document.getElementById("screen-help");
     const screenPause = document.getElementById("screen-pause");
@@ -29,7 +31,12 @@
     // Title & Mode elements
     const btnEnter = document.getElementById("btn-enter");
     const btnOpenCats = document.getElementById("btn-open-cats");
+    const btnOpenCustomizer = document.getElementById("btn-open-customizer");
     const btnOpenControls = document.getElementById("btn-open-controls");
+    const btnOpenProfile = document.getElementById("btn-open-profile");
+    const lblTitleCat = document.getElementById("lbl-title-cat");
+    const lblTitleCtrl = document.getElementById("lbl-title-ctrl");
+    const lblTitleUser = document.getElementById("lbl-title-user");
     const btnBackTitle = document.getElementById("btn-back-title");
     const btnModeStory = document.getElementById("btn-mode-story");
     const btnModeArcade = document.getElementById("btn-mode-arcade");
@@ -387,15 +394,20 @@
     function refreshModeBadges() {
       const skin = RC.Levels.getCatSkinById(selectedCatId);
       const ctrl = RC.Storage.getControlMode();
+      const prof = RC.Storage.getProfile();
       lblCurCat.textContent = skin.name;
-      lblCurCtrl.textContent = ctrl === "gestures" ? "Gestos" : "Botones";
+      lblCurCtrl.textContent = ctrl === "gestures" ? "Toque+Botones" : "Botones";
+      if (lblTitleCat) lblTitleCat.textContent = skin.name;
+      if (lblTitleCtrl) lblTitleCtrl.textContent = ctrl === "gestures" ? "Toque + Botones" : "Botones";
+      if (lblTitleUser) lblTitleUser.textContent = prof.username;
       btnCtrlButtons.classList.toggle("selected", ctrl === "buttons");
       btnCtrlGestures.classList.toggle("selected", ctrl === "gestures");
     }
 
     function renderCatsModal() {
       catGrid.innerHTML = "";
-      RC.Levels.CAT_SKINS.forEach((skin) => {
+      const allCats = [RC.Levels.getCatSkinById("custom"), ...RC.Levels.CAT_SKINS];
+      allCats.forEach((skin) => {
         const unlocked = RC.Levels.isCatUnlocked(skin.id);
         const card = document.createElement("button");
         card.type = "button";
@@ -526,6 +538,8 @@
       screenMode.classList.add("hidden");
       screenMenu.classList.add("hidden");
       screenCats.classList.add("hidden");
+      if (screenCustomizer) screenCustomizer.classList.add("hidden");
+      if (screenProfile) screenProfile.classList.add("hidden");
       screenControls.classList.add("hidden");
       screenHelp.classList.add("hidden");
       screenPause.classList.add("hidden");
@@ -731,9 +745,21 @@
       refreshSoundBtn();
     });
 
+    function openControlsModal(nextReturn) {
+      returnScreen = nextReturn;
+      hideAllOverlays();
+      refreshModeBadges();
+      btnCloseControls.classList.toggle("hidden", !RC.Storage.hasChosenControl());
+      screenControls.classList.remove("hidden");
+    }
+
     btnEnter.addEventListener("click", () => {
       RC.Audio.uiClick();
       tryLockLandscape();
+      if (!RC.Storage.hasChosenControl()) {
+        openControlsModal("mode");
+        return;
+      }
       showModeScreen();
     });
 
@@ -781,18 +807,12 @@
 
     btnOpenControls.addEventListener("click", () => {
       RC.Audio.uiClick();
-      returnScreen = "title";
-      hideAllOverlays();
-      refreshModeBadges();
-      screenControls.classList.remove("hidden");
+      openControlsModal("title");
     });
 
     btnModeControls.addEventListener("click", () => {
       RC.Audio.uiClick();
-      returnScreen = "mode";
-      hideAllOverlays();
-      refreshModeBadges();
-      screenControls.classList.remove("hidden");
+      openControlsModal("mode");
     });
 
     btnCtrlButtons.addEventListener("click", () => {
@@ -821,12 +841,211 @@
     });
 
     const closeControlsAction = () => {
+      if (!RC.Storage.hasChosenControl()) {
+        RC.Storage.setControlMode(RC.Storage.getControlMode());
+      }
       RC.Audio.uiClick();
       if (returnScreen === "mode") showModeScreen();
       else showTitleScreen();
     };
     btnCloseControls.addEventListener("click", closeControlsAction);
     btnSaveControls.addEventListener("click", closeControlsAction);
+
+    // ---- Custom Cat Studio & Profile Logic ----
+    const customPreviewCanvas = document.getElementById("custom-preview-canvas");
+    const customCatNameInput = document.getElementById("custom-cat-name");
+    const customClearedCount = document.getElementById("custom-cleared-count");
+    const customBreedsEl = document.getElementById("custom-breeds");
+    const customColorsEl = document.getElementById("custom-colors");
+    const customPatternsEl = document.getElementById("custom-patterns");
+    const customCosmeticsEl = document.getElementById("custom-cosmetics");
+    const btnUseCustomCat = document.getElementById("btn-use-custom-cat");
+    const btnCloseCustomizer = document.getElementById("btn-close-customizer");
+
+    const profileAvatarCanvas = document.getElementById("profile-avatar-canvas");
+    const profileUsernameInput = document.getElementById("profile-username-input");
+    const btnSaveUsername = document.getElementById("btn-save-username");
+    const profileStatsGrid = document.getElementById("profile-stats-grid");
+    const profileAvatarGrid = document.getElementById("profile-avatar-grid");
+    const profileHistoryList = document.getElementById("profile-history-list");
+    const btnCloseProfile = document.getElementById("btn-close-profile");
+
+    function renderCustomPreview() {
+      if (!customPreviewCanvas) return;
+      const pctx = customPreviewCanvas.getContext("2d");
+      pctx.clearRect(0, 0, customPreviewCanvas.width, customPreviewCanvas.height);
+      pctx.imageSmoothingEnabled = false;
+      const spr = RC.Sprites.getCatSprite("run1", "custom", 4);
+      pctx.drawImage(spr, 0, 0);
+    }
+
+    function renderCustomizer() {
+      const cfg = RC.Storage.getCustomCat();
+      if (customClearedCount) customClearedCount.textContent = RC.Storage.getClearedCount();
+      if (customCatNameInput) customCatNameInput.value = cfg.name || "Mi Michi";
+
+      const buildPills = (el, items, currentVal, key, isColor) => {
+        if (!el) return;
+        el.innerHTML = "";
+        items.forEach((item) => {
+          const unlocked = RC.Levels.isCustomUnlocked(item.req);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `custom-pill${currentVal === item.id ? " selected" : ""}${
+            !unlocked ? " locked" : ""
+          }`;
+          btn.disabled = !unlocked;
+          const dot = isColor
+            ? `<span class="color-dot" style="background:${item.body}"></span>`
+            : "";
+          const lock = !unlocked ? ` 🔒${item.req}N` : "";
+          btn.innerHTML = `${dot}${item.name}${lock}`;
+          btn.addEventListener("click", () => {
+            if (!unlocked) return;
+            RC.Audio.uiClick();
+            RC.Storage.setCustomCat({ [key]: item.id });
+            renderCustomizer();
+          });
+          el.appendChild(btn);
+        });
+      };
+
+      buildPills(customBreedsEl, RC.Levels.CUSTOM_BREEDS, cfg.breed, "breed", false);
+      buildPills(customColorsEl, RC.Levels.CUSTOM_COLORS, cfg.color, "color", true);
+      buildPills(customPatternsEl, RC.Levels.CUSTOM_PATTERNS, cfg.pattern, "pattern", false);
+      buildPills(customCosmeticsEl, RC.Levels.CUSTOM_COSMETICS, cfg.cosmetic, "cosmetic", false);
+      renderCustomPreview();
+    }
+
+    function formatPlayTime(sec) {
+      const s = Math.floor(sec || 0);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const rem = s % 60;
+      if (h > 0) return `${h}h ${m}m`;
+      return `${m}m ${rem}s`;
+    }
+
+    function renderProfile() {
+      const prof = RC.Storage.getProfile();
+      if (profileUsernameInput) profileUsernameInput.value = prof.username || "MichiPlayer";
+
+      if (profileAvatarCanvas) {
+        const actx = profileAvatarCanvas.getContext("2d");
+        actx.clearRect(0, 0, profileAvatarCanvas.width, profileAvatarCanvas.height);
+        actx.imageSmoothingEnabled = false;
+        const spr = RC.Sprites.getCatSprite("run1", prof.avatarId || "ginger", 3);
+        actx.drawImage(spr, 0, 0);
+      }
+
+      if (profileStatsGrid) {
+        const cleared = RC.Storage.getClearedCount();
+        profileStatsGrid.innerHTML = `
+          <div class="profile-stat">TIEMPO JUGADO<strong>${formatPlayTime(prof.totalPlaySeconds)}</strong></div>
+          <div class="profile-stat">PARTIDAS<strong>${prof.totalRuns || 0}</strong></div>
+          <div class="profile-stat">NIVELES<strong>${cleared} / ${RC.Levels.STORY_LIST.length}</strong></div>
+          <div class="profile-stat">PECES<strong>${prof.totalFish || 0}</strong></div>
+          <div class="profile-stat">DERROTADOS<strong>${prof.totalKills || 0}</strong></div>
+          <div class="profile-stat">RÉCORD<strong>${padScore(RC.Storage.getState().globalHi)}</strong></div>
+        `;
+      }
+
+      if (profileAvatarGrid) {
+        profileAvatarGrid.innerHTML = "";
+        const candidates = [RC.Levels.getCatSkinById("custom"), ...RC.Levels.CAT_SKINS];
+        candidates.forEach((skin) => {
+          if (skin.id !== "custom" && !RC.Levels.isCatUnlocked(skin.id)) return;
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = `avatar-mini-btn${prof.avatarId === skin.id ? " selected" : ""}`;
+          btn.title = skin.name;
+          const c = document.createElement("canvas");
+          c.width = 32;
+          c.height = 28;
+          const cctx = c.getContext("2d");
+          cctx.imageSmoothingEnabled = false;
+          cctx.drawImage(RC.Sprites.getCatSprite("run1", skin.id, 2), 0, 0);
+          btn.appendChild(c);
+          btn.addEventListener("click", () => {
+            RC.Audio.uiClick();
+            RC.Storage.setAvatarId(skin.id);
+            renderProfile();
+            refreshModeBadges();
+          });
+          profileAvatarGrid.appendChild(btn);
+        });
+      }
+
+      if (profileHistoryList) {
+        const hist = prof.history || [];
+        if (hist.length === 0) {
+          profileHistoryList.innerHTML = `<div class="history-row loss">Aún no hay partidas registradas.</div>`;
+        } else {
+          profileHistoryList.innerHTML = hist
+            .map(
+              (h) => `
+              <div class="history-row ${h.victory ? "win" : "loss"}">
+                <span>${h.victory ? "✓" : "✗"} ${h.levelName}</span>
+                <span>${padScore(h.score)} · ${h.dist}m (${h.timeStr || ""})</span>
+              </div>
+            `
+            )
+            .join("");
+        }
+      }
+    }
+
+    if (btnOpenCustomizer) {
+      btnOpenCustomizer.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        hideAllOverlays();
+        renderCustomizer();
+        screenCustomizer.classList.remove("hidden");
+      });
+    }
+    if (customCatNameInput) {
+      customCatNameInput.addEventListener("input", () => {
+        RC.Storage.setCustomCat({ name: customCatNameInput.value.trim() || "Mi Michi" });
+      });
+    }
+    if (btnUseCustomCat) {
+      btnUseCustomCat.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        selectedCatId = "custom";
+        RC.Storage.setSelectedCat("custom");
+        game.setPreviewConfig(selectedLevelId, selectedCatId);
+        showTitleScreen();
+      });
+    }
+    if (btnCloseCustomizer) {
+      btnCloseCustomizer.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        showTitleScreen();
+      });
+    }
+
+    if (btnOpenProfile) {
+      btnOpenProfile.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        hideAllOverlays();
+        renderProfile();
+        screenProfile.classList.remove("hidden");
+      });
+    }
+    if (btnSaveUsername) {
+      btnSaveUsername.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        RC.Storage.setUsername(profileUsernameInput.value);
+        renderProfile();
+        refreshModeBadges();
+      });
+    }
+    if (btnCloseProfile) {
+      btnCloseProfile.addEventListener("click", () => {
+        RC.Audio.uiClick();
+        showTitleScreen();
+      });
+    }
 
     btnDevIntro.addEventListener("click", () => {
       RC.Audio.uiClick();

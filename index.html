@@ -134,22 +134,35 @@
         <button id="btn-exit-intro" class="pixel-btn btn-secondary btn-sm" type="button">⏭ SALTAR</button>
       </div>
 
-      <!-- Screen 1: Title / Enter Screen -->
+      <!-- Screen 1: Title / Enter Screen (Intuitive Main Menu List) -->
       <section id="screen-title" class="overlay-screen">
-        <div class="modal-card modal-compact title-card">
+        <div class="modal-card title-card">
           <p class="eyebrow">8-BIT PIXEL ARCADE</p>
           <h2 class="title-logo">RUNNER<span>CAT</span></h2>
-          <p class="modal-subtitle">Corre, bucea, vuela y derrota a los jefes.</p>
           <p class="control-tip-banner">
-            💡 <strong>Tip de control:</strong> en <strong>PC</strong> usa el control clásico (<strong>Botones / Teclado</strong>); en <strong>móvil</strong> te recomendamos <strong>Toque + Botones</strong>.
+            💡 <strong>Tip:</strong> <strong>Botones/Teclado</strong> en PC · <strong>Toque + Botones</strong> en móvil.
           </p>
-          <div class="title-actions">
-            <button id="btn-enter" class="pixel-btn btn-primary btn-lg" type="button">▶ ENTRAR</button>
-            <div class="title-sub-actions">
-              <button id="btn-open-cats" class="pixel-btn btn-secondary btn-sm" type="button">🐱 ELEGIR GATO</button>
-              <button id="btn-open-controls" class="pixel-btn btn-secondary btn-sm" type="button">🎮 CONTROLES Y DEMO</button>
-              <button id="btn-help" class="pixel-btn btn-secondary btn-sm" type="button">❓ AYUDA</button>
+          <div class="main-menu-list">
+            <button id="btn-enter" class="pixel-btn btn-primary btn-lg" type="button">▶ JUGAR</button>
+            <div class="menu-list-grid">
+              <button id="btn-open-cats" class="menu-list-item" type="button">
+                <span>🐱 ELEGIR GATO</span>
+                <small id="lbl-title-cat">Tigre</small>
+              </button>
+              <button id="btn-open-customizer" class="menu-list-item" type="button">
+                <span>🎨 PERSONALIZAR GATO</span>
+                <small id="lbl-title-custom">Crear / Ropa</small>
+              </button>
+              <button id="btn-open-controls" class="menu-list-item" type="button">
+                <span>🎮 TIPO DE CONTROL</span>
+                <small id="lbl-title-ctrl">Botones</small>
+              </button>
+              <button id="btn-open-profile" class="menu-list-item" type="button">
+                <span>👤 PERFIL E HISTORIAL</span>
+                <small id="lbl-title-user">MichiPlayer</small>
+              </button>
             </div>
+            <button id="btn-help" class="pixel-btn btn-ghost btn-sm" type="button">❓ CONTROLES Y AYUDA</button>
           </div>
         </div>
       </section>
@@ -246,6 +259,79 @@
         </div>
       </section>
 
+      <!-- Screen 4B: Custom Cat Studio -->
+      <section id="screen-customizer" class="overlay-screen hidden">
+        <div class="menu-card">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">TALLER FELINO · <span id="custom-cleared-count">0</span> NIVELES SUPERADOS</p>
+              <h2>🎨 PERSONALIZAR GATO</h2>
+            </div>
+            <div class="menu-header-actions">
+              <button id="btn-use-custom-cat" class="pixel-btn btn-primary btn-sm" type="button">✓ USAR ESTE GATO</button>
+              <button id="btn-close-customizer" class="pixel-btn btn-ghost btn-sm" type="button">⬅ VOLVER</button>
+            </div>
+          </div>
+
+          <div class="customizer-layout">
+            <div class="customizer-preview-box">
+              <canvas id="custom-preview-canvas" width="64" height="56"></canvas>
+              <input id="custom-cat-name" class="pixel-input" type="text" maxlength="14" placeholder="Nombre del gato" />
+            </div>
+            <div class="customizer-options">
+              <div class="custom-group">
+                <span class="section-label">RAZA</span>
+                <div id="custom-breeds" class="custom-pills"></div>
+              </div>
+              <div class="custom-group">
+                <span class="section-label">COLOR</span>
+                <div id="custom-colors" class="custom-pills"></div>
+              </div>
+              <div class="custom-group">
+                <span class="section-label">MANCHAS / RAYAS</span>
+                <div id="custom-patterns" class="custom-pills"></div>
+              </div>
+              <div class="custom-group">
+                <span class="section-label">GORRITOS Y COSMÉTICOS</span>
+                <div id="custom-cosmetics" class="custom-pills"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 4C: User Profile & History -->
+      <section id="screen-profile" class="overlay-screen hidden">
+        <div class="menu-card">
+          <div class="menu-header">
+            <div class="menu-title-group">
+              <p class="eyebrow">ESTADÍSTICAS Y AVATAR</p>
+              <h2>👤 PERFIL DE JUGADOR</h2>
+            </div>
+            <button id="btn-close-profile" class="pixel-btn btn-primary btn-sm" type="button">✓ LISTO</button>
+          </div>
+
+          <div class="profile-layout">
+            <div class="profile-left">
+              <div class="profile-identity">
+                <canvas id="profile-avatar-canvas" width="48" height="42"></canvas>
+                <div class="profile-name-wrap">
+                  <input id="profile-username-input" class="pixel-input" type="text" maxlength="16" placeholder="Tu nombre" />
+                  <button id="btn-save-username" class="pixel-btn btn-secondary btn-sm" type="button">💾 GUARDAR</button>
+                </div>
+              </div>
+              <div id="profile-stats-grid" class="profile-stats-grid"></div>
+              <div class="section-label" style="margin-top:6px;">ELIGE TU AVATAR</div>
+              <div id="profile-avatar-grid" class="profile-avatar-grid"></div>
+            </div>
+            <div class="profile-right">
+              <div class="section-label">HISTORIAL RECIENTE</div>
+              <div id="profile-history-list" class="profile-history-list"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Screen 5: Control Type Selector + Safe Demo -->
       <section id="screen-controls" class="overlay-screen hidden">
         <div class="modal-card">
@@ -256,6 +342,10 @@
             </div>
             <button id="btn-close-controls" class="pixel-btn btn-ghost btn-sm" type="button">⬅ VOLVER</button>
           </div>
+
+          <p class="control-tip-banner" style="margin-bottom: 8px;">
+            💡 <strong>Recomendado:</strong> <strong>Botones</strong> (clásico) en PC y <strong>Toque + Botones</strong> en móvil.
+          </p>
 
           <div class="control-modes-grid">
             <button id="btn-ctrl-buttons" class="mode-choice-card ctrl-choice" type="button">

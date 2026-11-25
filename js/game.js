@@ -277,6 +277,7 @@
       this.mudAmmo = 0;
       this.cat.onVine = null;
       this.secretBossItem = null;
+      this.playSecondsAccum = 0;
       this.finishGateSpawned = false;
       this.finishGateX = null;
       this.isDemo = false;
@@ -475,8 +476,16 @@
       this.floatingTexts = [];
     }
 
+    flushPlayTime() {
+      if (this.playSecondsAccum > 0 && RC.Storage) {
+        RC.Storage.addPlayTime(this.playSecondsAccum);
+        this.playSecondsAccum = 0;
+      }
+    }
+
     pause() {
       if (this.mode !== "playing") return;
+      this.flushPlayTime();
       this.mode = "paused";
       if (this.callbacks.onPauseChange) this.callbacks.onPauseChange(true);
     }
@@ -489,6 +498,7 @@
     }
 
     returnToMenu() {
+      this.flushPlayTime();
       this.mode = "menu";
       this.resetRunState();
     }
@@ -781,6 +791,10 @@
 
     updatePlaying(rawDt) {
       this.time += rawDt;
+      this.playSecondsAccum += rawDt;
+      if (this.playSecondsAccum >= 5) {
+        this.flushPlayTime();
+      }
 
       if (this.hitstopTimer > 0) {
         this.hitstopTimer = Math.max(0, this.hitstopTimer - rawDt);
@@ -3350,9 +3364,14 @@
     }
 
     buildRunSummary(victory) {
+      this.flushPlayTime();
       const dist = Math.floor(this.distanceMeters);
       const total = dist + this.itemScore + this.killScore;
-      const recordInfo = RC.Storage.recordRun(this.level.id, total, dist, victory);
+      const recordInfo = RC.Storage.recordRun(this.level.id, total, dist, victory, {
+        fishCount: this.fishCount,
+        killCount: this.killCount,
+        levelName: this.level.shortName
+      });
       return {
         victory,
         level: this.level,
@@ -4075,10 +4094,12 @@
 
       const pose = this.getCatPose();
       const hatPalette = ["#ff4757", "#ff9f43", "#ffd32a", "#2ed573", "#48dbfb", "#5352ed", "#a55eea", "#ff6b81"];
-      const hatColor =
-        this.skinId === "winicat"
-          ? hatPalette[Math.floor(this.time * 4) % hatPalette.length]
-          : null;
+      const hasRainbowHat =
+        this.skinId === "winicat" ||
+        (this.skinId === "custom" && RC.Storage && RC.Storage.getCustomCat().cosmetic === "hat");
+      const hatColor = hasRainbowHat
+        ? hatPalette[Math.floor(this.time * 4) % hatPalette.length]
+        : null;
       const spr = RC.Sprites.getCatSprite(pose, this.skinId, 3, hatColor);
 
       // Redesigned Power-Up Visual: Golden Glow Aura (NO boxy square!)

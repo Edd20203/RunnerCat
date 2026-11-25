@@ -1041,8 +1041,225 @@ kbd {
 
 /* ---- Title, Mode, Cat & Control Screens ---- */
 .title-card {
-  max-width: 480px;
+  max-width: 560px;
   text-align: center;
+}
+
+.main-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-list-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.menu-list-item {
+  background: var(--bg-panel);
+  border: 2px solid var(--border-pixel);
+  padding: 8px 10px;
+  color: var(--text-main);
+  font-family: var(--font-pixel);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: left;
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
+}
+
+.menu-list-item:hover {
+  background: var(--bg-panel-hover);
+  border-color: var(--accent-orange);
+  transform: translateY(-1px);
+}
+
+.menu-list-item small {
+  font-size: 9px;
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.pixel-input {
+  width: 100%;
+  background: #10111c;
+  border: 2px solid var(--border-pixel);
+  color: #fff;
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 8px;
+}
+
+.customizer-layout {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.customizer-preview-box {
+  background: #131522;
+  border: 2px solid var(--border-pixel);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+#custom-preview-canvas {
+  width: 72px;
+  height: 64px;
+  image-rendering: pixelated;
+}
+
+.customizer-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 210px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.custom-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.custom-pill {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-pixel);
+  color: var(--text-main);
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 7px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.custom-pill.selected {
+  border-color: var(--accent-orange);
+  background: #2f2a3e;
+  color: var(--accent-gold);
+}
+
+.custom-pill.locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.color-dot {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #fff;
+  display: inline-block;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 10px;
+}
+
+.profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+#profile-avatar-canvas {
+  width: 48px;
+  height: 42px;
+  image-rendering: pixelated;
+  background: #131522;
+  border: 2px solid var(--accent-cyan);
+  flex-shrink: 0;
+}
+
+.profile-name-wrap {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.profile-stat {
+  background: #131522;
+  border: 1px solid var(--border-pixel);
+  padding: 4px 6px;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.profile-stat strong {
+  display: block;
+  font-size: 11px;
+  color: var(--accent-gold);
+}
+
+.profile-avatar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 70px;
+  overflow-y: auto;
+}
+
+.avatar-mini-btn {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-pixel);
+  padding: 2px;
+  cursor: pointer;
+}
+
+.avatar-mini-btn.selected {
+  border-color: var(--accent-cyan);
+  background: #233346;
+}
+
+.profile-history-list {
+  background: #131522;
+  border: 1px solid var(--border-pixel);
+  padding: 6px;
+  max-height: 195px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  padding: 3px 4px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.history-row.win {
+  color: var(--accent-green);
+}
+
+.history-row.loss {
+  color: var(--text-muted);
 }
 
 .title-logo {
