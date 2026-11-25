@@ -1411,8 +1411,13 @@
           w: 42,
           h: 30,
           scratchable: true,
+          canHop: true,
+          canSnowball: true,
+          shootTimer: 0.9 + Math.random() * 0.8,
+          hopDone: false,
+          vy: 0,
           points: 60,
-          extraSpeed: 40
+          extraSpeed: 45
         };
       } else if (type === "seal") {
         obs = {
@@ -1424,11 +1429,14 @@
           w: 42,
           h: 22,
           scratchable: true,
+          canHop: true,
+          hopDone: false,
+          vy: 0,
           points: 55,
-          extraSpeed: 75
+          extraSpeed: 85
         };
       } else if (type === "eagle") {
-        const ey = 66 + Math.random() * 88;
+        const ey = 62 + Math.random() * 78;
         obs = {
           type,
           sprite: "eagle1",
@@ -1439,8 +1447,11 @@
           w: 42,
           h: 20,
           scratchable: true,
+          canSnowball: true,
+          swoop: true,
+          shootTimer: 0.8 + Math.random() * 0.8,
           points: 60,
-          extraSpeed: 70,
+          extraSpeed: 80,
           bobPhase: Math.random() * Math.PI * 2
         };
       } else if (type === "ruins") {
@@ -1464,11 +1475,15 @@
           w: 48,
           h: 30,
           scratchable: true,
+          canHop: true,
+          hopVel: -460,
+          hopDone: false,
+          vy: 0,
           points: 65,
-          extraSpeed: 90
+          extraSpeed: 105
         };
       } else if (type === "toucan") {
-        const ty = 64 + Math.random() * 90;
+        const ty = 60 + Math.random() * 82;
         obs = {
           type,
           sprite: "toucan1",
@@ -1479,12 +1494,15 @@
           w: 36,
           h: 18,
           scratchable: true,
+          canEgg: true,
+          swoop: true,
+          shootTimer: 0.75 + Math.random() * 0.85,
           points: 60,
-          extraSpeed: 60,
+          extraSpeed: 70,
           bobPhase: Math.random() * Math.PI * 2
         };
       } else if (type === "jungleBug") {
-        const by = GROUND_Y - 58 - Math.random() * 45;
+        const by = GROUND_Y - 62 - Math.random() * 48;
         obs = {
           type,
           sprite: "jungleBug1",
@@ -1495,8 +1513,10 @@
           w: 36,
           h: 16,
           scratchable: true,
+          canVomit: true,
+          shootTimer: 0.9 + Math.random() * 0.9,
           points: 55,
-          extraSpeed: 50,
+          extraSpeed: 65,
           bobPhase: Math.random() * Math.PI * 2
         };
       } else if (type === "tombstone") {
@@ -3019,8 +3039,25 @@
       for (let i = this.obstacles.length - 1; i >= 0; i--) {
         const obs = this.obstacles[i];
         obs.x -= movePx + (obs.extraSpeed || 0) * worldDt;
-        if (obs.vy) {
+        if (obs.canHop) {
+          if (!obs.hopDone && obs.x < this.cat.x + 300 && obs.x > this.cat.x + 60) {
+            obs.hopDone = true;
+            obs.vy = obs.hopVel || -380;
+          }
+          if (obs.vy !== 0 || obs.y + obs.h < GROUND_Y) {
+            obs.vy += 1250 * worldDt;
+            obs.y += obs.vy * worldDt;
+            if (obs.y + obs.h >= GROUND_Y) {
+              obs.y = GROUND_Y - obs.h;
+              obs.vy = 0;
+            }
+          }
+        } else if (obs.vy) {
           obs.y += obs.vy * worldDt;
+        }
+
+        if (obs.swoop && obs.baseY != null && obs.x < this.cat.x + 320 && obs.x > this.cat.x) {
+          obs.baseY += (this.cat.y - obs.baseY) * Math.min(1, worldDt * 1.4);
         }
 
         if (obs.animFrames) {
@@ -3075,10 +3112,10 @@
           }
         }
 
-        if ((obs.canDrop || obs.canVomit || obs.canEgg) && obs.x < WIDTH - 30 && obs.x > this.cat.x + 40) {
+        if ((obs.canDrop || obs.canVomit || obs.canEgg || obs.canSnowball) && obs.x < WIDTH - 30 && obs.x > this.cat.x + 40) {
           obs.shootTimer -= worldDt;
           if (obs.shootTimer <= 0) {
-            obs.shootTimer = 1.2 + Math.random() * 0.9;
+            obs.shootTimer = 1.15 + Math.random() * 0.85;
             if (obs.canVomit) {
               this.spookyShots.push({
                 sprite: "vomitGlob",
@@ -3086,8 +3123,18 @@
                 y: obs.y + 8,
                 w: 24,
                 h: 12,
-                vx: -(this.speed * 0.65 + 140),
+                vx: -(this.speed * 0.65 + 150),
                 vy: 15
+              });
+            } else if (obs.canSnowball) {
+              this.spookyShots.push({
+                sprite: "snowball",
+                x: obs.x - 10,
+                y: obs.y + 6,
+                w: 24,
+                h: 18,
+                vx: -(this.speed * 0.6 + 160),
+                vy: obs.swoop ? 120 : 10
               });
             } else {
               this.spookyShots.push({

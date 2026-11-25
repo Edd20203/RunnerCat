@@ -1412,31 +1412,31 @@
       ]
     },
     polarBear1: {
-      palette: { D: "#2f3640", W: "#ffffff", S: "#dfe4ea", E: "#1e272e" },
+      palette: { D: "#2f3640", W: "#ffffff", S: "#dfe4ea", E: "#1e272e", N: "#1e272e" },
       matrix: [
-        "..DD....DD....",
-        ".DWWDDDDWWD...",
-        "DWWWWWWWWWWWD.",
-        "DWWWEWWWWWWWD.",
-        "DWWWWWWWWWWWD.",
-        "DWWWSSSSSSWWD.",
-        ".DWWWWWWWWWD..",
-        ".DWW.DWW.DWW..",
-        ".DDD.DDD.DDD.."
+        "..DD..DD......",
+        ".DWWDDWWD.....",
+        "NWWWWWWWWDDDD.",
+        "DWEWWWWWWWWWW.",
+        "DWWWWWWWWWWWWD",
+        ".DWWWSSSSSSWWD",
+        "..DWWWWWWWWWD.",
+        "..DWW.DWW.DWW.",
+        "..DDD.DDD.DDD."
       ]
     },
     polarBear2: {
-      palette: { D: "#2f3640", W: "#ffffff", S: "#dfe4ea", E: "#1e272e" },
+      palette: { D: "#2f3640", W: "#ffffff", S: "#dfe4ea", E: "#1e272e", N: "#1e272e" },
       matrix: [
-        "..DD....DD....",
-        ".DWWDDDDWWD...",
-        "DWWWWWWWWWWWD.",
-        "DWWWEWWWWWWWD.",
-        "DWWWWWWWWWWWD.",
-        "DWWWSSSSSSWWD.",
-        ".DWWWWWWWWWD..",
-        "..DWW.DWW.DW..",
-        "..DDD.DDD.DD.."
+        "..DD..DD......",
+        ".DWWDDWWD.....",
+        "NWWWWWWWWDDDD.",
+        "DWEWWWWWWWWWW.",
+        "DWWWWWWWWWWWWD",
+        ".DWWWSSSSSSWWD",
+        "..DWWWWWWWWWD.",
+        "...DWW.DWW.DW.",
+        "...DDD.DDD.DD."
       ]
     },
     seal1: {
@@ -1557,28 +1557,28 @@
     jaguar1: {
       palette: { D: "#2c1d18", Y: "#f39c12", L: "#ffeaa7", E: "#2ed573" },
       matrix: [
-        ".........DD..DD.",
-        ".DD.....DYYDDYYD",
-        "D..D...DYYYYYYYD",
-        ".D..DDDDYYEYEYYD",
-        "..DDYYYYYYYYYYLD",
-        "..DYYDYYDYYDYYD.",
-        "..DYYDYYDYYDYY..",
-        ".DYY......DYY...",
-        ".DD........DD..."
+        ".DD..DD.........",
+        "DYYDDYYD.....DD.",
+        "DYYYYYYYD...D..D",
+        "DYEYEYYDDDD..D..",
+        "DLYYYYYYYYYYDD..",
+        ".DYYDYYDYYDYYD..",
+        "..YYDYYDYYDYYD..",
+        "...YYD......YYD.",
+        "...DD........DD."
       ]
     },
     jaguar2: {
       palette: { D: "#2c1d18", Y: "#f39c12", L: "#ffeaa7", E: "#2ed573" },
       matrix: [
-        ".........DD..DD.",
-        "........DYYDDYYD",
-        "..DD....DYYYYYYD",
-        ".D..DDDDYYEYEYYD",
-        "..DDYYYYYYYYYYLD",
-        "..DYYDYYDYYDYYD.",
-        "...DYYDYYDYYDY..",
-        "...DYY....DYY...",
+        ".DD..DD.........",
+        "DYYDDYYD........",
+        "DYYYYYYD....DD..",
+        "DYEYEYYDDDD..D..",
+        "DLYYYYYYYYYYDD..",
+        ".DYYDYYDYYDYYD..",
+        "..YDYDYYDYYDY...",
+        "...YYD....YYD...",
         "...DD......DD..."
       ]
     },
