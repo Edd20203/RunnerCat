@@ -1633,6 +1633,53 @@
       ]
     },
     {
+      id: "snow4",
+      number: 29,
+      mode: "snow",
+      isSecret: true,
+      thumbSprite: "iceBlock",
+      name: "Avalancha Ártica",
+      shortName: "N29: NIEVE IV",
+      difficulty: "Extremo",
+      targetDistance: 1550,
+      baseSpeed: 475,
+      maxSpeed: 810,
+      accelPerSec: 10.5,
+      spawnScale: 0.6,
+      dayNightCycleDist: 190,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #192a56 0%, #48dbfb 50%, #ff4757 100%)",
+      description: "Antesala helada: ráfagas extremas de osos, focas, águilas, hielo y huecos.",
+      day: {
+        skyTop: "#273c75",
+        skyBottom: "#74b9ff",
+        cloud: "#ffffff",
+        farBg: "#192a56",
+        nearBg: "#2c3e50",
+        groundTop: "#dff9fb",
+        groundFill: "#81ecec",
+        groundDetail: "#00a8ff",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#02050d",
+        skyBottom: "#0a152e",
+        cloud: "#172b59",
+        farBg: "#050b1a",
+        nearBg: "#0b1633",
+        groundTop: "#48dbfb",
+        groundFill: "#0b1424",
+        groundDetail: "#ff4757",
+        sunMoon: "#ffffff"
+      },
+      obstacles: [
+        { type: "iceBlock", weight: 24 },
+        { type: "polarBear", weight: 28 },
+        { type: "seal", weight: 24 },
+        { type: "eagle", weight: 24 }
+      ]
+    },
+    {
       id: "snowBoss",
       number: 29,
       mode: "snowBoss",
@@ -1815,6 +1862,53 @@
         { type: "jaguar", weight: 28 },
         { type: "toucan", weight: 25 },
         { type: "jungleBug", weight: 25 }
+      ]
+    },
+    {
+      id: "jungle4",
+      number: 34,
+      mode: "jungle",
+      isSecret: true,
+      thumbSprite: "jungleBug1",
+      name: "Corazón de la Selva",
+      shortName: "N34: SELVA IV",
+      difficulty: "Extremo",
+      targetDistance: 1600,
+      baseSpeed: 475,
+      maxSpeed: 810,
+      accelPerSec: 10.5,
+      spawnScale: 0.6,
+      dayNightCycleDist: 190,
+      bgStyle: "park",
+      previewGradient: "linear-gradient(90deg, #0b3b1e 0%, #a3cb38 50%, #ff4757 100%)",
+      description: "Prueba máxima de la selva: pantanos frecuentes, lianas y jaguares veloces.",
+      day: {
+        skyTop: "#20bf6b",
+        skyBottom: "#0b3b1e",
+        cloud: "#dff9fb",
+        farBg: "#104a26",
+        nearBg: "#092b16",
+        groundTop: "#a3cb38",
+        groundFill: "#3d2c1e",
+        groundDetail: "#2ed573",
+        sunMoon: "#ffd32a"
+      },
+      night: {
+        skyTop: "#020804",
+        skyBottom: "#081c10",
+        cloud: "#123821",
+        farBg: "#041209",
+        nearBg: "#092112",
+        groundTop: "#7bed9f",
+        groundFill: "#0d120e",
+        groundDetail: "#ff4757",
+        sunMoon: "#ff6b81"
+      },
+      obstacles: [
+        { type: "ruins", weight: 22 },
+        { type: "jaguar", weight: 30 },
+        { type: "toucan", weight: 24 },
+        { type: "jungleBug", weight: 24 }
       ]
     },
     {

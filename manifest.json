@@ -1,0 +1,19 @@
+{
+  "name": "RunnerCat — Retro Pixel Arcade",
+  "short_name": "RunnerCat",
+  "description": "Juego arcade retro de gatitos por ciudades, océanos, cielos, Transilvania, espacio y zonas ocultas.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#13131d",
+  "theme_color": "#13131d",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

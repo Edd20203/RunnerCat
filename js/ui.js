@@ -457,7 +457,7 @@
       levelsEyebrow.textContent = isStory ? "MODO HISTORIA" : "MODO ARCADE INFINITO";
       levelsTitle.textContent = isStory
         ? secretOn
-          ? "7 ZONAS · 33 NIVELES"
+          ? "7 ZONAS · 35 NIVELES"
           : "5 ZONAS · 25 NIVELES"
         : "ELIGE TU ESCENARIO INFINITO";
       btnDevUnlock.classList.toggle("hidden", !isStory);
@@ -1157,5 +1157,89 @@
     // Initial UI setup
     refreshSoundBtn();
     showTitleScreen();
+
+    // ---- PWA Install & Update Flow ----
+    const btnInstallPwa = document.getElementById("btn-install-pwa");
+    const pwaUpdateToast = document.getElementById("pwa-update-toast");
+    const btnPwaUpdate = document.getElementById("btn-pwa-update");
+
+    let deferredInstallPrompt = null;
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.matchMedia("(display-mode: fullscreen)").matches ||
+      window.navigator.standalone === true;
+    const isIos = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+    if (isIos && !isStandalone && btnInstallPwa) {
+      btnInstallPwa.classList.remove("hidden");
+    }
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      if (btnInstallPwa && !isStandalone) {
+        btnInstallPwa.classList.remove("hidden");
+      }
+    });
+
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      if (btnInstallPwa) btnInstallPwa.classList.add("hidden");
+    });
+
+    if (btnInstallPwa) {
+      btnInstallPwa.addEventListener("click", async () => {
+        RC.Audio.uiClick();
+        if (deferredInstallPrompt) {
+          deferredInstallPrompt.prompt();
+          try {
+            await deferredInstallPrompt.userChoice;
+          } catch (_err) {}
+          deferredInstallPrompt = null;
+          btnInstallPwa.classList.add("hidden");
+        } else if (isIos) {
+          window.alert("Para instalar en iPhone/iPad:\n1. Toca el botón Compartir (⬆) en Safari.\n2. Elige 'Agregar a pantalla de inicio'.");
+        }
+      });
+    }
+
+    if ("serviceWorker" in navigator) {
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+      });
+
+      navigator.serviceWorker
+        .register("./sw.js")
+        .then((reg) => {
+          const promptUpdate = (worker) => {
+            if (!worker || !pwaUpdateToast || !btnPwaUpdate) return;
+            pwaUpdateToast.classList.remove("hidden");
+            btnPwaUpdate.onclick = () => {
+              RC.Audio.uiClick();
+              worker.postMessage({ type: "SKIP_WAITING" });
+            };
+          };
+
+          if (reg.waiting) {
+            promptUpdate(reg.waiting);
+          }
+
+          reg.addEventListener("updatefound", () => {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener("statechange", () => {
+              if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+                promptUpdate(newWorker);
+              }
+            });
+          });
+        })
+        .catch(() => {
+          // Ignore SW registration error on file:// local preview
+        });
+    }
   });
 })(window.RunnerCat = window.RunnerCat || {});
