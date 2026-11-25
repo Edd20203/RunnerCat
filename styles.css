@@ -617,14 +617,6 @@ html, body {
   border-style: dashed;
 }
 
-.title-credits-footer {
-  margin-top: 8px;
-  font-size: 9px;
-  color: var(--text-muted);
-  line-height: 1.35;
-  text-align: center;
-}
-
 .credits-list {
   display: flex;
   flex-direction: column;
